@@ -1,73 +1,96 @@
-# React + TypeScript + Vite
+# PlanMyJob
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Organisez votre recherche d'emploi comme un vrai projet.**
 
-Currently, two official plugins are available:
+PlanMyJob est une application React / TypeScript conçue pour structurer et optimiser la recherche d'emploi. Tableau Kanban pour le suivi des candidatures, semainier pour la planification, système de tâches inspiré des outils de gestion de projet et dashboard de progression. Objectif : une architecture front-end propre, une gestion d'état claire et une expérience utilisateur orientée productivité.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Fonctionnalités
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Cœur (MVP)
 
-## Expanding the ESLint configuration
+- **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes
+- **Kanban** — Colonnes (À postuler → CV envoyé → Entretiens → Refus / Offre), drag & drop à venir
+- **Tâches** — Todo liées aux candidatures (CV, lettre, relance, prépa entretien)
+- **Planning** — Semainier : entretiens, relances, deadlines
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Tableau de bord
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Stats : candidatures envoyées, en cours, entretiens
+- Visualisations et objectifs (à venir)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Avancé (prévu)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Objectifs hebdo, streak, badges
+- Rappels et notifications
+- Gestion des documents (CV, lettres)
+- Recherche par entreprise, techno, statut
+- Dark mode, auth optionnelle
+
+---
+
+## Stack
+
+- **React 19** + **TypeScript**
+- **Vite 7**
+- **React Router** (pages : dashboard, candidatures, kanban, planning, tâches, paramètres)
+
+---
+
+## Structure du projet
+
+Chaque **page** et chaque **composant** a son propre dossier avec un fichier `.tsx` et un fichier `.css` :
+
+```
+src/
+├── types/           # Modèles (Candidature, Statut, Priorite)
+├── components/      # Layout, Sidebar, etc.
+│   ├── Layout/
+│   └── Sidebar/
+└── pages/
+    ├── Dashboard/
+    ├── Candidatures/
+    ├── CandidatureDetail/
+    ├── Kanban/
+    ├── Planning/
+    ├── Taches/
+    └── Settings/
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Lancer le projet
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Installer les dépendances
+npm install
+
+# Démarrer en développement
+npm run dev
+
+# Build production
+npm run build
+
+# Prévisualiser le build
+npm preview
 ```
+
+---
+
+## Routes
+
+| Route               | Page                          |
+| ------------------- | ----------------------------- |
+| `/`                 | Redirection vers `/dashboard` |
+| `/dashboard`        | Tableau de bord               |
+| `/candidatures`     | Liste des candidatures        |
+| `/candidatures/:id` | Détail d'une candidature      |
+| `/kanban`           | Vue Kanban                    |
+| `/planning`         | Semainier                     |
+| `/taches`           | Tâches                        |
+| `/settings`         | Paramètres                    |
+
+---
+
+_PlanMyJob — Planifiez, postulez, progressez._
