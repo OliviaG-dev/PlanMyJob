@@ -1,0 +1,21 @@
+.planning {
+  padding: 1.5rem;
+}
+
+.planning__intro {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.planning__week {
+  min-height: 300px;
+  background: var(--surface);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.planning__empty {
+  color: var(--text-muted);
+  font-style: italic;
+}

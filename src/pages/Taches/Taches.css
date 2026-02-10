@@ -1,0 +1,17 @@
+.taches {
+  padding: 1.5rem;
+}
+
+.taches__intro {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.taches__list {
+  min-height: 200px;
+}
+
+.taches__empty {
+  color: var(--text-muted);
+  font-style: italic;
+}

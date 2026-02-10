@@ -1,0 +1,32 @@
+.settings {
+  padding: 1.5rem;
+}
+
+.settings__intro {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.settings__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settings__block {
+  background: var(--surface);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.settings__block h2 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.settings__block p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}

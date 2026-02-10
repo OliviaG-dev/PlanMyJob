@@ -1,0 +1,17 @@
+.candidatures {
+  padding: 1.5rem;
+}
+
+.candidatures__intro {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.candidatures__list {
+  min-height: 200px;
+}
+
+.candidatures__empty {
+  color: var(--text-muted);
+  font-style: italic;
+}

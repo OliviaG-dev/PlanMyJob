@@ -1,0 +1,13 @@
+.candidature-detail {
+  padding: 1.5rem;
+}
+
+.candidature-detail__back {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--primary);
+}
+
+.candidature-detail__id {
+  color: var(--text-muted);
+}

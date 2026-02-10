@@ -1,0 +1,34 @@
+.kanban {
+  padding: 1.5rem;
+  overflow-x: auto;
+}
+
+.kanban__intro {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.kanban__board {
+  display: flex;
+  gap: 1rem;
+  min-height: 400px;
+}
+
+.kanban__column {
+  flex: 0 0 260px;
+  background: var(--surface);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+}
+
+.kanban__column-title {
+  font-size: 0.95rem;
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.kanban__cards {
+  min-height: 120px;
+}
