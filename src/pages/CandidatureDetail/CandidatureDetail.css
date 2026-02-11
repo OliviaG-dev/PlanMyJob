@@ -1,13 +1,32 @@
 .candidature-detail {
-  padding: 1.5rem;
+  padding: 2rem 1.75rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.candidature-detail h1 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  margin-bottom: 0.35rem;
 }
 
 .candidature-detail__back {
-  display: inline-block;
-  margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
   color: var(--primary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+.candidature-detail__back:hover {
+  color: var(--primary-soft);
 }
 
 .candidature-detail__id {
   color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0;
 }
