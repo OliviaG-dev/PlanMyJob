@@ -35,6 +35,9 @@
 }
 
 .sidebar__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: 1.4rem;
@@ -47,6 +50,12 @@
 .sidebar__logo:hover {
   color: var(--primary-soft);
   text-decoration: none;
+}
+
+.sidebar__logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
 }
 
 .sidebar__nav {

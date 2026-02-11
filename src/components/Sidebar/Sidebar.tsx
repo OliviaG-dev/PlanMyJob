@@ -38,7 +38,8 @@ function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       >
         <div className="sidebar__brand">
           <NavLink to="/dashboard" className="sidebar__logo" onClick={onClose}>
-            PlanMyJob
+            <img src="/logo.png" alt="" className="sidebar__logo-img" />
+            <span>PlanMyJob</span>
           </NavLink>
         </div>
         <nav className="sidebar__nav">
