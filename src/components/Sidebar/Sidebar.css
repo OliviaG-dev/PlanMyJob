@@ -114,6 +114,24 @@
   background: var(--hover);
 }
 
+.sidebar__signout {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sidebar__signout:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
 /* ----- Tablette (max 1024px) ----- */
 @media (max-width: 1024px) {
   .sidebar__overlay {

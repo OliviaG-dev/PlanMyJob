@@ -1,8 +1,10 @@
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
 import "./Settings.css";
 
 function Settings() {
   const { theme, setTheme } = useTheme();
+  const { user, signOut } = useAuth();
 
   return (
     <main className="settings">
@@ -11,6 +13,17 @@ function Settings() {
         Préférences et configuration de PlanMyJob.
       </p>
       <section className="settings__sections">
+        <div className="settings__block">
+          <h2>Compte</h2>
+          <p className="settings__block-desc">{user?.email}</p>
+          <button
+            type="button"
+            className="settings__signout"
+            onClick={() => signOut()}
+          >
+            Déconnexion
+          </button>
+        </div>
         <div className="settings__block">
           <h2>Apparence</h2>
           <p className="settings__block-desc">

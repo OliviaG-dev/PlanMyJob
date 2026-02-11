@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
 import "./Sidebar.css";
 
 type SidebarProps = {
@@ -9,6 +10,7 @@ type SidebarProps = {
 
 function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
+  const { signOut } = useAuth();
   const links = [
     { to: "/dashboard", label: "Tableau de bord" },
     { to: "/candidatures", label: "Candidatures" },
@@ -73,6 +75,13 @@ function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             }
           >
             {theme === "light" ? "🌙" : "☀️"}
+          </button>
+          <button
+            type="button"
+            className="sidebar__signout"
+            onClick={() => signOut()}
+          >
+            Déconnexion
           </button>
         </div>
       </aside>
