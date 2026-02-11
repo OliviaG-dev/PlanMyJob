@@ -35,6 +35,7 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 - **React 19** + **TypeScript**
 - **Vite 7**
 - **React Router** (pages : dashboard, candidatures, kanban, planning, tâches, paramètres)
+- **Supabase** (persistance des données)
 
 ---
 
@@ -60,11 +61,21 @@ src/
 
 ---
 
+## Supabase
+
+1. Créez un projet sur [app.supabase.com](https://app.supabase.com).
+2. Copiez `.env.example` vers `.env` et renseignez `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` (Settings > API dans le dashboard).
+3. Le client est disponible via `import { supabase } from "@/lib/supabase"` (ou `src/lib/supabase`).
+
+---
+
 ## Lancer le projet
 
 ```bash
 # Installer les dépendances
 npm install
+
+# Créer un fichier .env à partir de .env.example (pour Supabase)
 
 # Démarrer en développement
 npm run dev
