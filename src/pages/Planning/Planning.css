@@ -1,21 +1,33 @@
 .planning {
-  padding: 1.5rem;
+  padding: 2rem 1.75rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.planning h1 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  margin-bottom: 0.35rem;
 }
 
 .planning__intro {
   color: var(--text-muted);
-  margin-bottom: 1.5rem;
+  font-size: 0.98rem;
+  margin-bottom: 1.75rem;
 }
 
 .planning__week {
-  min-height: 300px;
+  min-height: 320px;
   background: var(--surface);
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .planning__empty {
   color: var(--text-muted);
   font-style: italic;
+  font-size: 0.95rem;
+  margin: 0;
 }

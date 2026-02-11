@@ -1,32 +1,106 @@
 .settings {
-  padding: 1.5rem;
+  padding: 2rem 1.75rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.settings h1 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  margin-bottom: 0.35rem;
 }
 
 .settings__intro {
   color: var(--text-muted);
-  margin-bottom: 1.5rem;
+  font-size: 0.98rem;
+  margin-bottom: 1.75rem;
 }
 
 .settings__sections {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .settings__block {
   background: var(--surface);
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  padding: 1.35rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s ease;
+}
+
+.settings__block:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .settings__block h2 {
-  font-size: 1.1rem;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 500;
   margin: 0 0 0.5rem 0;
+  color: var(--text);
 }
 
 .settings__block p {
   margin: 0;
   color: var(--text-muted);
   font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.settings__block-desc {
+  margin-bottom: 1rem !important;
+}
+
+.settings__theme-toggle {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.settings__theme-btn {
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.settings__theme-btn:hover {
+  background: var(--hover);
+  color: var(--text);
+  border-color: var(--border-light);
+}
+
+.settings__theme-btn--active {
+  background: var(--primary-pale);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.settings__theme-btn--active:hover {
+  background: var(--primary-pale);
+  color: var(--primary);
+  opacity: 0.95;
+}
+
+.settings__signout {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.settings__signout:hover {
+  background: var(--hover);
+  color: var(--text);
 }
