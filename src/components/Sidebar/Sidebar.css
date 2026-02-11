@@ -24,6 +24,8 @@
   padding: 1.25rem 0;
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar__brand {
@@ -51,6 +53,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  flex: 1;
 }
 
 .sidebar__link {
@@ -78,6 +81,28 @@
   background: var(--primary-pale);
   color: var(--primary);
   opacity: 1;
+}
+
+.sidebar__theme {
+  margin-top: auto;
+  padding: 1rem 1.25rem 0;
+  border-top: 1px solid var(--border-light);
+}
+
+.sidebar__theme-btn {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: var(--background-subtle);
+  color: var(--text);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sidebar__theme-btn:hover {
+  background: var(--hover);
 }
 
 /* ----- Tablette (max 1024px) ----- */

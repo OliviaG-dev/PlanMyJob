@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useTheme } from "../../contexts/ThemeContext";
 import "./Sidebar.css";
 
 type SidebarProps = {
@@ -7,6 +8,7 @@ type SidebarProps = {
 };
 
 function Sidebar({ isOpen = true, onClose }: SidebarProps) {
+  const { theme, toggleTheme } = useTheme();
   const links = [
     { to: "/dashboard", label: "Tableau de bord" },
     { to: "/candidatures", label: "Candidatures" },
@@ -53,6 +55,25 @@ function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             </NavLink>
           ))}
         </nav>
+        <div className="sidebar__theme">
+          <button
+            type="button"
+            className="sidebar__theme-btn"
+            onClick={toggleTheme}
+            title={
+              theme === "light"
+                ? "Passer en thème sombre"
+                : "Passer en thème clair"
+            }
+            aria-label={
+              theme === "light"
+                ? "Passer en thème sombre"
+                : "Passer en thème clair"
+            }
+          >
+            {theme === "light" ? "🌙" : "☀️"}
+          </button>
+        </div>
       </aside>
     </>
   );
