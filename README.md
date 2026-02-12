@@ -2,6 +2,13 @@
 
 **Organisez votre recherche d'emploi comme un vrai projet.**
 
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite)
+![React Router](https://img.shields.io/badge/React_Router-7-CA4245?style=flat-square&logo=react-router)
+![Supabase](https://img.shields.io/badge/Supabase-2.x-3ECF8E?style=flat-square&logo=supabase)
+![ESLint](https://img.shields.io/badge/ESLint-9-E34F26?style=flat-square&logo=eslint)
+
 PlanMyJob est une application React / TypeScript conçue pour structurer et optimiser la recherche d'emploi. Tableau Kanban pour le suivi des candidatures, semainier pour la planification, système de tâches inspiré des outils de gestion de projet et dashboard de progression. Objectif : une architecture front-end propre, une gestion d'état claire et une expérience utilisateur orientée productivité.
 
 ---
@@ -34,8 +41,8 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 - **React 19** + **TypeScript**
 - **Vite 7**
-- **React Router** (pages : dashboard, candidatures, kanban, planning, tâches, paramètres)
-- **Supabase** (persistance des données)
+- **React Router** (pages : dashboard, candidatures, kanban, planning, tâches, paramètres, login, inscription)
+- **Supabase** (persistance des données, authentification)
 
 ---
 
@@ -46,6 +53,8 @@ Chaque **page** et chaque **composant** a son propre dossier avec un fichier `.t
 ```
 src/
 ├── types/           # Modèles (Candidature, Statut, Priorite)
+├── lib/             # Supabase client
+├── contexts/        # AuthContext, ThemeContext
 ├── components/      # Layout, Sidebar, etc.
 │   ├── Layout/
 │   └── Sidebar/
@@ -56,7 +65,9 @@ src/
     ├── Kanban/
     ├── Planning/
     ├── Taches/
-    └── Settings/
+    ├── Settings/
+    ├── Login/
+    └── Signup/
 ```
 
 ---
@@ -101,6 +112,8 @@ npm preview
 | `/planning`         | Semainier                     |
 | `/taches`           | Tâches                        |
 | `/settings`         | Paramètres                    |
+| `/login`            | Connexion                     |
+| `/signup`           | Inscription                   |
 
 ---
 
