@@ -4,6 +4,15 @@
   margin: 0 auto;
 }
 
+.candidatures__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
 .candidatures h1 {
   font-family: var(--font-heading);
   font-weight: 500;
@@ -13,7 +22,26 @@
 .candidatures__intro {
   color: var(--text-muted);
   font-size: 0.98rem;
-  margin-bottom: 1.75rem;
+  margin: 0;
+}
+
+.candidatures__add-btn {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--surface) !important;
+  padding: 0.6rem 1.15rem;
+  font-weight: 500;
+}
+
+.candidatures__add-btn:hover {
+  background: var(--primary-soft) !important;
+  border-color: var(--primary-soft) !important;
+  color: var(--surface) !important;
+}
+
+.candidatures__add-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .candidatures__list {
@@ -30,4 +58,48 @@
   font-style: italic;
   font-size: 0.95rem;
   margin: 0;
+}
+
+.candidatures__error {
+  color: var(--primary);
+  font-size: 0.95rem;
+  margin: 0 0 1rem 0;
+}
+
+.candidatures__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.candidatures__item {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.candidatures__item:last-child {
+  border-bottom: none;
+}
+
+.candidatures__link {
+  display: block;
+  padding: 0.85rem 0;
+  color: var(--text);
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.candidatures__link:hover {
+  background: var(--hover);
+}
+
+.candidatures__item-entreprise {
+  font-weight: 500;
+  display: block;
+}
+
+.candidatures__item-poste {
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
