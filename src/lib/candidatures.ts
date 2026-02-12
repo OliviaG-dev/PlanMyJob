@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { Candidature } from "../types/candidature";
+import type { Candidature, Statut, StatutSuivi } from "../types/candidature";
 import type { AddCandidatureFormData } from "../pages/Candidatures/AddCandidatureModal";
 
 type CandidatureRow = {
@@ -40,6 +40,7 @@ function rowToCandidature(row: CandidatureRow): Candidature {
     source: (row.source as Candidature["source"]) ?? undefined,
     notePersonnelle: row.note_personnelle ?? undefined,
     salaireOuFourchette: row.salaire_ou_fourchette ?? undefined,
+    createdAt: row.created_at,
   };
 }
 
@@ -81,6 +82,38 @@ export async function insertCandidature(
   const { data, error } = await supabase
     .from("candidatures")
     .insert(row)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return rowToCandidature(data as CandidatureRow);
+}
+
+export type UpdateCandidaturePayload = {
+  statut?: Statut;
+  statutSuivi?: StatutSuivi;
+};
+
+export async function updateCandidature(
+  userId: string,
+  candidatureId: string,
+  payload: UpdateCandidaturePayload
+): Promise<Candidature> {
+  const row: Record<string, unknown> = {};
+  if (payload.statut !== undefined) row.statut = payload.statut;
+  if (payload.statutSuivi !== undefined) row.statut_suivi = payload.statutSuivi;
+  if (Object.keys(row).length === 0) {
+    const current = await fetchCandidatures(userId);
+    const found = current.find((c) => c.id === candidatureId);
+    if (!found) throw new Error("Candidature introuvable");
+    return found;
+  }
+
+  const { data, error } = await supabase
+    .from("candidatures")
+    .update(row)
+    .eq("id", candidatureId)
+    .eq("user_id", userId)
     .select()
     .single();
 

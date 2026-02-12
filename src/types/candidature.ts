@@ -45,4 +45,5 @@ export type Candidature = {
   source?: SourceCandidature;
   notePersonnelle?: number; // 1–5
   salaireOuFourchette?: string;
+  createdAt?: string; // ISO date from DB
 };

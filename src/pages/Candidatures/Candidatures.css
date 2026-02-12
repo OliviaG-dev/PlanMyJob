@@ -33,6 +33,12 @@
   font-weight: 500;
 }
 
+.candidatures__add-btn-plus {
+  margin-right: 0.35em;
+  font-weight: 700;
+  font-size: 1.25em;
+}
+
 .candidatures__add-btn:hover {
   background: var(--primary-soft) !important;
   border-color: var(--primary-soft) !important;
@@ -44,13 +50,48 @@
   cursor: not-allowed;
 }
 
+.candidatures__list-wrapper {
+  margin-bottom: 1.75rem;
+}
+
+.candidatures__list-wrapper:last-child {
+  margin-bottom: 0;
+}
+
+.candidatures__list-title {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0 0 0.5rem 0;
+  color: var(--text);
+}
+
 .candidatures__list {
-  min-height: 220px;
-  background: var(--surface);
+  min-height: 120px;
+  background: var(--background-subtle);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: var(--shadow-sm);
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.candidatures__list--drag-over {
+  background: var(--primary-pale);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-pale);
+}
+
+.candidatures__item--dragging {
+  opacity: 0.6;
+}
+
+.candidatures__item {
+  cursor: grab;
+}
+
+.candidatures__item:active {
+  cursor: grabbing;
 }
 
 .candidatures__empty {
@@ -70,36 +111,131 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .candidatures__item {
   margin: 0;
   padding: 0;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.candidatures__item:last-child {
-  border-bottom: none;
 }
 
 .candidatures__link {
-  display: block;
-  padding: 0.85rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 1rem 1.25rem;
   color: var(--text);
   text-decoration: none;
-  transition: background 0.2s ease;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .candidatures__link:hover {
-  background: var(--hover);
+  background: var(--background-subtle);
+  border-color: var(--primary-pale);
+  box-shadow: var(--shadow-sm);
+}
+
+.candidatures__link--terminee {
+  background: var(--surface);
+  color: var(--text-muted);
+  font-style: italic;
+  border-color: var(--border-light);
+}
+
+.candidatures__link--terminee .candidatures__item-entreprise,
+.candidatures__link--terminee .candidatures__item-poste,
+.candidatures__link--terminee .candidatures__item-date,
+.candidatures__link--terminee .candidatures__item-kanban {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.candidatures__link--terminee .candidatures__item-entreprise {
+  font-weight: 450;
+}
+
+.candidatures__link--terminee:hover {
+  background: var(--background-subtle);
+}
+
+.candidatures__link--refus {
+  background: var(--background-subtle);
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.candidatures__link--refus .candidatures__item-entreprise,
+.candidatures__link--refus .candidatures__item-poste,
+.candidatures__link--refus .candidatures__item-date,
+.candidatures__link--refus .candidatures__item-kanban {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.candidatures__link--refus:hover {
+  background: var(--border-light);
+}
+
+.candidatures__link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.candidatures__link-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.candidatures__link-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.candidatures__link-right-bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
 }
 
 .candidatures__item-entreprise {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
   font-weight: 500;
+  letter-spacing: 0.02em;
   display: block;
+  color: var(--primary);
 }
 
 .candidatures__item-poste {
   font-size: 0.9rem;
   color: var(--text-muted);
+  margin-top: 0.2rem;
+  display: block;
+}
+
+.candidatures__item-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.candidatures__item-kanban {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: var(--primary-pale);
+  color: var(--primary);
 }
