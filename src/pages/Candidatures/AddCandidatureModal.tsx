@@ -86,16 +86,46 @@ type AddCandidatureModalProps = {
   onClose: () => void;
   onSubmit: (data: AddCandidatureFormData) => void;
   isSubmitting?: boolean;
+  /** En mode édition : données initiales et libellé du bouton */
+  mode?: "add" | "edit";
+  initialData?: AddCandidatureFormData | null;
 };
+
+/** Convertit une candidature (ou objet partiel) en données du formulaire pour le modal d’édition. */
+function candidatureToFormData(
+  c: Partial<AddCandidatureFormData> & { dateCandidature?: string }
+): AddCandidatureFormData {
+  return {
+    entreprise: c.entreprise ?? "",
+    poste: c.poste ?? "",
+    lienOffre: c.lienOffre ?? "",
+    localisation: c.localisation ?? "",
+    typeContrat: (c.typeContrat as TypeContrat) ?? "cdi",
+    teletravail: (c.teletravail as Teletravail) ?? "inconnu",
+    dateCandidature:
+      c.dateCandidature?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
+    source: (c.source as SourceCandidature) ?? "linkedin",
+    notePersonnelle: c.notePersonnelle != null ? c.notePersonnelle : 3,
+    statutSuivi: (c.statutSuivi as StatutSuivi) ?? "en_cours",
+    statut: (c.statut as Statut) ?? "a_postuler",
+    salaireOuFourchette: c.salaireOuFourchette ?? "",
+    notes: c.notes ?? "",
+  };
+}
 
 function AddCandidatureModal({
   isOpen,
   onClose,
   onSubmit,
   isSubmitting = false,
+  mode = "add",
+  initialData = null,
 }: AddCandidatureModalProps) {
-  const [formData, setFormData] =
-    useState<AddCandidatureFormData>(defaultFormData);
+  const [formData, setFormData] = useState<AddCandidatureFormData>(() =>
+    mode === "edit" && initialData
+      ? candidatureToFormData(initialData)
+      : defaultFormData
+  );
 
   function update<K extends keyof AddCandidatureFormData>(
     key: K,
@@ -107,7 +137,7 @@ function AddCandidatureModal({
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     onSubmit(formData);
-    setFormData(defaultFormData);
+    if (mode === "add") setFormData(defaultFormData);
     onClose();
   }
 
@@ -132,7 +162,9 @@ function AddCandidatureModal({
       >
         <div className="add-candidature-modal__header">
           <h2 id="modal-title" className="add-candidature-modal__title">
-            Nouvelle candidature
+            {mode === "edit"
+              ? "Modifier la candidature"
+              : "Nouvelle candidature"}
           </h2>
           <button
             type="button"
@@ -347,7 +379,13 @@ function AddCandidatureModal({
               className="add-candidature-form__btn add-candidature-form__btn--primary"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Ajout…" : "Ajouter la candidature"}
+              {isSubmitting
+                ? mode === "edit"
+                  ? "Enregistrement…"
+                  : "Ajout…"
+                : mode === "edit"
+                ? "Enregistrer"
+                : "Ajouter la candidature"}
             </button>
           </div>
         </form>

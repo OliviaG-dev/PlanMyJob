@@ -1,5 +1,12 @@
 import { supabase } from "./supabase";
-import type { Candidature, Statut, StatutSuivi } from "../types/candidature";
+import type {
+  Candidature,
+  Statut,
+  StatutSuivi,
+  TypeContrat,
+  Teletravail,
+  SourceCandidature,
+} from "../types/candidature";
 import type { AddCandidatureFormData } from "../pages/Candidatures/AddCandidatureModal";
 
 type CandidatureRow = {
@@ -107,19 +114,53 @@ export async function insertCandidature(
 export type UpdateCandidaturePayload = {
   statut?: Statut;
   statutSuivi?: StatutSuivi;
+  entreprise?: string;
+  poste?: string;
+  lienOffre?: string;
+  dateCandidature?: string | null;
+  localisation?: string | null;
+  typeContrat?: TypeContrat | null;
+  teletravail?: Teletravail | null;
+  source?: SourceCandidature | null;
+  notePersonnelle?: number | null;
+  salaireOuFourchette?: string | null;
+  notes?: string | null;
 };
+
+function payloadToRow(
+  payload: UpdateCandidaturePayload
+): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (payload.statut !== undefined) row.statut = payload.statut;
+  if (payload.statutSuivi !== undefined) row.statut_suivi = payload.statutSuivi;
+  if (payload.entreprise !== undefined)
+    row.entreprise = payload.entreprise.trim();
+  if (payload.poste !== undefined) row.poste = payload.poste.trim();
+  if (payload.lienOffre !== undefined)
+    row.lien_offre = payload.lienOffre.trim() || null;
+  if (payload.dateCandidature !== undefined)
+    row.date_candidature = payload.dateCandidature || null;
+  if (payload.localisation !== undefined)
+    row.localisation = payload.localisation?.trim() || null;
+  if (payload.typeContrat !== undefined) row.type_contrat = payload.typeContrat;
+  if (payload.teletravail !== undefined) row.teletravail = payload.teletravail;
+  if (payload.source !== undefined) row.source = payload.source;
+  if (payload.notePersonnelle !== undefined)
+    row.note_personnelle = payload.notePersonnelle;
+  if (payload.salaireOuFourchette !== undefined)
+    row.salaire_ou_fourchette = payload.salaireOuFourchette?.trim() || null;
+  if (payload.notes !== undefined) row.notes = payload.notes?.trim() || null;
+  return row;
+}
 
 export async function updateCandidature(
   userId: string,
   candidatureId: string,
   payload: UpdateCandidaturePayload
 ): Promise<Candidature> {
-  const row: Record<string, unknown> = {};
-  if (payload.statut !== undefined) row.statut = payload.statut;
-  if (payload.statutSuivi !== undefined) row.statut_suivi = payload.statutSuivi;
+  const row = payloadToRow(payload);
   if (Object.keys(row).length === 0) {
-    const current = await fetchCandidatures(userId);
-    const found = current.find((c) => c.id === candidatureId);
+    const found = await fetchCandidature(userId, candidatureId);
     if (!found) throw new Error("Candidature introuvable");
     return found;
   }
@@ -134,4 +175,17 @@ export async function updateCandidature(
 
   if (error) throw error;
   return rowToCandidature(data as CandidatureRow);
+}
+
+export async function deleteCandidature(
+  userId: string,
+  candidatureId: string
+): Promise<void> {
+  const { error } = await supabase
+    .from("candidatures")
+    .delete()
+    .eq("id", candidatureId)
+    .eq("user_id", userId);
+
+  if (error) throw error;
 }

@@ -239,3 +239,38 @@
   background: var(--primary-pale);
   color: var(--primary);
 }
+
+.candidatures__link-note {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.candidatures__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.candidatures__star--full {
+  color: var(--primary);
+}
+
+.candidatures__star--empty {
+  color: var(--border);
+}
+
+.candidatures__link--terminee .candidatures__star--full,
+.candidatures__link--terminee .candidatures__star--empty {
+  color: var(--text-muted);
+}
+
+.candidatures__link--refus .candidatures__star--full,
+.candidatures__link--refus .candidatures__star--empty {
+  color: var(--text-muted);
+}

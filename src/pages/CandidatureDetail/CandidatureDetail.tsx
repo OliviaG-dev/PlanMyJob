@@ -1,7 +1,14 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { fetchCandidature } from "../../lib/candidatures";
+import {
+  fetchCandidature,
+  updateCandidature,
+  deleteCandidature,
+} from "../../lib/candidatures";
+import AddCandidatureModal, {
+  type AddCandidatureFormData,
+} from "../Candidatures/AddCandidatureModal";
 import type {
   Candidature,
   Statut,
@@ -11,6 +18,25 @@ import type {
   SourceCandidature,
 } from "../../types/candidature";
 import "./CandidatureDetail.css";
+
+function candidatureToFormData(c: Candidature): AddCandidatureFormData {
+  return {
+    entreprise: c.entreprise ?? "",
+    poste: c.poste ?? "",
+    lienOffre: c.lienOffre ?? "",
+    localisation: c.localisation ?? "",
+    typeContrat: c.typeContrat ?? "cdi",
+    teletravail: c.teletravail ?? "inconnu",
+    dateCandidature:
+      c.dateCandidature?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
+    source: c.source ?? "linkedin",
+    notePersonnelle: c.notePersonnelle ?? 3,
+    statutSuivi: c.statutSuivi ?? "en_cours",
+    statut: c.statut ?? "a_postuler",
+    salaireOuFourchette: c.salaireOuFourchette ?? "",
+    notes: c.notes ?? "",
+  };
+}
 
 const STATUT_KANBAN_LABELS: Record<Statut, string> = {
   a_postuler: "À postuler",
@@ -121,12 +147,18 @@ type DetailState = {
 
 function CandidatureDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [state, setState] = useState<DetailState>({
     candidature: null,
     loading: true,
     error: null,
   });
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const { candidature, loading, error } = state;
 
   useEffect(() => {
@@ -152,6 +184,54 @@ function CandidatureDetail() {
       cancelled = true;
     };
   }, [id, user?.id]);
+
+  async function handleEditSubmit(data: AddCandidatureFormData) {
+    if (!id || !user?.id) return;
+    setSubmitting(true);
+    setActionError(null);
+    try {
+      const updated = await updateCandidature(user.id, id, {
+        entreprise: data.entreprise,
+        poste: data.poste,
+        lienOffre: data.lienOffre,
+        localisation: data.localisation || undefined,
+        typeContrat: data.typeContrat,
+        teletravail: data.teletravail,
+        dateCandidature: data.dateCandidature || null,
+        source: data.source,
+        notePersonnelle: data.notePersonnelle,
+        statutSuivi: data.statutSuivi,
+        statut: data.statut,
+        salaireOuFourchette: data.salaireOuFourchette || null,
+        notes: data.notes || null,
+      });
+      setState((s) => ({ ...s, candidature: updated }));
+      setEditModalOpen(false);
+    } catch (err) {
+      setActionError(
+        err instanceof Error ? err.message : "Erreur à l'enregistrement"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDeleteConfirm() {
+    if (!id || !user?.id || !candidature) return;
+    setDeleting(true);
+    setActionError(null);
+    setDeleteConfirmOpen(false);
+    try {
+      await deleteCandidature(user.id, id);
+      navigate("/candidatures", { replace: true });
+    } catch (err) {
+      setActionError(
+        err instanceof Error ? err.message : "Erreur à la suppression"
+      );
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   if (!id) {
     return (
@@ -208,6 +288,12 @@ function CandidatureDetail() {
       <Link to="/candidatures" className="candidature-detail__back">
         ← Retour aux candidatures
       </Link>
+
+      {actionError && (
+        <p className="candidature-detail__error" role="alert">
+          {actionError}
+        </p>
+      )}
 
       <header className="candidature-detail__header">
         <div className="candidature-detail__header-left">
@@ -297,6 +383,91 @@ function CandidatureDetail() {
           </dl>
         </section>
       )}
+
+      <div className="candidature-detail__actions">
+        <button
+          type="button"
+          className="candidature-detail__btn candidature-detail__btn--edit"
+          onClick={() => setEditModalOpen(true)}
+        >
+          <img
+            src="/icons/editer.png"
+            alt=""
+            className="candidature-detail__btn-icon"
+            aria-hidden
+          />
+          Modifier
+        </button>
+        <button
+          type="button"
+          className="candidature-detail__btn candidature-detail__btn--delete"
+          onClick={() => setDeleteConfirmOpen(true)}
+          disabled={deleting}
+        >
+          <img
+            src="/icons/supprimer.png"
+            alt=""
+            className="candidature-detail__btn-icon"
+            aria-hidden
+          />
+          {deleting ? "Suppression…" : "Supprimer"}
+        </button>
+      </div>
+
+      {deleteConfirmOpen && (
+        <div
+          className="candidature-detail__confirm-overlay"
+          onClick={() => setDeleteConfirmOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-title"
+        >
+          <div
+            className="candidature-detail__confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2
+              id="confirm-title"
+              className="candidature-detail__confirm-title"
+            >
+              Supprimer cette candidature ?
+            </h2>
+            <p className="candidature-detail__confirm-text">
+              Cette action est irréversible.
+            </p>
+            <div className="candidature-detail__confirm-actions">
+              <button
+                type="button"
+                className="candidature-detail__confirm-btn candidature-detail__confirm-btn--cancel"
+                onClick={() => setDeleteConfirmOpen(false)}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                className="candidature-detail__confirm-btn candidature-detail__confirm-btn--delete"
+                onClick={handleDeleteConfirm}
+                disabled={deleting}
+              >
+                {deleting ? "Suppression…" : "Supprimer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <AddCandidatureModal
+        key={editModalOpen ? `edit-${id}` : "closed"}
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setActionError(null);
+        }}
+        onSubmit={handleEditSubmit}
+        isSubmitting={submitting}
+        mode="edit"
+        initialData={candidatureToFormData(candidature)}
+      />
     </main>
   );
 }
