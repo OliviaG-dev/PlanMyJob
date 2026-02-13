@@ -74,7 +74,19 @@ function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                 : "Passer en thème clair"
             }
           >
-            {theme === "light" ? "🌙" : "☀️"}
+            <img
+              src={
+                theme === "light"
+                  ? "/icons/theme-sombre.png"
+                  : "/icons/theme-clair.png"
+              }
+              alt=""
+              className="sidebar__theme-icon"
+              aria-hidden
+            />
+            <span className="sidebar__theme-label">
+              {theme === "light" ? "Thème sombre" : "Thème clair"}
+            </span>
           </button>
           <button
             type="button"

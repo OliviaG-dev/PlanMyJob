@@ -19,8 +19,40 @@ const STATUT_KANBAN_LABELS: Record<Statut, string> = {
   entretien_technique: "Entretien technique",
   attente_reponse: "Attente de réponse",
   refus: "Refus",
-  offre: "Offre 🎉",
+  offre: "Offre",
 };
+
+const MAX_STARS = 5;
+
+function StarRating({ value }: { value: number }) {
+  const full = Math.min(MAX_STARS, Math.max(0, Math.round(value)));
+  const empty = MAX_STARS - full;
+  return (
+    <span
+      className="candidatures__stars"
+      aria-label={`Note : ${value} sur ${MAX_STARS}`}
+    >
+      {Array.from({ length: full }, (_, i) => (
+        <span
+          key={`full-${i}`}
+          className="candidatures__star candidatures__star--full"
+          aria-hidden
+        >
+          ★
+        </span>
+      ))}
+      {Array.from({ length: empty }, (_, i) => (
+        <span
+          key={`empty-${i}`}
+          className="candidatures__star candidatures__star--empty"
+          aria-hidden
+        >
+          ☆
+        </span>
+      ))}
+    </span>
+  );
+}
 
 type ListType = "en_cours" | "terminee" | "refus";
 
@@ -210,6 +242,11 @@ function Candidatures() {
                   </span>
                 </div>
               </div>
+              {c.notePersonnelle != null && (
+                <div className="candidatures__link-note">
+                  <StarRating value={c.notePersonnelle} />
+                </div>
+              )}
             </Link>
           </li>
         ))}

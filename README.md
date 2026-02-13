@@ -17,8 +17,8 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 ### Cœur (MVP)
 
-- **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes
-- **Kanban** — Colonnes (À postuler → CV envoyé → Entretiens → Refus / Offre), drag & drop à venir
+- **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes, localisation, type de contrat, télétravail, source, note personnelle
+- **Kanban** — Colonnes (À postuler → CV envoyé → Entretiens → Attente → Refus / Offre), drag & drop pour changer le statut
 - **Tâches** — Todo liées aux candidatures (CV, lettre, relance, prépa entretien)
 - **Planning** — Semainier : entretiens, relances, deadlines
 
@@ -52,15 +52,15 @@ Chaque **page** et chaque **composant** a son propre dossier avec un fichier `.t
 
 ```
 src/
-├── types/           # Modèles (Candidature, Statut, Priorite)
-├── lib/             # Supabase client
+├── types/           # Modèles (Candidature, Statut, Priorite, etc.)
+├── lib/             # Supabase client, candidatures (CRUD)
 ├── contexts/        # AuthContext, ThemeContext
-├── components/      # Layout, Sidebar, etc.
+├── components/      # Layout, Sidebar
 │   ├── Layout/
 │   └── Sidebar/
 └── pages/
     ├── Dashboard/
-    ├── Candidatures/
+    ├── Candidatures/      # Liste + AddCandidatureModal
     ├── CandidatureDetail/
     ├── Kanban/
     ├── Planning/
@@ -70,13 +70,6 @@ src/
     └── Signup/
 ```
 
----
-
-## Supabase
-
-1. Créez un projet sur [app.supabase.com](https://app.supabase.com).
-2. Copiez `.env.example` vers `.env` et renseignez `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` (Settings > API dans le dashboard).
-3. Le client est disponible via `import { supabase } from "@/lib/supabase"` (ou `src/lib/supabase`).
 
 ---
 
@@ -86,7 +79,7 @@ src/
 # Installer les dépendances
 npm install
 
-# Créer un fichier .env à partir de .env.example (pour Supabase)
+# Créer un fichier .env à partir de .env.example (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
 
 # Démarrer en développement
 npm run dev
@@ -96,6 +89,9 @@ npm run build
 
 # Prévisualiser le build
 npm preview
+
+# Linter
+npm run lint
 ```
 
 ---

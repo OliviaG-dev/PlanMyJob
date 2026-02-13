@@ -105,13 +105,29 @@
   border: 1px solid var(--border-light);
   background: var(--background-subtle);
   color: var(--text);
-  font-size: 1.25rem;
   cursor: pointer;
   transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .sidebar__theme-btn:hover {
   background: var(--hover);
+}
+
+.sidebar__theme-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sidebar__theme-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--primary);
 }
 
 .sidebar__signout {
