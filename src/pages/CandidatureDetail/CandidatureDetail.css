@@ -4,12 +4,6 @@
   margin: 0 auto;
 }
 
-.candidature-detail h1 {
-  font-family: var(--font-heading);
-  font-weight: 500;
-  margin-bottom: 0.35rem;
-}
-
 .candidature-detail__back {
   display: inline-flex;
   align-items: center;
@@ -19,14 +13,223 @@
   font-weight: 500;
   font-size: 0.95rem;
   transition: color 0.2s ease;
+  text-decoration: none;
 }
 
 .candidature-detail__back:hover {
   color: var(--primary-soft);
 }
 
-.candidature-detail__id {
+.candidature-detail__loading,
+.candidature-detail__not-found {
   color: var(--text-muted);
-  font-size: 0.95rem;
   margin: 0;
+}
+
+.candidature-detail__error {
+  color: var(--error, #c62828);
+  margin: 0;
+}
+
+.candidature-detail__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--primary-pale);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--primary);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+
+.candidature-detail__header-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.candidature-detail__title {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin: 0 0 0.25rem 0;
+  color: var(--primary);
+  letter-spacing: 0.02em;
+}
+
+.candidature-detail__poste {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.candidature-detail__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.candidature-detail__star--full {
+  color: var(--primary);
+}
+
+.candidature-detail__star--empty {
+  color: var(--border);
+}
+
+.candidature-detail__header .candidature-detail__badge--kanban {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+/* Statut en forme de tag */
+.candidature-detail__badge--kanban {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  background: var(--primary-pale);
+  color: var(--primary);
+  border: 1px solid rgba(183, 110, 121, 0.25);
+  box-shadow: 0 1px 2px rgba(183, 110, 121, 0.08);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.candidature-detail__badge--kanban::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 65%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+.candidature-detail__badge--kanban:hover::after {
+  transform: translateX(100%);
+}
+
+.candidature-detail__badge--kanban:hover {
+  box-shadow: 0 2px 8px rgba(183, 110, 121, 0.18);
+}
+
+.candidature-detail__badge--kanban.candidature-detail__badge--offre {
+  background: var(--primary);
+  color: var(--surface);
+  border-color: var(--primary);
+  box-shadow: 0 1px 3px rgba(183, 110, 121, 0.25);
+}
+
+.candidature-detail__badge--kanban.candidature-detail__badge--offre::after {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 65%,
+    transparent 100%
+  );
+}
+
+.candidature-detail__badge--kanban.candidature-detail__badge--offre:hover {
+  box-shadow: 0 2px 10px rgba(183, 110, 121, 0.35);
+}
+
+.candidature-detail__badge--kanban.candidature-detail__badge--refus {
+  background: rgba(198, 40, 40, 0.1);
+  color: var(--error, #c62828);
+  border-color: rgba(198, 40, 40, 0.3);
+  box-shadow: 0 1px 2px rgba(198, 40, 40, 0.08);
+}
+
+.candidature-detail__badge--kanban.candidature-detail__badge--refus::after {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 65%,
+    transparent 100%
+  );
+}
+
+.candidature-detail__badge--kanban.candidature-detail__badge--refus:hover {
+  box-shadow: 0 2px 8px rgba(198, 40, 40, 0.15);
+}
+
+.candidature-detail__section {
+  margin-bottom: 1.75rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--background-subtle);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.candidature-detail__section-title {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem 0;
+  color: var(--primary);
+}
+
+.candidature-detail__grid {
+  display: grid;
+  gap: 0.6rem 1.5rem;
+  margin: 0;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .candidature-detail__grid {
+    grid-template-columns: 140px 1fr;
+  }
+}
+
+.candidature-detail__row {
+  display: contents;
+}
+
+.candidature-detail__label {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.candidature-detail__value {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.candidature-detail__link {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.candidature-detail__link:hover {
+  text-decoration: underline;
 }

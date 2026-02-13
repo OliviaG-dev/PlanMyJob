@@ -57,6 +57,21 @@ export async function fetchCandidatures(
   return (data as CandidatureRow[]).map(rowToCandidature);
 }
 
+export async function fetchCandidature(
+  userId: string,
+  candidatureId: string
+): Promise<Candidature | null> {
+  const { data, error } = await supabase
+    .from("candidatures")
+    .select("*")
+    .eq("id", candidatureId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? rowToCandidature(data as CandidatureRow) : null;
+}
+
 export async function insertCandidature(
   userId: string,
   form: AddCandidatureFormData
