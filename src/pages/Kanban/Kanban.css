@@ -15,7 +15,7 @@
 .kanban__intro {
   color: var(--text-muted);
   font-size: 0.98rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1rem;
 }
 
 .kanban__error {
@@ -127,11 +127,61 @@
   border-radius: 999px;
 }
 
+.kanban__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.kanban__pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-pale);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.kanban__pagination-btn:hover:not(:disabled) {
+  background: var(--primary-soft);
+  color: var(--text);
+}
+
+.kanban__pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kanban__pagination-info {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 .kanban__cards {
   min-height: 120px;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.kanban__column:has(.kanban__card--refus) .kanban__cards {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 60px;
 }
 
 .kanban__card {
@@ -198,4 +248,35 @@
 
 .kanban__star--empty {
   color: var(--border);
+}
+
+/* Carte compacte (carré) pour la colonne Refus */
+.kanban__card--refus {
+  width: 2.5rem;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.kanban__card--refus .kanban__card-link {
+  padding: 0.35rem;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.kanban__card--refus .kanban__card-entreprise {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+  text-align: center;
+  line-height: 1.1;
+  display: block;
 }

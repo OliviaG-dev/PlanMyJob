@@ -6,7 +6,15 @@ import {
   insertCandidature,
   updateCandidature,
 } from "../../lib/candidatures";
-import type { Candidature, Statut, StatutSuivi } from "../../types/candidature";
+import type {
+  Candidature,
+  Statut,
+  StatutSuivi,
+  Teletravail,
+} from "../../types/candidature";
+import CandidaturesFilters, {
+  filterCandidaturesByFilters,
+} from "../../components/CandidaturesFilters/CandidaturesFilters";
 import AddCandidatureModal, {
   type AddCandidatureFormData,
 } from "./AddCandidatureModal";
@@ -75,6 +83,12 @@ function Candidatures() {
   const [submitting, setSubmitting] = useState(false);
   const [dragOverList, setDragOverList] = useState<ListType | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [filterNom, setFilterNom] = useState("");
+  const [filterTeletravail, setFilterTeletravail] = useState<
+    "" | Teletravail
+  >("");
+  const [filterVille, setFilterVille] = useState("");
+  const [filterNote, setFilterNote] = useState("");
 
   useEffect(() => {
     if (!user?.id) {
@@ -105,13 +119,31 @@ function Candidatures() {
     }
   }
 
-  const refus = candidatures.filter((c) => c.statut === "refus");
-  const enCours = candidatures.filter(
+  const filterState = {
+    nom: filterNom,
+    teletravail: filterTeletravail,
+    ville: filterVille,
+    note: filterNote,
+  };
+  const filteredCandidatures = filterCandidaturesByFilters(
+    candidatures,
+    filterState
+  );
+  const villesUniques = [
+    ...new Set(
+      candidatures
+        .map((c) => (c.localisation ?? "").trim())
+        .filter(Boolean)
+    ),
+  ].sort((a, b) => a.localeCompare(b, "fr"));
+
+  const refus = filteredCandidatures.filter((c) => c.statut === "refus");
+  const enCours = filteredCandidatures.filter(
     (c) =>
       c.statut !== "refus" &&
       (c.statutSuivi === "en_cours" || c.statutSuivi !== "terminee")
   );
-  const terminee = candidatures.filter(
+  const terminee = filteredCandidatures.filter(
     (c) => c.statutSuivi === "terminee" && c.statut !== "refus"
   );
 
@@ -279,6 +311,22 @@ function Candidatures() {
           {error}
         </p>
       )}
+
+      {!loading && candidatures.length > 0 && (
+        <CandidaturesFilters
+          idPrefix="candidatures"
+          nom={filterNom}
+          onNomChange={setFilterNom}
+          teletravail={filterTeletravail}
+          onTeletravailChange={setFilterTeletravail}
+          ville={filterVille}
+          onVilleChange={setFilterVille}
+          note={filterNote}
+          onNoteChange={setFilterNote}
+          villes={villesUniques}
+        />
+      )}
+
       {loading && (
         <section className="candidatures__list">
           <p className="candidatures__empty">Chargement…</p>

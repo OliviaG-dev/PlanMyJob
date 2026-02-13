@@ -2,7 +2,15 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { fetchCandidatures, updateCandidature } from "../../lib/candidatures";
-import type { Candidature, Statut, StatutSuivi } from "../../types/candidature";
+import type {
+  Candidature,
+  Statut,
+  StatutSuivi,
+  Teletravail,
+} from "../../types/candidature";
+import CandidaturesFilters, {
+  filterCandidaturesByFilters,
+} from "../../components/CandidaturesFilters/CandidaturesFilters";
 import "./Kanban.css";
 
 const STATUT_ICONS: Record<Statut, string> = {
@@ -29,6 +37,15 @@ const COLUMNS_BOTTOM: { statut: Statut; label: string }[] = [
 ];
 
 const MAX_STARS = 5;
+const MAIN_PAGE_SIZE = 5;
+const REFUS_PAGE_SIZE = 10;
+const OFFRE_PAGE_SIZE = 5;
+
+function getPageSize(statut: Statut): number {
+  if (statut === "refus") return REFUS_PAGE_SIZE;
+  if (statut === "offre") return OFFRE_PAGE_SIZE;
+  return MAIN_PAGE_SIZE;
+}
 
 function StarRating({ value }: { value: number }) {
   const full = Math.min(MAX_STARS, Math.max(0, Math.round(value)));
@@ -67,6 +84,17 @@ function Kanban() {
   const [error, setError] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverStatut, setDragOverStatut] = useState<Statut | null>(null);
+  const [columnPages, setColumnPages] = useState<Record<string, number>>({});
+  const [filterNom, setFilterNom] = useState("");
+  const [filterTeletravail, setFilterTeletravail] = useState<
+    "" | Teletravail
+  >("");
+  const [filterVille, setFilterVille] = useState("");
+  const [filterNote, setFilterNote] = useState("");
+
+  const setColumnPage = (statut: Statut, page: number) => {
+    setColumnPages((prev) => ({ ...prev, [statut]: page }));
+  };
 
   useEffect(() => {
     if (!user?.id) return;
@@ -82,17 +110,34 @@ function Kanban() {
   }, [user?.id]);
 
   const effectiveCandidatures = user?.id ? candidatures : [];
+  const villesUniques = [
+    ...new Set(
+      effectiveCandidatures
+        .map((c) => (c.localisation ?? "").trim())
+        .filter(Boolean)
+    ),
+  ].sort((a, b) => a.localeCompare(b, "fr"));
+  const filterState = {
+    nom: filterNom,
+    teletravail: filterTeletravail,
+    ville: filterVille,
+    note: filterNote,
+  };
+  const filteredCandidatures = filterCandidaturesByFilters(
+    effectiveCandidatures,
+    filterState
+  );
   const effectiveLoading = user?.id ? loading : false;
 
-  const candidaturesEnCours = effectiveCandidatures.filter(
+  const candidaturesEnCours = filteredCandidatures.filter(
     (c) =>
       c.statut !== "refus" &&
       (c.statutSuivi === "en_cours" || c.statutSuivi !== "terminee")
   );
-  const candidaturesRefus = effectiveCandidatures.filter(
+  const candidaturesRefus = filteredCandidatures.filter(
     (c) => c.statut === "refus"
   );
-  const candidaturesOffre = effectiveCandidatures.filter(
+  const candidaturesOffre = filteredCandidatures.filter(
     (c) => c.statut === "offre"
   );
 
@@ -180,6 +225,19 @@ function Kanban() {
         statut.
       </p>
 
+      <CandidaturesFilters
+        idPrefix="kanban"
+        nom={filterNom}
+        onNomChange={setFilterNom}
+        teletravail={filterTeletravail}
+        onTeletravailChange={setFilterTeletravail}
+        ville={filterVille}
+        onVilleChange={setFilterVille}
+        note={filterNote}
+        onNoteChange={setFilterNote}
+        villes={villesUniques}
+      />
+
       {error && (
         <p className="kanban__error" role="alert">
           {error}
@@ -193,6 +251,19 @@ function Kanban() {
           <div className="kanban__board kanban__board--main">
             {COLUMNS_MAIN.map(({ statut, label }) => {
               const columnCandidatures = getCandidaturesByStatut(statut);
+              const pageSize = getPageSize(statut);
+              const totalPages = Math.max(
+                1,
+                Math.ceil(columnCandidatures.length / pageSize)
+              );
+              const currentPage = Math.min(
+                columnPages[statut] ?? 0,
+                totalPages - 1
+              );
+              const displayed = columnCandidatures.slice(
+                currentPage * pageSize,
+                (currentPage + 1) * pageSize
+              );
               const isDragOver = dragOverStatut === statut;
               return (
                 <div
@@ -219,7 +290,7 @@ function Kanban() {
                     </span>
                   </h3>
                   <div className="kanban__cards">
-                    {columnCandidatures.map((c) => (
+                    {displayed.map((c) => (
                       <div
                         key={c.id}
                         className={`kanban__card ${
@@ -244,6 +315,34 @@ function Kanban() {
                       </div>
                     ))}
                   </div>
+                  {totalPages > 1 && (
+                    <nav
+                      className="kanban__pagination"
+                      aria-label={`Pagination ${label}`}
+                    >
+                      <button
+                        type="button"
+                        className="kanban__pagination-btn"
+                        disabled={currentPage === 0}
+                        onClick={() => setColumnPage(statut, currentPage - 1)}
+                        aria-label="Page précédente"
+                      >
+                        ‹
+                      </button>
+                      <span className="kanban__pagination-info">
+                        {currentPage + 1} / {totalPages}
+                      </span>
+                      <button
+                        type="button"
+                        className="kanban__pagination-btn"
+                        disabled={currentPage >= totalPages - 1}
+                        onClick={() => setColumnPage(statut, currentPage + 1)}
+                        aria-label="Page suivante"
+                      >
+                        ›
+                      </button>
+                    </nav>
+                  )}
                 </div>
               );
             })}
@@ -251,6 +350,19 @@ function Kanban() {
           <div className="kanban__board kanban__board--bottom">
             {COLUMNS_BOTTOM.map(({ statut, label }) => {
               const columnCandidatures = getBottomCandidatures(statut);
+              const pageSize = getPageSize(statut);
+              const totalPages = Math.max(
+                1,
+                Math.ceil(columnCandidatures.length / pageSize)
+              );
+              const currentPage = Math.min(
+                columnPages[statut] ?? 0,
+                totalPages - 1
+              );
+              const displayed = columnCandidatures.slice(
+                currentPage * pageSize,
+                (currentPage + 1) * pageSize
+              );
               const isDragOver = dragOverStatut === statut;
               return (
                 <div
@@ -277,10 +389,12 @@ function Kanban() {
                     </span>
                   </h3>
                   <div className="kanban__cards">
-                    {columnCandidatures.map((c) => (
+                    {displayed.map((c) => (
                       <div
                         key={c.id}
                         className={`kanban__card ${
+                          statut === "refus" ? "kanban__card--refus" : ""
+                        } ${
                           draggingId === c.id ? "kanban__card--dragging" : ""
                         }`}
                         draggable
@@ -291,17 +405,49 @@ function Kanban() {
                           to={`/candidatures/${c.id}`}
                           className="kanban__card-link"
                           onClick={(e) => e.stopPropagation()}
+                          title={c.entreprise}
                         >
                           <span className="kanban__card-entreprise">
-                            {c.entreprise}
+                            {statut === "refus"
+                              ? (c.entreprise.slice(0, 2) || "?").toUpperCase()
+                              : c.entreprise}
                           </span>
-                          {c.notePersonnelle != null && (
-                            <StarRating value={c.notePersonnelle} />
-                          )}
+                          {statut !== "refus" &&
+                            c.notePersonnelle != null && (
+                              <StarRating value={c.notePersonnelle} />
+                            )}
                         </Link>
                       </div>
                     ))}
                   </div>
+                  {totalPages > 1 && (
+                    <nav
+                      className="kanban__pagination"
+                      aria-label={`Pagination ${label}`}
+                    >
+                      <button
+                        type="button"
+                        className="kanban__pagination-btn"
+                        disabled={currentPage === 0}
+                        onClick={() => setColumnPage(statut, currentPage - 1)}
+                        aria-label="Page précédente"
+                      >
+                        ‹
+                      </button>
+                      <span className="kanban__pagination-info">
+                        {currentPage + 1} / {totalPages}
+                      </span>
+                      <button
+                        type="button"
+                        className="kanban__pagination-btn"
+                        disabled={currentPage >= totalPages - 1}
+                        onClick={() => setColumnPage(statut, currentPage + 1)}
+                        aria-label="Page suivante"
+                      >
+                        ›
+                      </button>
+                    </nav>
+                  )}
                 </div>
               );
             })}
@@ -310,6 +456,22 @@ function Kanban() {
       )}
 
       {!effectiveLoading &&
+        (filterNom.trim() ||
+          filterTeletravail ||
+          filterVille ||
+          filterNote) &&
+        filteredCandidatures.length === 0 && (
+          <p className="kanban__empty" role="status">
+            Aucun résultat avec ces filtres. Modifiez le nom, la ville, le
+            télétravail ou la note.
+          </p>
+        )}
+
+      {!effectiveLoading &&
+        !filterNom.trim() &&
+        !filterTeletravail &&
+        !filterVille &&
+        !filterNote &&
         candidaturesEnCours.length === 0 &&
         effectiveCandidatures.length > 0 && (
           <p className="kanban__empty">
