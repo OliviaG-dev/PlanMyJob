@@ -105,6 +105,19 @@
   gap: 0.5rem;
 }
 
+.kanban__column-title-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kanban__column-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .kanban__column-count {
   font-size: 0.8rem;
   font-weight: 600;

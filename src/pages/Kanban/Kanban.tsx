@@ -5,6 +5,16 @@ import { fetchCandidatures, updateCandidature } from "../../lib/candidatures";
 import type { Candidature, Statut, StatutSuivi } from "../../types/candidature";
 import "./Kanban.css";
 
+const STATUT_ICONS: Record<Statut, string> = {
+  a_postuler: "/icons/a-postuler.png",
+  cv_envoye: "/icons/cv-envoyer.png",
+  entretien_rh: "/icons/entretien-rh.png",
+  entretien_technique: "/icons/entretien-technique.png",
+  attente_reponse: "/icons/attente d'une reponse.png",
+  refus: "/icons/refus.png",
+  offre: "/icons/offre.png",
+};
+
 const COLUMNS_MAIN: { statut: Statut; label: string }[] = [
   { statut: "a_postuler", label: "À postuler" },
   { statut: "cv_envoye", label: "CV envoyé" },
@@ -15,7 +25,7 @@ const COLUMNS_MAIN: { statut: Statut; label: string }[] = [
 
 const COLUMNS_BOTTOM: { statut: Statut; label: string }[] = [
   { statut: "refus", label: "Refus" },
-  { statut: "offre", label: "Offre 🎉" },
+  { statut: "offre", label: "Offre" },
 ];
 
 const MAX_STARS = 5;
@@ -59,26 +69,32 @@ function Kanban() {
   const [dragOverStatut, setDragOverStatut] = useState<Statut | null>(null);
 
   useEffect(() => {
-    if (!user?.id) {
-      setCandidatures([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
+    if (!user?.id) return;
     fetchCandidatures(user.id)
-      .then(setCandidatures)
-      .catch((err) => setError(err.message ?? "Erreur au chargement"))
+      .then((data) => {
+        setError(null);
+        setCandidatures(data);
+      })
+      .catch((err) => {
+        setError(err.message ?? "Erreur au chargement");
+      })
       .finally(() => setLoading(false));
   }, [user?.id]);
 
-  const candidaturesEnCours = candidatures.filter(
+  const effectiveCandidatures = user?.id ? candidatures : [];
+  const effectiveLoading = user?.id ? loading : false;
+
+  const candidaturesEnCours = effectiveCandidatures.filter(
     (c) =>
       c.statut !== "refus" &&
       (c.statutSuivi === "en_cours" || c.statutSuivi !== "terminee")
   );
-  const candidaturesRefus = candidatures.filter((c) => c.statut === "refus");
-  const candidaturesOffre = candidatures.filter((c) => c.statut === "offre");
+  const candidaturesRefus = effectiveCandidatures.filter(
+    (c) => c.statut === "refus"
+  );
+  const candidaturesOffre = effectiveCandidatures.filter(
+    (c) => c.statut === "offre"
+  );
 
   const getCandidaturesByStatut = (statut: Statut) =>
     candidaturesEnCours.filter((c) => c.statut === statut);
@@ -122,7 +138,7 @@ function Kanban() {
       id = raw;
     }
     if (!id || !user?.id) return;
-    const candidature = candidatures.find((c) => c.id === id);
+    const candidature = effectiveCandidatures.find((c) => c.id === id);
     if (!candidature || candidature.statut === newStatut) return;
 
     const payload: { statut: Statut; statutSuivi?: StatutSuivi } = {
@@ -132,7 +148,7 @@ function Kanban() {
       payload.statutSuivi = "terminee";
     }
 
-    const previous = [...candidatures];
+    const previous = [...effectiveCandidatures];
     setCandidatures((prev) =>
       prev.map((c) => {
         if (c.id !== id) return c;
@@ -170,9 +186,9 @@ function Kanban() {
         </p>
       )}
 
-      {loading && <div className="kanban__loading">Chargement…</div>}
+      {effectiveLoading && <div className="kanban__loading">Chargement…</div>}
 
-      {!loading && !error && (
+      {!effectiveLoading && !error && (
         <>
           <div className="kanban__board kanban__board--main">
             {COLUMNS_MAIN.map(({ statut, label }) => {
@@ -189,7 +205,15 @@ function Kanban() {
                   onDrop={(e) => handleDrop(e, statut)}
                 >
                   <h3 className="kanban__column-title">
-                    {label}
+                    <span className="kanban__column-title-text">
+                      <img
+                        src={STATUT_ICONS[statut]}
+                        alt=""
+                        className="kanban__column-icon"
+                        aria-hidden
+                      />
+                      {label}
+                    </span>
                     <span className="kanban__column-count">
                       {columnCandidatures.length}
                     </span>
@@ -239,7 +263,15 @@ function Kanban() {
                   onDrop={(e) => handleDrop(e, statut)}
                 >
                   <h3 className="kanban__column-title">
-                    {label}
+                    <span className="kanban__column-title-text">
+                      <img
+                        src={STATUT_ICONS[statut]}
+                        alt=""
+                        className="kanban__column-icon"
+                        aria-hidden
+                      />
+                      {label}
+                    </span>
                     <span className="kanban__column-count">
                       {columnCandidatures.length}
                     </span>
@@ -277,16 +309,16 @@ function Kanban() {
         </>
       )}
 
-      {!loading &&
+      {!effectiveLoading &&
         candidaturesEnCours.length === 0 &&
-        candidatures.length > 0 && (
+        effectiveCandidatures.length > 0 && (
           <p className="kanban__empty">
             Aucune candidature en cours. Terminées et refus apparaissent sur la
             page Candidatures.
           </p>
         )}
 
-      {!loading && candidatures.length === 0 && (
+      {!effectiveLoading && effectiveCandidatures.length === 0 && (
         <p className="kanban__empty">
           Aucune candidature. Ajoutez-en depuis la page Candidatures.
         </p>

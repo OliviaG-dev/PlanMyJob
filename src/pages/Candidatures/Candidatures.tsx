@@ -19,7 +19,7 @@ const STATUT_KANBAN_LABELS: Record<Statut, string> = {
   entretien_technique: "Entretien technique",
   attente_reponse: "Attente de réponse",
   refus: "Refus",
-  offre: "Offre 🎉",
+  offre: "Offre",
 };
 
 const MAX_STARS = 5;
