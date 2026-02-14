@@ -162,6 +162,18 @@
   box-shadow: 0 0 0 2px var(--primary-pale);
 }
 
+/* Select réutilisable dans le formulaire */
+.add-candidature-form__select-field.select__wrap .select__label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.add-candidature-form__select-field.select__wrap .select__trigger {
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+  border-color: var(--border);
+}
+
 .add-candidature-form__textarea {
   resize: vertical;
   min-height: 72px;

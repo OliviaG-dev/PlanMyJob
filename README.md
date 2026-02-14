@@ -56,10 +56,11 @@ src/
 ├── types/           # Modèles (Candidature, Statut, Priorite, etc.)
 ├── lib/             # Supabase client, candidatures (CRUD)
 ├── contexts/        # AuthContext, ThemeContext
-├── components/      # Layout, Sidebar, Pagination, CandidaturesFilters
+├── components/      # Layout, Sidebar, Pagination, Select, CandidaturesFilters
 │   ├── Layout/
 │   ├── Sidebar/
 │   ├── Pagination/
+│   ├── Select/           # Menu déroulant réutilisable (filtres, formulaire)
 │   └── CandidaturesFilters/
 ├── pages/
 │   ├── Dashboard/

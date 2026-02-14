@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { Candidature, Teletravail } from "../../types/candidature";
+import { Select, type SelectOption } from "../Select/Select";
 import "./CandidaturesFilters.css";
 
 const TELETRAVAIL_OPTIONS: { value: "" | Teletravail; label: string }[] = [
@@ -73,6 +75,13 @@ function CandidaturesFilters({
   onNoteChange,
   villes,
 }: CandidaturesFiltersProps) {
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const villeOptions: SelectOption[] = [
+    { value: "", label: "Toutes" },
+    ...villes.map((v) => ({ value: v, label: v })),
+  ];
+
   return (
     <div className="candidatures-filters">
       <div className="candidatures-filters__group candidatures-filters__group--nom">
@@ -100,67 +109,39 @@ function CandidaturesFilters({
         </span>
       </div>
       <div className="candidatures-filters__group">
-        <label
-          htmlFor={`${idPrefix}-filter-teletravail`}
-          className="candidatures-filters__label"
-        >
-          Télétravail
-        </label>
-        <select
+        <Select
           id={`${idPrefix}-filter-teletravail`}
-          className="candidatures-filters__select"
+          label="Télétravail"
           value={teletravail}
-          onChange={(e) =>
-            onTeletravailChange((e.target.value || "") as "" | Teletravail)
-          }
-        >
-          {TELETRAVAIL_OPTIONS.map((opt) => (
-            <option key={opt.value || "all"} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          options={TELETRAVAIL_OPTIONS}
+          onChange={(v) => onTeletravailChange(v as "" | Teletravail)}
+          openId={openDropdown}
+          onOpenChange={setOpenDropdown}
+        />
       </div>
       <div className="candidatures-filters__group">
-        <label
-          htmlFor={`${idPrefix}-filter-ville`}
-          className="candidatures-filters__label"
-        >
-          Ville
-        </label>
-        <select
+        <Select
           id={`${idPrefix}-filter-ville`}
-          className="candidatures-filters__select"
+          label="Ville"
           value={ville}
-          onChange={(e) => onVilleChange(e.target.value)}
-        >
-          <option value="">Toutes</option>
-          {villes.map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
+          options={villeOptions}
+          onChange={onVilleChange}
+          openId={openDropdown}
+          onOpenChange={setOpenDropdown}
+        />
       </div>
       <div className="candidatures-filters__group">
-        <label
-          htmlFor={`${idPrefix}-filter-note`}
-          className="candidatures-filters__label"
-        >
-          Note
-        </label>
-        <select
+        <Select
           id={`${idPrefix}-filter-note`}
-          className="candidatures-filters__select candidatures-filters__select--note"
+          label="Note"
           value={note}
-          onChange={(e) => onNoteChange(e.target.value)}
-        >
-          {NOTE_OPTIONS.map((opt) => (
-            <option key={opt.value || "all"} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          options={NOTE_OPTIONS}
+          onChange={onNoteChange}
+          optionClassName="candidatures-filters__select-option--note"
+          wrapClassName="candidatures-filters__select-wrap--note"
+          openId={openDropdown}
+          onOpenChange={setOpenDropdown}
+        />
       </div>
     </div>
   );

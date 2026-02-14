@@ -7,6 +7,7 @@ import type {
   Teletravail,
   SourceCandidature,
 } from "../../types/candidature";
+import { Select } from "../../components/Select/Select";
 import "./AddCandidatureModal.css";
 
 const STATUT_LABELS: Record<Statut, string> = {
@@ -19,35 +20,35 @@ const STATUT_LABELS: Record<Statut, string> = {
   offre: "Offre",
 };
 
-const TYPE_CONTRAT_OPTIONS: { value: TypeContrat; label: string }[] = [
+const TYPE_CONTRAT_OPTIONS = [
   { value: "cdi", label: "CDI" },
   { value: "cdd", label: "CDD" },
   { value: "alternance", label: "Alternance" },
   { value: "stage", label: "Stage" },
   { value: "freelance", label: "Freelance" },
   { value: "autre", label: "Autre" },
-];
+] satisfies { value: TypeContrat; label: string }[];
 
-const TELETRAVAIL_OPTIONS: { value: Teletravail; label: string }[] = [
+const TELETRAVAIL_OPTIONS = [
   { value: "inconnu", label: "Je ne sais pas" },
   { value: "oui", label: "Oui" },
   { value: "non", label: "Non" },
   { value: "hybride", label: "Hybride" },
-];
+] satisfies { value: Teletravail; label: string }[];
 
-const SOURCE_OPTIONS: { value: SourceCandidature; label: string }[] = [
+const SOURCE_OPTIONS = [
   { value: "linkedin", label: "LinkedIn" },
   { value: "indeed", label: "Indeed" },
   { value: "welcome_to_the_jungle", label: "Welcome to the Jungle" },
   { value: "hellowork", label: "HelloWork" },
   { value: "site_entreprise", label: "Site entreprise" },
   { value: "autre", label: "Autre" },
-];
+] satisfies { value: SourceCandidature; label: string }[];
 
-const STATUT_SUIVI_OPTIONS: { value: StatutSuivi; label: string }[] = [
+const STATUT_SUIVI_OPTIONS = [
   { value: "en_cours", label: "En cours" },
   { value: "terminee", label: "Terminée" },
-];
+] satisfies { value: StatutSuivi; label: string }[];
 
 export type AddCandidatureFormData = {
   entreprise: string;
@@ -225,38 +226,26 @@ function AddCandidatureModal({
                   className="add-candidature-form__input"
                 />
               </label>
-              <label className="add-candidature-form__label">
-                Type de contrat
-                <select
+              <div className="add-candidature-form__label">
+                <Select
+                  id="add-typeContrat"
+                  label="Type de contrat"
                   value={formData.typeContrat}
-                  onChange={(e) =>
-                    update("typeContrat", e.target.value as TypeContrat)
-                  }
-                  className="add-candidature-form__select"
-                >
-                  {TYPE_CONTRAT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="add-candidature-form__label">
-                Télétravail
-                <select
+                  options={TYPE_CONTRAT_OPTIONS}
+                  onChange={(v) => update("typeContrat", v as TypeContrat)}
+                  wrapClassName="add-candidature-form__select-field"
+                />
+              </div>
+              <div className="add-candidature-form__label">
+                <Select
+                  id="add-teletravail"
+                  label="Télétravail"
                   value={formData.teletravail}
-                  onChange={(e) =>
-                    update("teletravail", e.target.value as Teletravail)
-                  }
-                  className="add-candidature-form__select"
-                >
-                  {TELETRAVAIL_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  options={TELETRAVAIL_OPTIONS}
+                  onChange={(v) => update("teletravail", v as Teletravail)}
+                  wrapClassName="add-candidature-form__select-field"
+                />
+              </div>
               <label className="add-candidature-form__label">
                 Date de candidature
                 <input
@@ -266,22 +255,16 @@ function AddCandidatureModal({
                   className="add-candidature-form__input"
                 />
               </label>
-              <label className="add-candidature-form__label">
-                Source
-                <select
+              <div className="add-candidature-form__label">
+                <Select
+                  id="add-source"
+                  label="Source"
                   value={formData.source}
-                  onChange={(e) =>
-                    update("source", e.target.value as SourceCandidature)
-                  }
-                  className="add-candidature-form__select"
-                >
-                  {SOURCE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  options={SOURCE_OPTIONS}
+                  onChange={(v) => update("source", v as SourceCandidature)}
+                  wrapClassName="add-candidature-form__select-field"
+                />
+              </div>
             </div>
           </section>
 
@@ -322,38 +305,28 @@ function AddCandidatureModal({
           </section>
 
           <section className="add-candidature-form__section">
-            <label className="add-candidature-form__label">
-              Statut
-              <select
+            <div className="add-candidature-form__label">
+              <Select
+                id="add-statutSuivi"
+                label="Statut"
                 value={formData.statutSuivi}
-                onChange={(e) =>
-                  update("statutSuivi", e.target.value as StatutSuivi)
-                }
-                className="add-candidature-form__select"
-              >
-                {STATUT_SUIVI_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="add-candidature-form__label add-candidature-form__label--top-spaced">
-              Kanban
-              <select
+                options={STATUT_SUIVI_OPTIONS}
+                onChange={(v) => update("statutSuivi", v as StatutSuivi)}
+                wrapClassName="add-candidature-form__select-field"
+              />
+            </div>
+            <div className="add-candidature-form__label add-candidature-form__label--top-spaced">
+              <Select
+                id="add-statut"
+                label="Kanban"
                 value={formData.statut}
-                onChange={(e) => update("statut", e.target.value as Statut)}
-                className="add-candidature-form__select"
-              >
-                {(Object.entries(STATUT_LABELS) as [Statut, string][]).map(
-                  ([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  )
+                options={(Object.entries(STATUT_LABELS) as [Statut, string][]).map(
+                  ([value, label]) => ({ value, label })
                 )}
-              </select>
-            </label>
+                onChange={(v) => update("statut", v as Statut)}
+                wrapClassName="add-candidature-form__select-field"
+              />
+            </div>
             <label className="add-candidature-form__label add-candidature-form__label--full add-candidature-form__label--top-spaced">
               Notes libres
               <textarea
