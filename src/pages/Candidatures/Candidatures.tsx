@@ -15,10 +15,13 @@ import type {
 import CandidaturesFilters, {
   filterCandidaturesByFilters,
 } from "../../components/CandidaturesFilters/CandidaturesFilters";
+import { Pagination } from "../../components/Pagination/Pagination";
 import AddCandidatureModal, {
   type AddCandidatureFormData,
 } from "./AddCandidatureModal";
 import "./Candidatures.css";
+
+const CANDIDATURES_PAGE_SIZE = 3;
 
 const STATUT_KANBAN_LABELS: Record<Statut, string> = {
   a_postuler: "À postuler",
@@ -89,6 +92,11 @@ function Candidatures() {
   >("");
   const [filterVille, setFilterVille] = useState("");
   const [filterNote, setFilterNote] = useState("");
+  const [listPages, setListPages] = useState<Record<ListType, number>>({
+    en_cours: 0,
+    terminee: 0,
+    refus: 0,
+  });
 
   useEffect(() => {
     if (!user?.id) {
@@ -358,9 +366,34 @@ function Candidatures() {
                 <p className="candidatures__empty">
                   Aucune candidature en cours.
                 </p>
-              ) : (
-                renderList(enCours, "en_cours")
-              )}
+              ) : (() => {
+                const totalPages = Math.ceil(
+                  enCours.length / CANDIDATURES_PAGE_SIZE
+                );
+                const currentPage = Math.min(
+                  listPages.en_cours,
+                  Math.max(0, totalPages - 1)
+                );
+                return (
+                  <>
+                    {renderList(
+                      enCours.slice(
+                        currentPage * CANDIDATURES_PAGE_SIZE,
+                        (currentPage + 1) * CANDIDATURES_PAGE_SIZE
+                      ),
+                      "en_cours"
+                    )}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={(page) =>
+                        setListPages((p) => ({ ...p, en_cours: page }))
+                      }
+                      ariaLabel="Pagination En cours"
+                    />
+                  </>
+                );
+              })()}
             </div>
           </section>
           <section className="candidatures__list-wrapper">
@@ -379,9 +412,34 @@ function Candidatures() {
                 <p className="candidatures__empty">
                   Aucune candidature terminée.
                 </p>
-              ) : (
-                renderList(terminee, "terminee")
-              )}
+              ) : (() => {
+                const totalPages = Math.ceil(
+                  terminee.length / CANDIDATURES_PAGE_SIZE
+                );
+                const currentPage = Math.min(
+                  listPages.terminee,
+                  Math.max(0, totalPages - 1)
+                );
+                return (
+                  <>
+                    {renderList(
+                      terminee.slice(
+                        currentPage * CANDIDATURES_PAGE_SIZE,
+                        (currentPage + 1) * CANDIDATURES_PAGE_SIZE
+                      ),
+                      "terminee"
+                    )}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={(page) =>
+                        setListPages((p) => ({ ...p, terminee: page }))
+                      }
+                      ariaLabel="Pagination Terminée"
+                    />
+                  </>
+                );
+              })()}
             </div>
           </section>
           <section className="candidatures__list-wrapper">
@@ -396,9 +454,34 @@ function Candidatures() {
             >
               {refus.length === 0 ? (
                 <p className="candidatures__empty">Aucun refus.</p>
-              ) : (
-                renderList(refus, "refus")
-              )}
+              ) : (() => {
+                const totalPages = Math.ceil(
+                  refus.length / CANDIDATURES_PAGE_SIZE
+                );
+                const currentPage = Math.min(
+                  listPages.refus,
+                  Math.max(0, totalPages - 1)
+                );
+                return (
+                  <>
+                    {renderList(
+                      refus.slice(
+                        currentPage * CANDIDATURES_PAGE_SIZE,
+                        (currentPage + 1) * CANDIDATURES_PAGE_SIZE
+                      ),
+                      "refus"
+                    )}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={(page) =>
+                        setListPages((p) => ({ ...p, refus: page }))
+                      }
+                      ariaLabel="Pagination Refus"
+                    />
+                  </>
+                );
+              })()}
             </div>
           </section>
         </>

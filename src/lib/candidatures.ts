@@ -28,6 +28,7 @@ type CandidatureRow = {
   salaire_ou_fourchette: string | null;
   created_at: string;
   updated_at: string;
+  cv_envoye_at: string | null;
 };
 
 function rowToCandidature(row: CandidatureRow): Candidature {
@@ -48,6 +49,7 @@ function rowToCandidature(row: CandidatureRow): Candidature {
     notePersonnelle: row.note_personnelle ?? undefined,
     salaireOuFourchette: row.salaire_ou_fourchette ?? undefined,
     createdAt: row.created_at,
+    cvEnvoyeAt: row.cv_envoye_at ?? undefined,
   };
 }
 
@@ -99,6 +101,8 @@ export async function insertCandidature(
     source: form.source,
     note_personnelle: form.notePersonnelle,
     salaire_ou_fourchette: form.salaireOuFourchette.trim() || null,
+    cv_envoye_at:
+      form.statut === "cv_envoye" ? new Date().toISOString() : null,
   };
 
   const { data, error } = await supabase
@@ -125,6 +129,7 @@ export type UpdateCandidaturePayload = {
   notePersonnelle?: number | null;
   salaireOuFourchette?: string | null;
   notes?: string | null;
+  cvEnvoyeAt?: string | null;
 };
 
 function payloadToRow(
@@ -150,6 +155,7 @@ function payloadToRow(
   if (payload.salaireOuFourchette !== undefined)
     row.salaire_ou_fourchette = payload.salaireOuFourchette?.trim() || null;
   if (payload.notes !== undefined) row.notes = payload.notes?.trim() || null;
+  if (payload.cvEnvoyeAt !== undefined) row.cv_envoye_at = payload.cvEnvoyeAt;
   return row;
 }
 
@@ -158,7 +164,15 @@ export async function updateCandidature(
   candidatureId: string,
   payload: UpdateCandidaturePayload
 ): Promise<Candidature> {
-  const row = payloadToRow(payload);
+  let row = payloadToRow(payload);
+
+  if (payload.statut === "cv_envoye" && payload.cvEnvoyeAt === undefined) {
+    const current = await fetchCandidature(userId, candidatureId);
+    if (current && current.statut !== "cv_envoye") {
+      row = { ...row, cv_envoye_at: new Date().toISOString() };
+    }
+  }
+
   if (Object.keys(row).length === 0) {
     const found = await fetchCandidature(userId, candidatureId);
     if (!found) throw new Error("Candidature introuvable");

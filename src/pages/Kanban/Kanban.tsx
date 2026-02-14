@@ -11,6 +11,7 @@ import type {
 import CandidaturesFilters, {
   filterCandidaturesByFilters,
 } from "../../components/CandidaturesFilters/CandidaturesFilters";
+import { Pagination } from "../../components/Pagination/Pagination";
 import "./Kanban.css";
 
 const STATUT_ICONS: Record<Statut, string> = {
@@ -315,34 +316,12 @@ function Kanban() {
                       </div>
                     ))}
                   </div>
-                  {totalPages > 1 && (
-                    <nav
-                      className="kanban__pagination"
-                      aria-label={`Pagination ${label}`}
-                    >
-                      <button
-                        type="button"
-                        className="kanban__pagination-btn"
-                        disabled={currentPage === 0}
-                        onClick={() => setColumnPage(statut, currentPage - 1)}
-                        aria-label="Page précédente"
-                      >
-                        ‹
-                      </button>
-                      <span className="kanban__pagination-info">
-                        {currentPage + 1} / {totalPages}
-                      </span>
-                      <button
-                        type="button"
-                        className="kanban__pagination-btn"
-                        disabled={currentPage >= totalPages - 1}
-                        onClick={() => setColumnPage(statut, currentPage + 1)}
-                        aria-label="Page suivante"
-                      >
-                        ›
-                      </button>
-                    </nav>
-                  )}
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={(page) => setColumnPage(statut, page)}
+                    ariaLabel={`Pagination ${label}`}
+                  />
                 </div>
               );
             })}
@@ -420,34 +399,12 @@ function Kanban() {
                       </div>
                     ))}
                   </div>
-                  {totalPages > 1 && (
-                    <nav
-                      className="kanban__pagination"
-                      aria-label={`Pagination ${label}`}
-                    >
-                      <button
-                        type="button"
-                        className="kanban__pagination-btn"
-                        disabled={currentPage === 0}
-                        onClick={() => setColumnPage(statut, currentPage - 1)}
-                        aria-label="Page précédente"
-                      >
-                        ‹
-                      </button>
-                      <span className="kanban__pagination-info">
-                        {currentPage + 1} / {totalPages}
-                      </span>
-                      <button
-                        type="button"
-                        className="kanban__pagination-btn"
-                        disabled={currentPage >= totalPages - 1}
-                        onClick={() => setColumnPage(statut, currentPage + 1)}
-                        aria-label="Page suivante"
-                      >
-                        ›
-                      </button>
-                    </nav>
-                  )}
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={(page) => setColumnPage(statut, page)}
+                    ariaLabel={`Pagination ${label}`}
+                  />
                 </div>
               );
             })}

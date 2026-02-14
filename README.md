@@ -70,7 +70,6 @@ src/
     └── Signup/
 ```
 
-
 ---
 
 ## Lancer le projet

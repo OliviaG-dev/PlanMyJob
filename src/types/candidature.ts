@@ -46,4 +46,6 @@ export type Candidature = {
   notePersonnelle?: number; // 1–5
   salaireOuFourchette?: string;
   createdAt?: string; // ISO date from DB
+  /** Date de passage en statut « CV envoyé » (ISO), pour afficher la temporalité */
+  cvEnvoyeAt?: string;
 };
