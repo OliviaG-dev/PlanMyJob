@@ -17,8 +17,9 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 ### Cœur (MVP)
 
-- **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes, localisation, type de contrat, télétravail, source, note personnelle
-- **Kanban** — Colonnes (À postuler → CV envoyé → Entretiens → Attente → Refus / Offre), drag & drop pour changer le statut
+- **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes, localisation, type de contrat, télétravail, source, note personnelle. Liste paginée (3 par section), filtres (nom, télétravail, ville, note), drag & drop entre listes (En cours / Terminée / Refus).
+- **Fiche candidature** — Détail complet ; **temporalité « CV envoyé »** : affichage du temps écoulé depuis le passage en statut « CV envoyé » (secondes, minutes, heures, jours, semaines, mois).
+- **Kanban** — Colonnes (À postuler → CV envoyé → Entretiens → Attente → Refus / Offre), drag & drop pour changer le statut, pagination par colonne.
 - **Tâches** — Todo liées aux candidatures (CV, lettre, relance, prépa entretien)
 - **Planning** — Semainier : entretiens, relances, deadlines
 
@@ -55,19 +56,22 @@ src/
 ├── types/           # Modèles (Candidature, Statut, Priorite, etc.)
 ├── lib/             # Supabase client, candidatures (CRUD)
 ├── contexts/        # AuthContext, ThemeContext
-├── components/      # Layout, Sidebar
+├── components/      # Layout, Sidebar, Pagination, CandidaturesFilters
 │   ├── Layout/
-│   └── Sidebar/
-└── pages/
-    ├── Dashboard/
-    ├── Candidatures/      # Liste + AddCandidatureModal
-    ├── CandidatureDetail/
-    ├── Kanban/
-    ├── Planning/
-    ├── Taches/
-    ├── Settings/
-    ├── Login/
-    └── Signup/
+│   ├── Sidebar/
+│   ├── Pagination/
+│   └── CandidaturesFilters/
+├── pages/
+│   ├── Dashboard/
+│   ├── Candidatures/      # Liste + AddCandidatureModal + filtres + pagination
+│   ├── CandidatureDetail/ # Détail + temporalité CV envoyé
+│   ├── Kanban/
+│   ├── Planning/
+│   ├── Taches/
+│   ├── Settings/
+│   ├── Login/
+│   └── Signup/
+scripts/             # Migrations SQL Supabase (ex. add-cv-envoye-at.sql)
 ```
 
 ---
@@ -79,6 +83,8 @@ src/
 npm install
 
 # Créer un fichier .env à partir de .env.example (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
+
+# (Optionnel) Pour la temporalité « CV envoyé », exécuter scripts/add-cv-envoye-at.sql dans l’éditeur SQL Supabase
 
 # Démarrer en développement
 npm run dev
