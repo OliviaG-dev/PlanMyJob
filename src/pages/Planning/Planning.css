@@ -31,18 +31,227 @@
   margin: 0;
 }
 
-.planning__week {
-  min-height: 320px;
+.planning__calendar {
   background: var(--surface);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.planning__empty {
-  color: var(--text-muted);
-  font-style: italic;
-  font-size: 0.95rem;
+.planning__calendar:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border);
+}
+
+.planning__calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.planning__calendar-title {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 500;
   margin: 0;
+  color: var(--text);
+  min-width: 180px;
+  text-align: center;
+}
+
+.planning__nav-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--primary);
+  background: var(--primary-pale);
+  border: 1px solid var(--primary-soft);
+}
+
+.planning__nav-btn:hover {
+  background: var(--primary-soft);
+  color: var(--surface);
+  border-color: var(--primary);
+}
+
+.planning__today-btn {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  color: var(--primary);
+  background: var(--primary-pale);
+  border: 1px solid var(--primary-soft);
+}
+
+.planning__today-btn:hover {
+  background: var(--primary-soft);
+  color: var(--surface);
+  border-color: var(--primary);
+}
+
+.planning__calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+.planning__day-label {
+  padding: 0.15rem 0.05rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.planning__day {
+  aspect-ratio: 1;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--background-subtle);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.planning__day:hover:not(.planning__day--other-month) {
+  background: var(--hover);
+}
+
+.planning__day--today {
+  background: var(--primary-pale);
+  color: var(--primary);
+  border: 2px solid var(--primary-soft);
+  font-weight: 600;
+}
+
+.planning__day--other-month {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* Tablette */
+@media (max-width: 768px) {
+  .planning {
+    padding: 1.25rem 1rem;
+  }
+
+  .planning__header {
+    flex-wrap: wrap;
+  }
+
+  .planning__icon {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .planning__header h1 {
+    font-size: 1.5rem;
+  }
+
+  .planning__calendar {
+    padding: 1rem;
+  }
+
+  .planning__calendar-nav {
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .planning__calendar-title {
+    font-size: 1.2rem;
+    min-width: 140px;
+  }
+
+  .planning__nav-btn {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.35rem;
+  }
+
+  .planning__today-btn {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .planning__calendar-grid {
+    max-width: 100%;
+  }
+
+  .planning__day {
+    min-height: 44px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Téléphone */
+@media (max-width: 480px) {
+  .planning {
+    padding: 1rem 0.75rem;
+  }
+
+  .planning__header {
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .planning__icon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .planning__header h1 {
+    font-size: 1.35rem;
+  }
+
+  .planning__intro {
+    font-size: 0.9rem;
+  }
+
+  .planning__calendar {
+    padding: 0.75rem;
+  }
+
+  .planning__calendar-nav {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .planning__calendar-title {
+    font-size: 1.05rem;
+    min-width: 120px;
+  }
+
+  .planning__nav-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 1.25rem;
+  }
+
+  .planning__day-label {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.02rem;
+  }
+
+  .planning__day {
+    min-height: 36px;
+    font-size: 0.75rem;
+  }
 }
