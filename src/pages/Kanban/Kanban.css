@@ -5,17 +5,32 @@
   margin: 0 auto;
 }
 
-.kanban h1 {
+.kanban__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.kanban__icon {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.kanban__header h1 {
   font-family: var(--font-heading);
   font-weight: 500;
-  margin-bottom: 0.35rem;
+  margin: 0 0 0.35rem 0;
   color: var(--text);
 }
 
 .kanban__intro {
   color: var(--text-muted);
   font-size: 0.98rem;
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
 .kanban__error {

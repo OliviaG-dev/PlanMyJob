@@ -7,16 +7,41 @@
 .candidatures__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
   gap: 1rem;
   margin-bottom: 1.75rem;
 }
 
-.candidatures h1 {
+.candidatures__head-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.candidatures__head-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.candidatures__head-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.candidatures__icon {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.candidatures__head h1 {
   font-family: var(--font-heading);
   font-weight: 500;
-  margin-bottom: 0.35rem;
+  margin: 0 0 0.35rem 0;
 }
 
 .candidatures__intro {

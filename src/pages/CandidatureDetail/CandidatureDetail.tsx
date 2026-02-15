@@ -272,7 +272,8 @@ function CandidatureDetail() {
     return (
       <main className="candidature-detail">
         <Link to="/candidatures" className="candidature-detail__back">
-          ← Retour aux candidatures
+          <span className="candidature-detail__back-arrow">←</span>
+          Retour aux candidatures
         </Link>
         <p className="candidature-detail__not-found">
           Candidature introuvable.
@@ -285,7 +286,8 @@ function CandidatureDetail() {
     return (
       <main className="candidature-detail">
         <Link to="/candidatures" className="candidature-detail__back">
-          ← Retour aux candidatures
+          <span className="candidature-detail__back-arrow">←</span>
+          Retour aux candidatures
         </Link>
         <p className="candidature-detail__loading">Chargement…</p>
       </main>
@@ -296,7 +298,8 @@ function CandidatureDetail() {
     return (
       <main className="candidature-detail">
         <Link to="/candidatures" className="candidature-detail__back">
-          ← Retour aux candidatures
+          <span className="candidature-detail__back-arrow">←</span>
+          Retour aux candidatures
         </Link>
         <p className="candidature-detail__error" role="alert">
           {error}
@@ -309,7 +312,8 @@ function CandidatureDetail() {
     return (
       <main className="candidature-detail">
         <Link to="/candidatures" className="candidature-detail__back">
-          ← Retour aux candidatures
+          <span className="candidature-detail__back-arrow">←</span>
+          Retour aux candidatures
         </Link>
         <p className="candidature-detail__not-found">
           Candidature introuvable.
@@ -320,9 +324,18 @@ function CandidatureDetail() {
 
   return (
     <main className="candidature-detail">
-      <Link to="/candidatures" className="candidature-detail__back">
-        ← Retour aux candidatures
-      </Link>
+      <div className="candidature-detail__top">
+        <Link to="/candidatures" className="candidature-detail__back">
+          <span className="candidature-detail__back-arrow">←</span>
+          Retour aux candidatures
+        </Link>
+        <img
+          src="/icons/candidature.png"
+          alt=""
+          className="candidature-detail__icon"
+          aria-hidden
+        />
+      </div>
 
       {actionError && (
         <p className="candidature-detail__error" role="alert">
@@ -337,11 +350,13 @@ function CandidatureDetail() {
           </h1>
           <p className="candidature-detail__poste">{candidature.poste}</p>
         </div>
-        <span
-          className={`candidature-detail__badge candidature-detail__badge--kanban candidature-detail__badge--${candidature.statut}`}
-        >
-          {STATUT_KANBAN_LABELS[candidature.statut]}
-        </span>
+        <div className="candidature-detail__header-right">
+          <span
+            className={`candidature-detail__badge candidature-detail__badge--kanban candidature-detail__badge--${candidature.statut}`}
+          >
+            {STATUT_KANBAN_LABELS[candidature.statut]}
+          </span>
+        </div>
       </header>
 
       <section className="candidature-detail__section">

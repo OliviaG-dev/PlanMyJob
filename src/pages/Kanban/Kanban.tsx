@@ -258,11 +258,21 @@ function Kanban() {
 
   return (
     <main className="kanban">
-      <h1>Kanban</h1>
-      <p className="kanban__intro">
-        Glissez-déposez vos candidatures en cours entre les colonnes selon leur
-        statut.
-      </p>
+      <div className="kanban__header">
+        <div>
+          <h1>Kanban</h1>
+          <p className="kanban__intro">
+            Glissez-déposez vos candidatures en cours entre les colonnes selon
+            leur statut.
+          </p>
+        </div>
+        <img
+          src="/icons/kanban.png"
+          alt=""
+          className="kanban__icon"
+          aria-hidden
+        />
+      </div>
 
       <CandidaturesFilters
         idPrefix="kanban"

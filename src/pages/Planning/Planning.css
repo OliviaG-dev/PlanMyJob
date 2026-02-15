@@ -4,16 +4,31 @@
   margin: 0 auto;
 }
 
-.planning h1 {
+.planning__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.planning__icon {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.planning__header h1 {
   font-family: var(--font-heading);
   font-weight: 500;
-  margin-bottom: 0.35rem;
+  margin: 0 0 0.35rem 0;
 }
 
 .planning__intro {
   color: var(--text-muted);
   font-size: 0.98rem;
-  margin-bottom: 1.75rem;
+  margin: 0;
 }
 
 .planning__week {
