@@ -121,6 +121,100 @@
   padding: 0;
 }
 
+/* Fallback mobile : menu « Déplacer vers… » (écran ≤ 768px) */
+.candidatures__item-mobile-wrap {
+  position: relative;
+}
+
+.candidatures__item-row {
+  display: block;
+}
+
+.candidatures__item-mobile-wrap--active .candidatures__item-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.candidatures__item-mobile-wrap--active .candidatures__item-row .candidatures__link {
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.candidatures__item-move-btn {
+  flex-shrink: 0;
+  width: 2.5rem;
+  padding: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-light);
+  border-left: none;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.candidatures__item-move-btn:hover {
+  color: var(--primary);
+  background: var(--primary-pale);
+  border-color: var(--primary-soft);
+}
+
+.candidatures__item-move-btn:focus {
+  outline: none;
+  color: var(--primary);
+  background: var(--primary-pale);
+  border-color: var(--primary-soft);
+}
+
+.candidatures__item-move-menu {
+  position: absolute;
+  z-index: 20;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.candidatures__item-move-menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  text-align: left;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.candidatures__item-move-menu-item:hover {
+  background: var(--primary-pale);
+  color: var(--primary);
+}
+
+.candidatures__item-move-menu-item:focus {
+  outline: none;
+  background: var(--primary-pale);
+  color: var(--primary);
+}
+
 .candidatures__link {
   display: flex;
   flex-wrap: wrap;

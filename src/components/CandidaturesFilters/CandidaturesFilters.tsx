@@ -28,7 +28,7 @@ export type CandidaturesFiltersState = {
 
 export function filterCandidaturesByFilters(
   list: Candidature[],
-  filters: CandidaturesFiltersState
+  filters: CandidaturesFiltersState,
 ): Candidature[] {
   return list.filter((c) => {
     const q = filters.nom.trim().toLowerCase();
@@ -92,12 +92,6 @@ function CandidaturesFilters({
           Nom
         </label>
         <span className="candidatures-filters__input-wrap">
-          <img
-            src="/icons/search.png"
-            alt=""
-            className="candidatures-filters__search-icon"
-            aria-hidden
-          />
           <input
             id={`${idPrefix}-filter-nom`}
             type="search"
@@ -105,6 +99,12 @@ function CandidaturesFilters({
             placeholder="Entreprise ou poste"
             value={nom}
             onChange={(e) => onNomChange(e.target.value)}
+          />
+          <img
+            src="/icons/search.png"
+            alt=""
+            className="candidatures-filters__search-icon"
+            aria-hidden
           />
         </span>
       </div>
@@ -141,6 +141,13 @@ function CandidaturesFilters({
           wrapClassName="candidatures-filters__select-wrap--note"
           openId={openDropdown}
           onOpenChange={setOpenDropdown}
+        />
+      </div>
+      <div className="candidatures-filters__search-wrap" aria-hidden>
+        <img
+          src="/icons/search1.png"
+          alt=""
+          className="candidatures-filters__search1-icon"
         />
       </div>
     </div>

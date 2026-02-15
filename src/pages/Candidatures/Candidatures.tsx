@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
@@ -67,6 +67,12 @@ function StarRating({ value }: { value: number }) {
 
 type ListType = "en_cours" | "terminee" | "refus";
 
+const LIST_OPTIONS: { listType: ListType; label: string }[] = [
+  { listType: "en_cours", label: "En cours" },
+  { listType: "terminee", label: "Terminée" },
+  { listType: "refus", label: "Refus" },
+];
+
 function formatCreatedAt(iso?: string): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -97,6 +103,36 @@ function Candidatures() {
     terminee: 0,
     refus: 0,
   });
+  const [isMobile, setIsMobile] = useState(false);
+  const [openMoveMenuId, setOpenMoveMenuId] = useState<string | null>(null);
+  const moveMenuAnchorRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (!openMoveMenuId) return;
+    const handleOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (
+        moveMenuAnchorRef.current &&
+        !moveMenuAnchorRef.current.contains(target)
+      ) {
+        setOpenMoveMenuId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, [openMoveMenuId]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -187,6 +223,56 @@ function Candidatures() {
     setDragOverList(null);
   }
 
+  async function moveCandidatureToList(
+    candidatureId: string,
+    targetListType: ListType
+  ) {
+    if (!user?.id) return;
+    const candidature = candidatures.find((c) => c.id === candidatureId);
+    if (!candidature) return;
+    setOpenMoveMenuId(null);
+
+    let payload: { statut?: Statut; statutSuivi?: StatutSuivi };
+    if (targetListType === "en_cours" && candidature.statut === "refus") {
+      payload = { statutSuivi: "en_cours", statut: "a_postuler" };
+    } else {
+      payload = getPayloadForList(targetListType);
+    }
+    const alreadyInList =
+      targetListType === "refus"
+        ? candidature.statut === "refus"
+        : targetListType === "terminee"
+        ? candidature.statutSuivi === "terminee" &&
+          candidature.statut !== "refus"
+        : candidature.statut !== "refus" &&
+          (candidature.statutSuivi === "en_cours" ||
+            candidature.statutSuivi !== "terminee");
+    if (alreadyInList) return;
+
+    const previous = [...candidatures];
+    setCandidatures((prev) =>
+      prev.map((c) => {
+        if (c.id !== candidatureId) return c;
+        return {
+          ...c,
+          ...(payload.statut !== undefined && { statut: payload.statut }),
+          ...(payload.statutSuivi !== undefined && {
+            statutSuivi: payload.statutSuivi,
+          }),
+        };
+      })
+    );
+    setError(null);
+    try {
+      await updateCandidature(user.id, candidatureId, payload);
+    } catch (err) {
+      setCandidatures(previous);
+      setError(
+        err instanceof Error ? err.message : "Erreur lors du déplacement"
+      );
+    }
+  }
+
   async function handleDrop(e: React.DragEvent, listType: ListType) {
     e.preventDefault();
     setDragOverList(null);
@@ -200,49 +286,8 @@ function Candidatures() {
     } catch {
       id = raw;
     }
-    if (!id || !user?.id) return;
-    const candidature = candidatures.find((c) => c.id === id);
-    if (!candidature) return;
-
-    let payload: { statut?: Statut; statutSuivi?: StatutSuivi };
-    if (listType === "en_cours" && candidature.statut === "refus") {
-      payload = { statutSuivi: "en_cours", statut: "a_postuler" };
-    } else {
-      payload = getPayloadForList(listType);
-    }
-    const alreadyInList =
-      listType === "refus"
-        ? candidature.statut === "refus"
-        : listType === "terminee"
-        ? candidature.statutSuivi === "terminee" &&
-          candidature.statut !== "refus"
-        : candidature.statut !== "refus" &&
-          (candidature.statutSuivi === "en_cours" ||
-            candidature.statutSuivi !== "terminee");
-    if (alreadyInList) return;
-
-    const previous = [...candidatures];
-    setCandidatures((prev) =>
-      prev.map((c) => {
-        if (c.id !== id) return c;
-        return {
-          ...c,
-          ...(payload.statut !== undefined && { statut: payload.statut }),
-          ...(payload.statutSuivi !== undefined && {
-            statutSuivi: payload.statutSuivi,
-          }),
-        };
-      })
-    );
-    setError(null);
-    try {
-      await updateCandidature(user.id, id, payload);
-    } catch (err) {
-      setCandidatures(previous);
-      setError(
-        err instanceof Error ? err.message : "Erreur lors du déplacement"
-      );
-    }
+    if (!id) return;
+    await moveCandidatureToList(id, listType);
   }
 
   function renderList(items: Candidature[], listType: ListType) {
@@ -254,40 +299,97 @@ function Candidatures() {
             className={`candidatures__item ${
               draggingId === c.id ? "candidatures__item--dragging" : ""
             }`}
-            draggable
-            onDragStart={(e) => handleDragStart(e, c)}
-            onDragEnd={handleDragEnd}
+            draggable={!isMobile}
+            onDragStart={!isMobile ? (e) => handleDragStart(e, c) : undefined}
+            onDragEnd={!isMobile ? handleDragEnd : undefined}
           >
-            <Link
-              to={`/candidatures/${c.id}`}
-              className={`candidatures__link ${
-                listType === "terminee" ? "candidatures__link--terminee" : ""
-              } ${listType === "refus" ? "candidatures__link--refus" : ""}`}
+            <div
+              className={`candidatures__item-mobile-wrap ${isMobile ? "candidatures__item-mobile-wrap--active" : ""}`}
+              ref={
+                openMoveMenuId === c.id
+                  ? (el) => {
+                      moveMenuAnchorRef.current = el;
+                    }
+                  : undefined
+              }
             >
-              <div className="candidatures__link-content">
-                <span className="candidatures__item-entreprise">
-                  {c.entreprise}
-                </span>
-                <span className="candidatures__item-poste">{c.poste}</span>
-              </div>
-              <div className="candidatures__link-right">
-                {c.createdAt && (
-                  <span className="candidatures__item-date">
-                    {formatCreatedAt(c.createdAt)}
-                  </span>
+              <div className="candidatures__item-row">
+                <Link
+                  to={`/candidatures/${c.id}`}
+                  className={`candidatures__link ${
+                    listType === "terminee"
+                      ? "candidatures__link--terminee"
+                      : ""
+                  } ${listType === "refus" ? "candidatures__link--refus" : ""}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="candidatures__link-content">
+                    <span className="candidatures__item-entreprise">
+                      {c.entreprise}
+                    </span>
+                    <span className="candidatures__item-poste">{c.poste}</span>
+                  </div>
+                  <div className="candidatures__link-right">
+                    {c.createdAt && (
+                      <span className="candidatures__item-date">
+                        {formatCreatedAt(c.createdAt)}
+                      </span>
+                    )}
+                    <div className="candidatures__link-right-bottom">
+                      <span className="candidatures__item-kanban">
+                        {STATUT_KANBAN_LABELS[c.statut]}
+                      </span>
+                    </div>
+                  </div>
+                  {c.notePersonnelle != null && (
+                    <div className="candidatures__link-note">
+                      <StarRating value={c.notePersonnelle} />
+                    </div>
+                  )}
+                </Link>
+                {isMobile && (
+                  <button
+                    type="button"
+                    className="candidatures__item-move-btn"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setOpenMoveMenuId(
+                        openMoveMenuId === c.id ? null : c.id
+                      );
+                    }}
+                    aria-label="Déplacer"
+                    aria-expanded={openMoveMenuId === c.id}
+                    aria-haspopup="true"
+                  >
+                    ⋯
+                  </button>
                 )}
-                <div className="candidatures__link-right-bottom">
-                  <span className="candidatures__item-kanban">
-                    {STATUT_KANBAN_LABELS[c.statut]}
-                  </span>
-                </div>
               </div>
-              {c.notePersonnelle != null && (
-                <div className="candidatures__link-note">
-                  <StarRating value={c.notePersonnelle} />
+              {isMobile && openMoveMenuId === c.id && (
+                <div
+                  className="candidatures__item-move-menu"
+                  role="menu"
+                  aria-label="Déplacer vers"
+                >
+                  {LIST_OPTIONS.filter((opt) => opt.listType !== listType).map(
+                    ({ listType: targetList, label: l }) => (
+                      <button
+                        key={targetList}
+                        type="button"
+                        role="menuitem"
+                        className="candidatures__item-move-menu-item"
+                        onClick={() =>
+                          moveCandidatureToList(c.id, targetList)
+                        }
+                      >
+                        {l}
+                      </button>
+                    )
+                  )}
                 </div>
               )}
-            </Link>
+            </div>
           </li>
         ))}
       </ul>

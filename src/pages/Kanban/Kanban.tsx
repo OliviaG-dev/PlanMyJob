@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { fetchCandidatures, updateCandidature } from "../../lib/candidatures";
@@ -36,6 +36,8 @@ const COLUMNS_BOTTOM: { statut: Statut; label: string }[] = [
   { statut: "refus", label: "Refus" },
   { statut: "offre", label: "Offre" },
 ];
+
+const ALL_COLUMNS = [...COLUMNS_MAIN, ...COLUMNS_BOTTOM];
 
 const MAX_STARS = 5;
 const MAIN_PAGE_SIZE = 5;
@@ -92,6 +94,36 @@ function Kanban() {
   >("");
   const [filterVille, setFilterVille] = useState("");
   const [filterNote, setFilterNote] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+  const [openMoveMenuId, setOpenMoveMenuId] = useState<string | null>(null);
+  const moveMenuAnchorRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (!openMoveMenuId) return;
+    const handleOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (
+        moveMenuAnchorRef.current &&
+        !moveMenuAnchorRef.current.contains(target)
+      ) {
+        setOpenMoveMenuId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, [openMoveMenuId]);
 
   const setColumnPage = (statut: Statut, page: number) => {
     setColumnPages((prev) => ({ ...prev, [statut]: page }));
@@ -170,6 +202,43 @@ function Kanban() {
     setDragOverStatut(null);
   }
 
+  async function moveCandidatureTo(candidatureId: string, newStatut: Statut) {
+    if (!user?.id) return;
+    const candidature = effectiveCandidatures.find((c) => c.id === candidatureId);
+    if (!candidature || candidature.statut === newStatut) return;
+    setOpenMoveMenuId(null);
+
+    const payload: { statut: Statut; statutSuivi?: StatutSuivi } = {
+      statut: newStatut,
+    };
+    if (newStatut === "refus") {
+      payload.statutSuivi = "terminee";
+    }
+
+    const previous = [...effectiveCandidatures];
+    setCandidatures((prev) =>
+      prev.map((c) => {
+        if (c.id !== candidatureId) return c;
+        return {
+          ...c,
+          statut: payload.statut,
+          ...(payload.statutSuivi !== undefined && {
+            statutSuivi: payload.statutSuivi,
+          }),
+        };
+      })
+    );
+    setError(null);
+    try {
+      await updateCandidature(user.id, candidatureId, payload);
+    } catch (err) {
+      setCandidatures(previous);
+      setError(
+        err instanceof Error ? err.message : "Erreur lors du déplacement"
+      );
+    }
+  }
+
   async function handleDrop(e: React.DragEvent, newStatut: Statut) {
     e.preventDefault();
     setDragOverStatut(null);
@@ -183,39 +252,8 @@ function Kanban() {
     } catch {
       id = raw;
     }
-    if (!id || !user?.id) return;
-    const candidature = effectiveCandidatures.find((c) => c.id === id);
-    if (!candidature || candidature.statut === newStatut) return;
-
-    const payload: { statut: Statut; statutSuivi?: StatutSuivi } = {
-      statut: newStatut,
-    };
-    if (newStatut === "refus") {
-      payload.statutSuivi = "terminee";
-    }
-
-    const previous = [...effectiveCandidatures];
-    setCandidatures((prev) =>
-      prev.map((c) => {
-        if (c.id !== id) return c;
-        return {
-          ...c,
-          statut: payload.statut,
-          ...(payload.statutSuivi !== undefined && {
-            statutSuivi: payload.statutSuivi,
-          }),
-        };
-      })
-    );
-    setError(null);
-    try {
-      await updateCandidature(user.id, id, payload);
-    } catch (err) {
-      setCandidatures(previous);
-      setError(
-        err instanceof Error ? err.message : "Erreur lors du déplacement"
-      );
-    }
+    if (!id) return;
+    await moveCandidatureTo(id, newStatut);
   }
 
   return (
@@ -286,33 +324,87 @@ function Kanban() {
                       />
                       {label}
                     </span>
-                    <span className="kanban__column-count">
-                      {columnCandidatures.length}
-                    </span>
+                    <div className="kanban__column-count">
+                      <span className="kanban__column-count-num">
+                        {columnCandidatures.length}
+                      </span>
+                    </div>
                   </h3>
                   <div className="kanban__cards">
                     {displayed.map((c) => (
                       <div
                         key={c.id}
-                        className={`kanban__card ${
-                          draggingId === c.id ? "kanban__card--dragging" : ""
-                        }`}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, c)}
-                        onDragEnd={handleDragEnd}
+                        className={`kanban__card-mobile-wrap ${isMobile ? "kanban__card-mobile-wrap--active" : ""}`}
+                        ref={
+                          openMoveMenuId === c.id
+                            ? (el) => {
+                                moveMenuAnchorRef.current = el;
+                              }
+                            : undefined
+                        }
                       >
-                        <Link
-                          to={`/candidatures/${c.id}`}
-                          className="kanban__card-link"
-                          onClick={(e) => e.stopPropagation()}
+                        <div
+                          className={`kanban__card ${
+                            draggingId === c.id ? "kanban__card--dragging" : ""
+                          }`}
+                          draggable={!isMobile}
+                          onDragStart={!isMobile ? (e) => handleDragStart(e, c) : undefined}
+                          onDragEnd={!isMobile ? handleDragEnd : undefined}
                         >
-                          <span className="kanban__card-entreprise">
-                            {c.entreprise}
-                          </span>
-                          {c.notePersonnelle != null && (
-                            <StarRating value={c.notePersonnelle} />
+                          <Link
+                            to={`/candidatures/${c.id}`}
+                            className="kanban__card-link"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <span className="kanban__card-entreprise">
+                              {c.entreprise}
+                            </span>
+                            {c.notePersonnelle != null && (
+                              <StarRating value={c.notePersonnelle} />
+                            )}
+                          </Link>
+                          {isMobile && statut !== "refus" && (
+                            <button
+                              type="button"
+                              className="kanban__card-move-btn"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setOpenMoveMenuId(
+                                  openMoveMenuId === c.id ? null : c.id
+                                );
+                              }}
+                              aria-label="Déplacer"
+                              aria-expanded={openMoveMenuId === c.id}
+                              aria-haspopup="true"
+                            >
+                              ⋯
+                            </button>
                           )}
-                        </Link>
+                        </div>
+                        {isMobile && statut !== "refus" && openMoveMenuId === c.id && (
+                          <div
+                            className="kanban__card-move-menu"
+                            role="menu"
+                            aria-label="Déplacer vers"
+                          >
+                            {ALL_COLUMNS.filter(
+                              (col) => col.statut !== c.statut
+                            ).map(({ statut, label }) => (
+                              <button
+                                key={statut}
+                                type="button"
+                                role="menuitem"
+                                className="kanban__card-move-menu-item"
+                                onClick={() =>
+                                  moveCandidatureTo(c.id, statut)
+                                }
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -363,39 +455,93 @@ function Kanban() {
                       />
                       {label}
                     </span>
-                    <span className="kanban__column-count">
-                      {columnCandidatures.length}
-                    </span>
+                    <div className="kanban__column-count">
+                      <span className="kanban__column-count-num">
+                        {columnCandidatures.length}
+                      </span>
+                    </div>
                   </h3>
                   <div className="kanban__cards">
                     {displayed.map((c) => (
                       <div
                         key={c.id}
-                        className={`kanban__card ${
-                          statut === "refus" ? "kanban__card--refus" : ""
-                        } ${
-                          draggingId === c.id ? "kanban__card--dragging" : ""
-                        }`}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, c)}
-                        onDragEnd={handleDragEnd}
+                        className={`kanban__card-mobile-wrap ${isMobile ? "kanban__card-mobile-wrap--active" : ""}`}
+                        ref={
+                          openMoveMenuId === c.id
+                            ? (el) => {
+                                moveMenuAnchorRef.current = el;
+                              }
+                            : undefined
+                        }
                       >
-                        <Link
-                          to={`/candidatures/${c.id}`}
-                          className="kanban__card-link"
-                          onClick={(e) => e.stopPropagation()}
-                          title={c.entreprise}
+                        <div
+                          className={`kanban__card ${
+                            statut === "refus" ? "kanban__card--refus" : ""
+                          } ${
+                            draggingId === c.id ? "kanban__card--dragging" : ""
+                          }`}
+                          draggable={!isMobile}
+                          onDragStart={!isMobile ? (e) => handleDragStart(e, c) : undefined}
+                          onDragEnd={!isMobile ? handleDragEnd : undefined}
                         >
-                          <span className="kanban__card-entreprise">
-                            {statut === "refus"
-                              ? (c.entreprise.slice(0, 2) || "?").toUpperCase()
-                              : c.entreprise}
-                          </span>
-                          {statut !== "refus" &&
-                            c.notePersonnelle != null && (
-                              <StarRating value={c.notePersonnelle} />
-                            )}
-                        </Link>
+                          <Link
+                            to={`/candidatures/${c.id}`}
+                            className="kanban__card-link"
+                            onClick={(e) => e.stopPropagation()}
+                            title={c.entreprise}
+                          >
+                            <span className="kanban__card-entreprise">
+                              {statut === "refus"
+                                ? (c.entreprise.slice(0, 2) || "?").toUpperCase()
+                                : c.entreprise}
+                            </span>
+                            {statut !== "refus" &&
+                              c.notePersonnelle != null && (
+                                <StarRating value={c.notePersonnelle} />
+                              )}
+                          </Link>
+                          {isMobile && statut !== "refus" && (
+                            <button
+                              type="button"
+                              className="kanban__card-move-btn"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setOpenMoveMenuId(
+                                  openMoveMenuId === c.id ? null : c.id
+                                );
+                              }}
+                              aria-label="Déplacer"
+                              aria-expanded={openMoveMenuId === c.id}
+                              aria-haspopup="true"
+                            >
+                              ⋯
+                            </button>
+                          )}
+                        </div>
+                        {isMobile && statut !== "refus" && openMoveMenuId === c.id && (
+                          <div
+                            className="kanban__card-move-menu"
+                            role="menu"
+                            aria-label="Déplacer vers"
+                          >
+                            {ALL_COLUMNS.filter(
+                              (col) => col.statut !== c.statut
+                            ).map(({ statut: s, label: l }) => (
+                              <button
+                                key={s}
+                                type="button"
+                                role="menuitem"
+                                className="kanban__card-move-menu-item"
+                                onClick={() =>
+                                  moveCandidatureTo(c.id, s)
+                                }
+                              >
+                                {l}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

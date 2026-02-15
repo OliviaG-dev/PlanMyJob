@@ -19,7 +19,7 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 - **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes, localisation, type de contrat, télétravail, source, note personnelle. Liste paginée (3 par section), filtres (nom, télétravail, ville, note), drag & drop entre listes (En cours / Terminée / Refus).
 - **Fiche candidature** — Détail complet ; **temporalité « CV envoyé »** : affichage du temps écoulé depuis le passage en statut « CV envoyé » (secondes, minutes, heures, jours, semaines, mois).
-- **Kanban** — Colonnes (À postuler → CV envoyé → Entretiens → Attente → Refus / Offre), drag & drop pour changer le statut, pagination par colonne.
+- **Kanban** — Colonnes (À postuler → CV envoyé → Entretien RH → Entretien technique → Attente de réponse → Refus / Offre), drag & drop pour changer le statut, pagination par colonne, badge de comptage centré par colonne.
 - **Tâches** — Todo liées aux candidatures (CV, lettre, relance, prépa entretien)
 - **Planning** — Semainier : entretiens, relances, deadlines
 
@@ -72,7 +72,6 @@ src/
 │   ├── Settings/
 │   ├── Login/
 │   └── Signup/
-scripts/             # Migrations SQL Supabase (ex. add-cv-envoye-at.sql)
 ```
 
 ---
@@ -83,9 +82,9 @@ scripts/             # Migrations SQL Supabase (ex. add-cv-envoye-at.sql)
 # Installer les dépendances
 npm install
 
-# Créer un fichier .env à partir de .env.example (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
+# Créer un fichier .env avec VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY
 
-# (Optionnel) Pour la temporalité « CV envoyé », exécuter scripts/add-cv-envoye-at.sql dans l’éditeur SQL Supabase
+# (Optionnel) Pour la temporalité « CV envoyé », exécuter une migration SQL (colonne cv_envoye_at) dans l’éditeur SQL Supabase
 
 # Démarrer en développement
 npm run dev
