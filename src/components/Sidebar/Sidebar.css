@@ -8,7 +8,9 @@
   backdrop-filter: blur(4px);
   border: none;
   cursor: default;
-  transition: visibility 0.25s ease, opacity 0.25s ease;
+  transition:
+    visibility 0.25s ease,
+    opacity 0.25s ease;
 }
 
 .sidebar__overlay:focus {
@@ -73,7 +75,9 @@
   margin: 0 0.75rem;
   font-size: 0.95rem;
   font-weight: 500;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .sidebar__link:hover {
@@ -140,7 +144,9 @@
   color: var(--text-muted);
   font-size: 0.9rem;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .sidebar__signout:hover {

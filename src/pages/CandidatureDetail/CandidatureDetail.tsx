@@ -88,6 +88,41 @@ function formatDate(iso?: string): string {
   });
 }
 
+const MS_SEC = 1000;
+const MS_MIN = 60 * MS_SEC;
+const MS_H = 60 * MS_MIN;
+const MS_J = 24 * MS_H;
+const MS_SEM = 7 * MS_J;
+const MS_MOIS = 30 * MS_J;
+
+/** Affiche le temps écoulé depuis une date ISO (1 s, 1 min, 1 h, 1 j, 1 sem., 1 mois). */
+function formatTemporalite(cvEnvoyeAt: string): string {
+  const elapsed = Date.now() - new Date(cvEnvoyeAt).getTime();
+  if (elapsed < 0) return "—";
+  if (elapsed < MS_MIN) {
+    const s = Math.max(1, Math.round(elapsed / MS_SEC));
+    return `${s} seconde${s > 1 ? "s" : ""}`;
+  }
+  if (elapsed < MS_H) {
+    const m = Math.max(1, Math.round(elapsed / MS_MIN));
+    return `${m} minute${m > 1 ? "s" : ""}`;
+  }
+  if (elapsed < MS_J) {
+    const h = Math.max(1, Math.round(elapsed / MS_H));
+    return `${h} h`;
+  }
+  if (elapsed < MS_SEM) {
+    const j = Math.max(1, Math.round(elapsed / MS_J));
+    return `${j} j`;
+  }
+  if (elapsed < MS_MOIS) {
+    const sem = Math.max(1, Math.round(elapsed / MS_SEM));
+    return `${sem} sem.`;
+  }
+  const mois = Math.max(1, Math.round(elapsed / MS_MOIS));
+  return `${mois} mois`;
+}
+
 const MAX_STARS = 5;
 
 function StarRating({ value }: { value: number }) {
@@ -322,6 +357,12 @@ function CandidatureDetail() {
                 : undefined
             }
           />
+          {candidature.statut === "cv_envoye" && candidature.cvEnvoyeAt && (
+            <DetailRow
+              label="CV envoyé depuis"
+              value={formatTemporalite(candidature.cvEnvoyeAt)}
+            />
+          )}
           <DetailRow
             label="Date de candidature"
             value={formatDate(candidature.dateCandidature)}

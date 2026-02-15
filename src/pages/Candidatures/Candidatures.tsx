@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
@@ -6,11 +6,22 @@ import {
   insertCandidature,
   updateCandidature,
 } from "../../lib/candidatures";
-import type { Candidature, Statut, StatutSuivi } from "../../types/candidature";
+import type {
+  Candidature,
+  Statut,
+  StatutSuivi,
+  Teletravail,
+} from "../../types/candidature";
+import CandidaturesFilters, {
+  filterCandidaturesByFilters,
+} from "../../components/CandidaturesFilters/CandidaturesFilters";
+import { Pagination } from "../../components/Pagination/Pagination";
 import AddCandidatureModal, {
   type AddCandidatureFormData,
 } from "./AddCandidatureModal";
 import "./Candidatures.css";
+
+const CANDIDATURES_PAGE_SIZE = 3;
 
 const STATUT_KANBAN_LABELS: Record<Statut, string> = {
   a_postuler: "À postuler",
@@ -56,6 +67,12 @@ function StarRating({ value }: { value: number }) {
 
 type ListType = "en_cours" | "terminee" | "refus";
 
+const LIST_OPTIONS: { listType: ListType; label: string }[] = [
+  { listType: "en_cours", label: "En cours" },
+  { listType: "terminee", label: "Terminée" },
+  { listType: "refus", label: "Refus" },
+];
+
 function formatCreatedAt(iso?: string): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -75,6 +92,47 @@ function Candidatures() {
   const [submitting, setSubmitting] = useState(false);
   const [dragOverList, setDragOverList] = useState<ListType | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [filterNom, setFilterNom] = useState("");
+  const [filterTeletravail, setFilterTeletravail] = useState<
+    "" | Teletravail
+  >("");
+  const [filterVille, setFilterVille] = useState("");
+  const [filterNote, setFilterNote] = useState("");
+  const [listPages, setListPages] = useState<Record<ListType, number>>({
+    en_cours: 0,
+    terminee: 0,
+    refus: 0,
+  });
+  const [isMobile, setIsMobile] = useState(false);
+  const [openMoveMenuId, setOpenMoveMenuId] = useState<string | null>(null);
+  const moveMenuAnchorRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (!openMoveMenuId) return;
+    const handleOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (
+        moveMenuAnchorRef.current &&
+        !moveMenuAnchorRef.current.contains(target)
+      ) {
+        setOpenMoveMenuId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, [openMoveMenuId]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -105,13 +163,31 @@ function Candidatures() {
     }
   }
 
-  const refus = candidatures.filter((c) => c.statut === "refus");
-  const enCours = candidatures.filter(
+  const filterState = {
+    nom: filterNom,
+    teletravail: filterTeletravail,
+    ville: filterVille,
+    note: filterNote,
+  };
+  const filteredCandidatures = filterCandidaturesByFilters(
+    candidatures,
+    filterState
+  );
+  const villesUniques = [
+    ...new Set(
+      candidatures
+        .map((c) => (c.localisation ?? "").trim())
+        .filter(Boolean)
+    ),
+  ].sort((a, b) => a.localeCompare(b, "fr"));
+
+  const refus = filteredCandidatures.filter((c) => c.statut === "refus");
+  const enCours = filteredCandidatures.filter(
     (c) =>
       c.statut !== "refus" &&
       (c.statutSuivi === "en_cours" || c.statutSuivi !== "terminee")
   );
-  const terminee = candidatures.filter(
+  const terminee = filteredCandidatures.filter(
     (c) => c.statutSuivi === "terminee" && c.statut !== "refus"
   );
 
@@ -147,6 +223,56 @@ function Candidatures() {
     setDragOverList(null);
   }
 
+  async function moveCandidatureToList(
+    candidatureId: string,
+    targetListType: ListType
+  ) {
+    if (!user?.id) return;
+    const candidature = candidatures.find((c) => c.id === candidatureId);
+    if (!candidature) return;
+    setOpenMoveMenuId(null);
+
+    let payload: { statut?: Statut; statutSuivi?: StatutSuivi };
+    if (targetListType === "en_cours" && candidature.statut === "refus") {
+      payload = { statutSuivi: "en_cours", statut: "a_postuler" };
+    } else {
+      payload = getPayloadForList(targetListType);
+    }
+    const alreadyInList =
+      targetListType === "refus"
+        ? candidature.statut === "refus"
+        : targetListType === "terminee"
+        ? candidature.statutSuivi === "terminee" &&
+          candidature.statut !== "refus"
+        : candidature.statut !== "refus" &&
+          (candidature.statutSuivi === "en_cours" ||
+            candidature.statutSuivi !== "terminee");
+    if (alreadyInList) return;
+
+    const previous = [...candidatures];
+    setCandidatures((prev) =>
+      prev.map((c) => {
+        if (c.id !== candidatureId) return c;
+        return {
+          ...c,
+          ...(payload.statut !== undefined && { statut: payload.statut }),
+          ...(payload.statutSuivi !== undefined && {
+            statutSuivi: payload.statutSuivi,
+          }),
+        };
+      })
+    );
+    setError(null);
+    try {
+      await updateCandidature(user.id, candidatureId, payload);
+    } catch (err) {
+      setCandidatures(previous);
+      setError(
+        err instanceof Error ? err.message : "Erreur lors du déplacement"
+      );
+    }
+  }
+
   async function handleDrop(e: React.DragEvent, listType: ListType) {
     e.preventDefault();
     setDragOverList(null);
@@ -160,49 +286,8 @@ function Candidatures() {
     } catch {
       id = raw;
     }
-    if (!id || !user?.id) return;
-    const candidature = candidatures.find((c) => c.id === id);
-    if (!candidature) return;
-
-    let payload: { statut?: Statut; statutSuivi?: StatutSuivi };
-    if (listType === "en_cours" && candidature.statut === "refus") {
-      payload = { statutSuivi: "en_cours", statut: "a_postuler" };
-    } else {
-      payload = getPayloadForList(listType);
-    }
-    const alreadyInList =
-      listType === "refus"
-        ? candidature.statut === "refus"
-        : listType === "terminee"
-        ? candidature.statutSuivi === "terminee" &&
-          candidature.statut !== "refus"
-        : candidature.statut !== "refus" &&
-          (candidature.statutSuivi === "en_cours" ||
-            candidature.statutSuivi !== "terminee");
-    if (alreadyInList) return;
-
-    const previous = [...candidatures];
-    setCandidatures((prev) =>
-      prev.map((c) => {
-        if (c.id !== id) return c;
-        return {
-          ...c,
-          ...(payload.statut !== undefined && { statut: payload.statut }),
-          ...(payload.statutSuivi !== undefined && {
-            statutSuivi: payload.statutSuivi,
-          }),
-        };
-      })
-    );
-    setError(null);
-    try {
-      await updateCandidature(user.id, id, payload);
-    } catch (err) {
-      setCandidatures(previous);
-      setError(
-        err instanceof Error ? err.message : "Erreur lors du déplacement"
-      );
-    }
+    if (!id) return;
+    await moveCandidatureToList(id, listType);
   }
 
   function renderList(items: Candidature[], listType: ListType) {
@@ -214,40 +299,97 @@ function Candidatures() {
             className={`candidatures__item ${
               draggingId === c.id ? "candidatures__item--dragging" : ""
             }`}
-            draggable
-            onDragStart={(e) => handleDragStart(e, c)}
-            onDragEnd={handleDragEnd}
+            draggable={!isMobile}
+            onDragStart={!isMobile ? (e) => handleDragStart(e, c) : undefined}
+            onDragEnd={!isMobile ? handleDragEnd : undefined}
           >
-            <Link
-              to={`/candidatures/${c.id}`}
-              className={`candidatures__link ${
-                listType === "terminee" ? "candidatures__link--terminee" : ""
-              } ${listType === "refus" ? "candidatures__link--refus" : ""}`}
+            <div
+              className={`candidatures__item-mobile-wrap ${isMobile ? "candidatures__item-mobile-wrap--active" : ""}`}
+              ref={
+                openMoveMenuId === c.id
+                  ? (el) => {
+                      moveMenuAnchorRef.current = el;
+                    }
+                  : undefined
+              }
             >
-              <div className="candidatures__link-content">
-                <span className="candidatures__item-entreprise">
-                  {c.entreprise}
-                </span>
-                <span className="candidatures__item-poste">{c.poste}</span>
-              </div>
-              <div className="candidatures__link-right">
-                {c.createdAt && (
-                  <span className="candidatures__item-date">
-                    {formatCreatedAt(c.createdAt)}
-                  </span>
+              <div className="candidatures__item-row">
+                <Link
+                  to={`/candidatures/${c.id}`}
+                  className={`candidatures__link ${
+                    listType === "terminee"
+                      ? "candidatures__link--terminee"
+                      : ""
+                  } ${listType === "refus" ? "candidatures__link--refus" : ""}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="candidatures__link-content">
+                    <span className="candidatures__item-entreprise">
+                      {c.entreprise}
+                    </span>
+                    <span className="candidatures__item-poste">{c.poste}</span>
+                  </div>
+                  <div className="candidatures__link-right">
+                    {c.createdAt && (
+                      <span className="candidatures__item-date">
+                        {formatCreatedAt(c.createdAt)}
+                      </span>
+                    )}
+                    <div className="candidatures__link-right-bottom">
+                      <span className="candidatures__item-kanban">
+                        {STATUT_KANBAN_LABELS[c.statut]}
+                      </span>
+                    </div>
+                  </div>
+                  {c.notePersonnelle != null && (
+                    <div className="candidatures__link-note">
+                      <StarRating value={c.notePersonnelle} />
+                    </div>
+                  )}
+                </Link>
+                {isMobile && (
+                  <button
+                    type="button"
+                    className="candidatures__item-move-btn"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setOpenMoveMenuId(
+                        openMoveMenuId === c.id ? null : c.id
+                      );
+                    }}
+                    aria-label="Déplacer"
+                    aria-expanded={openMoveMenuId === c.id}
+                    aria-haspopup="true"
+                  >
+                    ⋯
+                  </button>
                 )}
-                <div className="candidatures__link-right-bottom">
-                  <span className="candidatures__item-kanban">
-                    {STATUT_KANBAN_LABELS[c.statut]}
-                  </span>
-                </div>
               </div>
-              {c.notePersonnelle != null && (
-                <div className="candidatures__link-note">
-                  <StarRating value={c.notePersonnelle} />
+              {isMobile && openMoveMenuId === c.id && (
+                <div
+                  className="candidatures__item-move-menu"
+                  role="menu"
+                  aria-label="Déplacer vers"
+                >
+                  {LIST_OPTIONS.filter((opt) => opt.listType !== listType).map(
+                    ({ listType: targetList, label: l }) => (
+                      <button
+                        key={targetList}
+                        type="button"
+                        role="menuitem"
+                        className="candidatures__item-move-menu-item"
+                        onClick={() =>
+                          moveCandidatureToList(c.id, targetList)
+                        }
+                      >
+                        {l}
+                      </button>
+                    )
+                  )}
                 </div>
               )}
-            </Link>
+            </div>
           </li>
         ))}
       </ul>
@@ -279,6 +421,22 @@ function Candidatures() {
           {error}
         </p>
       )}
+
+      {!loading && candidatures.length > 0 && (
+        <CandidaturesFilters
+          idPrefix="candidatures"
+          nom={filterNom}
+          onNomChange={setFilterNom}
+          teletravail={filterTeletravail}
+          onTeletravailChange={setFilterTeletravail}
+          ville={filterVille}
+          onVilleChange={setFilterVille}
+          note={filterNote}
+          onNoteChange={setFilterNote}
+          villes={villesUniques}
+        />
+      )}
+
       {loading && (
         <section className="candidatures__list">
           <p className="candidatures__empty">Chargement…</p>
@@ -310,9 +468,34 @@ function Candidatures() {
                 <p className="candidatures__empty">
                   Aucune candidature en cours.
                 </p>
-              ) : (
-                renderList(enCours, "en_cours")
-              )}
+              ) : (() => {
+                const totalPages = Math.ceil(
+                  enCours.length / CANDIDATURES_PAGE_SIZE
+                );
+                const currentPage = Math.min(
+                  listPages.en_cours,
+                  Math.max(0, totalPages - 1)
+                );
+                return (
+                  <>
+                    {renderList(
+                      enCours.slice(
+                        currentPage * CANDIDATURES_PAGE_SIZE,
+                        (currentPage + 1) * CANDIDATURES_PAGE_SIZE
+                      ),
+                      "en_cours"
+                    )}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={(page) =>
+                        setListPages((p) => ({ ...p, en_cours: page }))
+                      }
+                      ariaLabel="Pagination En cours"
+                    />
+                  </>
+                );
+              })()}
             </div>
           </section>
           <section className="candidatures__list-wrapper">
@@ -331,9 +514,34 @@ function Candidatures() {
                 <p className="candidatures__empty">
                   Aucune candidature terminée.
                 </p>
-              ) : (
-                renderList(terminee, "terminee")
-              )}
+              ) : (() => {
+                const totalPages = Math.ceil(
+                  terminee.length / CANDIDATURES_PAGE_SIZE
+                );
+                const currentPage = Math.min(
+                  listPages.terminee,
+                  Math.max(0, totalPages - 1)
+                );
+                return (
+                  <>
+                    {renderList(
+                      terminee.slice(
+                        currentPage * CANDIDATURES_PAGE_SIZE,
+                        (currentPage + 1) * CANDIDATURES_PAGE_SIZE
+                      ),
+                      "terminee"
+                    )}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={(page) =>
+                        setListPages((p) => ({ ...p, terminee: page }))
+                      }
+                      ariaLabel="Pagination Terminée"
+                    />
+                  </>
+                );
+              })()}
             </div>
           </section>
           <section className="candidatures__list-wrapper">
@@ -348,9 +556,34 @@ function Candidatures() {
             >
               {refus.length === 0 ? (
                 <p className="candidatures__empty">Aucun refus.</p>
-              ) : (
-                renderList(refus, "refus")
-              )}
+              ) : (() => {
+                const totalPages = Math.ceil(
+                  refus.length / CANDIDATURES_PAGE_SIZE
+                );
+                const currentPage = Math.min(
+                  listPages.refus,
+                  Math.max(0, totalPages - 1)
+                );
+                return (
+                  <>
+                    {renderList(
+                      refus.slice(
+                        currentPage * CANDIDATURES_PAGE_SIZE,
+                        (currentPage + 1) * CANDIDATURES_PAGE_SIZE
+                      ),
+                      "refus"
+                    )}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={(page) =>
+                        setListPages((p) => ({ ...p, refus: page }))
+                      }
+                      ariaLabel="Pagination Refus"
+                    />
+                  </>
+                );
+              })()}
             </div>
           </section>
         </>
