@@ -7,8 +7,18 @@ import "./Planning.css";
 
 const DAYS_LABELS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 const MONTHS = [
-  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+  "Janvier",
+  "Février",
+  "Mars",
+  "Avril",
+  "Mai",
+  "Juin",
+  "Juillet",
+  "Août",
+  "Septembre",
+  "Octobre",
+  "Novembre",
+  "Décembre",
 ];
 
 const EVENT_LABELS: Record<string, string> = {
@@ -21,20 +31,32 @@ const EVENT_LABELS: Record<string, string> = {
 };
 
 type PlanningEvent = {
-  type: "nouvelle" | "cv_envoye" | "entretien_rh" | "entretien_technique" | "attente_reponse" | "refus";
+  type:
+    | "nouvelle"
+    | "cv_envoye"
+    | "entretien_rh"
+    | "entretien_technique"
+    | "attente_reponse"
+    | "refus";
   label: string;
   entreprise: string;
   poste: string;
   candidatureId: string;
 };
 
-function countByType(events: PlanningEvent[]): { type: string; label: string; count: number }[] {
+function countByType(
+  events: PlanningEvent[],
+): { type: string; label: string; count: number }[] {
   const counts = new Map<string, number>();
   for (const e of events) {
     counts.set(e.type, (counts.get(e.type) ?? 0) + 1);
   }
   return Array.from(counts.entries())
-    .map(([type, count]) => ({ type, label: EVENT_LABELS[type] ?? type, count }))
+    .map(([type, count]) => ({
+      type,
+      label: EVENT_LABELS[type] ?? type,
+      count,
+    }))
     .sort((a, b) => (a.label < b.label ? -1 : 1));
 }
 
@@ -42,7 +64,9 @@ function toDateKey(iso: string): string {
   return iso.slice(0, 10);
 }
 
-function buildEventsMap(candidatures: Candidature[]): Map<string, PlanningEvent[]> {
+function buildEventsMap(
+  candidatures: Candidature[],
+): Map<string, PlanningEvent[]> {
   const map = new Map<string, PlanningEvent[]>();
   for (const c of candidatures) {
     // Nouvelle candidature : dateCandidature ou createdAt
@@ -64,32 +88,62 @@ function buildEventsMap(candidatures: Candidature[]): Map<string, PlanningEvent[
       const key = toDateKey(c.cvEnvoyeAt);
       if (!dateCandidature || key !== toDateKey(dateCandidature)) {
         const list = map.get(key) ?? [];
-        list.push({ type: "cv_envoye", label: "CV envoyé", entreprise: c.entreprise, poste: c.poste, candidatureId: c.id });
+        list.push({
+          type: "cv_envoye",
+          label: "CV envoyé",
+          entreprise: c.entreprise,
+          poste: c.poste,
+          candidatureId: c.id,
+        });
         map.set(key, list);
       }
     }
     // Entretien RH
     if (c.entretienRhAt) {
       const list = map.get(toDateKey(c.entretienRhAt)) ?? [];
-      list.push({ type: "entretien_rh", label: "Entretien RH", entreprise: c.entreprise, poste: c.poste, candidatureId: c.id });
+      list.push({
+        type: "entretien_rh",
+        label: "Entretien RH",
+        entreprise: c.entreprise,
+        poste: c.poste,
+        candidatureId: c.id,
+      });
       map.set(toDateKey(c.entretienRhAt), list);
     }
     // Entretien technique
     if (c.entretienTechniqueAt) {
       const list = map.get(toDateKey(c.entretienTechniqueAt)) ?? [];
-      list.push({ type: "entretien_technique", label: "Entretien technique", entreprise: c.entreprise, poste: c.poste, candidatureId: c.id });
+      list.push({
+        type: "entretien_technique",
+        label: "Entretien technique",
+        entreprise: c.entreprise,
+        poste: c.poste,
+        candidatureId: c.id,
+      });
       map.set(toDateKey(c.entretienTechniqueAt), list);
     }
     // Attente de réponse
     if (c.attenteReponseAt) {
       const list = map.get(toDateKey(c.attenteReponseAt)) ?? [];
-      list.push({ type: "attente_reponse", label: "Attente de réponse", entreprise: c.entreprise, poste: c.poste, candidatureId: c.id });
+      list.push({
+        type: "attente_reponse",
+        label: "Attente de réponse",
+        entreprise: c.entreprise,
+        poste: c.poste,
+        candidatureId: c.id,
+      });
       map.set(toDateKey(c.attenteReponseAt), list);
     }
     // Refus
     if (c.refusAt) {
       const list = map.get(toDateKey(c.refusAt)) ?? [];
-      list.push({ type: "refus", label: "Refus", entreprise: c.entreprise, poste: c.poste, candidatureId: c.id });
+      list.push({
+        type: "refus",
+        label: "Refus",
+        entreprise: c.entreprise,
+        poste: c.poste,
+        candidatureId: c.id,
+      });
       map.set(toDateKey(c.refusAt), list);
     }
   }
@@ -145,7 +199,10 @@ function PlanningDayModal({
           ) : (
             <ul className="planning__modal-list">
               {events.map((e, i) => (
-                <li key={`${e.candidatureId}-${e.type}-${i}`} className={`planning__modal-event planning__modal-event--${e.type}`}>
+                <li
+                  key={`${e.candidatureId}-${e.type}-${i}`}
+                  className={`planning__modal-event planning__modal-event--${e.type}`}
+                >
                   <Link
                     to={`/candidatures/${e.candidatureId}`}
                     className="planning__modal-event-link"
@@ -200,10 +257,12 @@ function PlanningDayCell({
       {counts.length > 0 && (
         <ul className="planning__day-events" aria-hidden>
           {counts.map(({ type, label, count }) => (
-            <li key={type} className={`planning__event planning__event--${type}`}>
-              <span className="planning__event-count">
-                {label} {count}
-              </span>
+            <li
+              key={type}
+              className={`planning__event planning__event--${type}`}
+            >
+              <span className="planning__event-label">{label}</span>
+              <span className="planning__event-count">{count}</span>
             </li>
           ))}
         </ul>
@@ -247,7 +306,10 @@ function Planning() {
     };
   }, [user?.id]);
 
-  const eventsByDate = useMemo(() => buildEventsMap(candidatures), [candidatures]);
+  const eventsByDate = useMemo(
+    () => buildEventsMap(candidatures),
+    [candidatures],
+  );
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -260,14 +322,18 @@ function Planning() {
   const daysInMonth = lastDay.getDate();
 
   const prevMonthLast = new Date(year, month, 0).getDate();
-  const prevMonthDays = Array.from({ length: startOffset }, (_, i) =>
-    prevMonthLast - startOffset + i + 1
+  const prevMonthDays = Array.from(
+    { length: startOffset },
+    (_, i) => prevMonthLast - startOffset + i + 1,
   );
 
   const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   const nextMonthDaysCount = Math.max(0, 35 - (startOffset + daysInMonth));
-  const nextMonthDays = Array.from({ length: nextMonthDaysCount }, (_, i) => i + 1);
+  const nextMonthDays = Array.from(
+    { length: nextMonthDaysCount },
+    (_, i) => i + 1,
+  );
 
   const today = new Date();
 
@@ -276,7 +342,12 @@ function Planning() {
     return eventsByDate.get(key) ?? [];
   };
 
-  const handleDayClick = (d: number, m: number, y: number, evts: PlanningEvent[]) => {
+  const handleDayClick = (
+    d: number,
+    m: number,
+    y: number,
+    evts: PlanningEvent[],
+  ) => {
     setModalDay({ dateLabel: `${d} ${MONTHS[m]} ${y}`, events: evts });
   };
 
@@ -336,64 +407,64 @@ function Planning() {
         </div>
 
         <div className="planning__calendar-wrapper">
-        <div className="planning__calendar-grid">
-          {DAYS_LABELS.map((label) => (
-            <div key={label} className="planning__day-label">
-              {label}
-            </div>
-          ))}
-          {prevMonthDays.map((d) => {
-            const prevYear = month === 0 ? year - 1 : year;
-            const prevMonth = month === 0 ? 11 : month - 1;
-            return (
+          <div className="planning__calendar-grid">
+            {DAYS_LABELS.map((label) => (
+              <div key={label} className="planning__day-label">
+                {label}
+              </div>
+            ))}
+            {prevMonthDays.map((d) => {
+              const prevYear = month === 0 ? year - 1 : year;
+              const prevMonth = month === 0 ? 11 : month - 1;
+              return (
+                <PlanningDayCell
+                  key={`prev-${d}`}
+                  day={d}
+                  month={prevMonth}
+                  year={prevYear}
+                  isPrevMonth
+                  isNextMonth={false}
+                  isToday={false}
+                  events={getEventsForDay(d, prevMonth, prevYear)}
+                  onDayClick={handleDayClick}
+                />
+              );
+            })}
+            {currentMonthDays.map((d) => (
               <PlanningDayCell
-                key={`prev-${d}`}
+                key={d}
                 day={d}
-                month={prevMonth}
-                year={prevYear}
-                isPrevMonth
-                isNextMonth={false}
-                isToday={false}
-                events={getEventsForDay(d, prevMonth, prevYear)}
-                onDayClick={handleDayClick}
-              />
-            );
-          })}
-          {currentMonthDays.map((d) => (
-            <PlanningDayCell
-              key={d}
-              day={d}
-              month={month}
-              year={year}
-              isPrevMonth={false}
-              isNextMonth={false}
-              isToday={
-                d === today.getDate() &&
-                month === today.getMonth() &&
-                year === today.getFullYear()
-              }
-              events={getEventsForDay(d, month, year)}
-              onDayClick={handleDayClick}
-            />
-          ))}
-          {nextMonthDays.map((d) => {
-            const nextYear = month === 11 ? year + 1 : year;
-            const nextMonth = month === 11 ? 0 : month + 1;
-            return (
-              <PlanningDayCell
-                key={`next-${d}`}
-                day={d}
-                month={nextMonth}
-                year={nextYear}
+                month={month}
+                year={year}
                 isPrevMonth={false}
-                isNextMonth
-                isToday={false}
-                events={getEventsForDay(d, nextMonth, nextYear)}
+                isNextMonth={false}
+                isToday={
+                  d === today.getDate() &&
+                  month === today.getMonth() &&
+                  year === today.getFullYear()
+                }
+                events={getEventsForDay(d, month, year)}
                 onDayClick={handleDayClick}
               />
-            );
-          })}
-        </div>
+            ))}
+            {nextMonthDays.map((d) => {
+              const nextYear = month === 11 ? year + 1 : year;
+              const nextMonth = month === 11 ? 0 : month + 1;
+              return (
+                <PlanningDayCell
+                  key={`next-${d}`}
+                  day={d}
+                  month={nextMonth}
+                  year={nextYear}
+                  isPrevMonth={false}
+                  isNextMonth
+                  isToday={false}
+                  events={getEventsForDay(d, nextMonth, nextYear)}
+                  onDayClick={handleDayClick}
+                />
+              );
+            })}
+          </div>
         </div>
       </section>
 

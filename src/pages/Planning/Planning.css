@@ -164,58 +164,201 @@
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-soft) var(--border-light);
+}
+
+.planning__day-events::-webkit-scrollbar {
+  width: 4px;
+}
+
+.planning__day-events::-webkit-scrollbar-track {
+  background: var(--border-light);
+  border-radius: var(--radius-sm);
+}
+
+.planning__day-events::-webkit-scrollbar-thumb {
+  background: var(--primary-soft);
+  border-radius: var(--radius-sm);
+}
+
+.planning__day-events::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
 }
 
 .planning__event {
-  margin: 0;
+  margin: 0 0 0.15rem 0;
+  padding: 0.25rem 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
+  gap: 0.35rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  background: var(--surface);
+  font-size: 0.6rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-.planning__event-count {
-  display: block;
-  padding: 0.1rem 0.25rem;
-  font-size: 0.6rem;
+.planning__event:last-child {
+  margin-bottom: 0;
+}
+
+.planning__event-label {
+  flex: 1;
+  min-width: 0;
+  font-size: inherit;
   font-weight: 600;
-  border-radius: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.planning__event--nouvelle .planning__event-count {
-  color: var(--primary);
-  background: var(--primary-pale);
+.planning__event-count {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 1.1rem;
+  text-align: right;
 }
 
-.planning__event--cv_envoye .planning__event-count {
-  background: var(--surface-elevated);
-  color: var(--text-muted);
-  border: 1px solid var(--border-light);
+/* Nouvelle candidature — rose vif */
+.planning__event--nouvelle {
+  background: #ffc8d4;
+  border-color: #ff8fa8;
 }
 
-.planning__event--entretien_rh .planning__event-count {
-  background: rgba(147, 112, 219, 0.15);
-  color: #6b5b95;
-  border: 1px solid rgba(147, 112, 219, 0.3);
+.planning__event--nouvelle .planning__event-label,
+.planning__event--nouvelle .planning__event-count { color: #c41e4a; }
+
+/* CV envoyé — cyan/bleu vif */
+.planning__event--cv_envoye {
+  background: #b3e5fc;
+  border-color: #4dd0e1;
 }
 
-.planning__event--entretien_technique .planning__event-count {
-  background: rgba(70, 130, 180, 0.15);
-  color: #4682b4;
-  border: 1px solid rgba(70, 130, 180, 0.3);
+.planning__event--cv_envoye .planning__event-label,
+.planning__event--cv_envoye .planning__event-count { color: #006064; }
+
+/* Entretien RH — violet vif */
+.planning__event--entretien_rh {
+  background: #e1bee7;
+  border-color: #ce93d8;
 }
 
-.planning__event--attente_reponse .planning__event-count {
-  background: rgba(184, 134, 11, 0.12);
-  color: #b8860b;
-  border: 1px solid rgba(184, 134, 11, 0.3);
+.planning__event--entretien_rh .planning__event-label,
+.planning__event--entretien_rh .planning__event-count { color: #4a148c; }
+
+/* Entretien technique — bleu vif */
+.planning__event--entretien_technique {
+  background: #bbdefb;
+  border-color: #64b5f6;
 }
 
-.planning__event--refus .planning__event-count {
-  background: rgba(183, 110, 121, 0.2);
-  color: var(--text-muted);
-  border: 1px solid var(--primary-soft);
+.planning__event--entretien_technique .planning__event-label,
+.planning__event--entretien_technique .planning__event-count { color: #0d47a1; }
+
+/* Attente de réponse — orange/ambre vif */
+.planning__event--attente_reponse {
+  background: #ffe0b2;
+  border-color: #ffb74d;
 }
+
+.planning__event--attente_reponse .planning__event-label,
+.planning__event--attente_reponse .planning__event-count { color: #e65100; }
+
+/* Refus — rouge doux */
+.planning__event--refus {
+  background: #ffcdd2;
+  border-color: #ef9a9a;
+}
+
+.planning__event--refus .planning__event-label,
+.planning__event--refus .planning__event-count { color: #b71c1c; }
+
+/* Thème sombre — versions plus saturées */
+[data-theme="dark"] .planning__event--nouvelle {
+  background: rgba(255, 105, 135, 0.35);
+  border-color: #ff6b87;
+}
+[data-theme="dark"] .planning__event--nouvelle .planning__event-label,
+[data-theme="dark"] .planning__event--nouvelle .planning__event-count { color: #ffb3c1; }
+
+[data-theme="dark"] .planning__event--cv_envoye {
+  background: rgba(0, 188, 212, 0.3);
+  border-color: #26c6da;
+}
+[data-theme="dark"] .planning__event--cv_envoye .planning__event-label,
+[data-theme="dark"] .planning__event--cv_envoye .planning__event-count { color: #80deea; }
+
+[data-theme="dark"] .planning__event--entretien_rh {
+  background: rgba(156, 39, 176, 0.35);
+  border-color: #ba68c8;
+}
+[data-theme="dark"] .planning__event--entretien_rh .planning__event-label,
+[data-theme="dark"] .planning__event--entretien_rh .planning__event-count { color: #e1bee7; }
+
+[data-theme="dark"] .planning__event--entretien_technique {
+  background: rgba(33, 150, 243, 0.35);
+  border-color: #64b5f6;
+}
+[data-theme="dark"] .planning__event--entretien_technique .planning__event-label,
+[data-theme="dark"] .planning__event--entretien_technique .planning__event-count { color: #90caf9; }
+
+[data-theme="dark"] .planning__event--attente_reponse {
+  background: rgba(255, 152, 0, 0.35);
+  border-color: #ffb74d;
+}
+[data-theme="dark"] .planning__event--attente_reponse .planning__event-label,
+[data-theme="dark"] .planning__event--attente_reponse .planning__event-count { color: #ffcc80; }
+
+[data-theme="dark"] .planning__event--refus {
+  background: rgba(244, 67, 54, 0.3);
+  border-color: #e57373;
+}
+[data-theme="dark"] .planning__event--refus .planning__event-label,
+[data-theme="dark"] .planning__event--refus .planning__event-count { color: #ef9a9a; }
+
+/* Modal — mêmes couleurs en thème sombre */
+[data-theme="dark"] .planning__modal-event--nouvelle .planning__modal-event-link {
+  background: rgba(255, 105, 135, 0.35);
+  border-color: #ff6b87;
+}
+[data-theme="dark"] .planning__modal-event--nouvelle .planning__modal-event-label { color: #ffb3c1; }
+
+[data-theme="dark"] .planning__modal-event--cv_envoye .planning__modal-event-link {
+  background: rgba(0, 188, 212, 0.3);
+  border-color: #26c6da;
+}
+[data-theme="dark"] .planning__modal-event--cv_envoye .planning__modal-event-label { color: #80deea; }
+
+[data-theme="dark"] .planning__modal-event--entretien_rh .planning__modal-event-link {
+  background: rgba(156, 39, 176, 0.35);
+  border-color: #ba68c8;
+}
+[data-theme="dark"] .planning__modal-event--entretien_rh .planning__modal-event-label { color: #e1bee7; }
+
+[data-theme="dark"] .planning__modal-event--entretien_technique .planning__modal-event-link {
+  background: rgba(33, 150, 243, 0.35);
+  border-color: #64b5f6;
+}
+[data-theme="dark"] .planning__modal-event--entretien_technique .planning__modal-event-label { color: #90caf9; }
+
+[data-theme="dark"] .planning__modal-event--attente_reponse .planning__modal-event-link {
+  background: rgba(255, 152, 0, 0.35);
+  border-color: #ffb74d;
+}
+[data-theme="dark"] .planning__modal-event--attente_reponse .planning__modal-event-label { color: #ffcc80; }
+
+[data-theme="dark"] .planning__modal-event--refus .planning__modal-event-link {
+  background: rgba(244, 67, 54, 0.3);
+  border-color: #e57373;
+}
+[data-theme="dark"] .planning__modal-event--refus .planning__modal-event-label { color: #ef9a9a; }
 
 /* Modal */
 .planning__modal-overlay {
@@ -309,25 +452,22 @@
 .planning__modal-event-link {
   display: block;
   padding: 0.6rem 0.85rem;
-  background: var(--background-subtle);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-light);
+  border: 1px solid;
   text-decoration: none;
   color: var(--text);
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
 .planning__modal-event-link:hover {
-  background: var(--primary-pale);
-  border-color: var(--primary-soft);
-  color: var(--primary);
+  opacity: 0.9;
+  filter: brightness(0.97);
 }
 
 .planning__modal-event-label {
   display: block;
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   margin-bottom: 0.2rem;
@@ -338,11 +478,42 @@
   font-size: 0.95rem;
 }
 
-.planning__modal-event--cv_envoye .planning__modal-event-label { color: var(--text-muted); }
-.planning__modal-event--entretien_rh .planning__modal-event-label { color: #6b5b95; }
-.planning__modal-event--entretien_technique .planning__modal-event-label { color: #4682b4; }
-.planning__modal-event--attente_reponse .planning__modal-event-label { color: #b8860b; }
-.planning__modal-event--refus .planning__modal-event-label { color: var(--text-muted); }
+/* Mêmes couleurs que planning__event */
+.planning__modal-event--nouvelle .planning__modal-event-link {
+  background: #ffc8d4;
+  border-color: #ff8fa8;
+}
+.planning__modal-event--nouvelle .planning__modal-event-label { color: #c41e4a; }
+
+.planning__modal-event--cv_envoye .planning__modal-event-link {
+  background: #b3e5fc;
+  border-color: #4dd0e1;
+}
+.planning__modal-event--cv_envoye .planning__modal-event-label { color: #006064; }
+
+.planning__modal-event--entretien_rh .planning__modal-event-link {
+  background: #e1bee7;
+  border-color: #ce93d8;
+}
+.planning__modal-event--entretien_rh .planning__modal-event-label { color: #4a148c; }
+
+.planning__modal-event--entretien_technique .planning__modal-event-link {
+  background: #bbdefb;
+  border-color: #64b5f6;
+}
+.planning__modal-event--entretien_technique .planning__modal-event-label { color: #0d47a1; }
+
+.planning__modal-event--attente_reponse .planning__modal-event-link {
+  background: #ffe0b2;
+  border-color: #ffb74d;
+}
+.planning__modal-event--attente_reponse .planning__modal-event-label { color: #e65100; }
+
+.planning__modal-event--refus .planning__modal-event-link {
+  background: #ffcdd2;
+  border-color: #ef9a9a;
+}
+.planning__modal-event--refus .planning__modal-event-label { color: #b71c1c; }
 
 .planning__day:hover:not(.planning__day--other-month) {
   background: var(--hover);
