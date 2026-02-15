@@ -29,6 +29,10 @@ type CandidatureRow = {
   created_at: string;
   updated_at: string;
   cv_envoye_at: string | null;
+  entretien_rh_at?: string | null;
+  entretien_technique_at?: string | null;
+  attente_reponse_at?: string | null;
+  refus_at?: string | null;
 };
 
 function rowToCandidature(row: CandidatureRow): Candidature {
@@ -50,6 +54,10 @@ function rowToCandidature(row: CandidatureRow): Candidature {
     salaireOuFourchette: row.salaire_ou_fourchette ?? undefined,
     createdAt: row.created_at,
     cvEnvoyeAt: row.cv_envoye_at ?? undefined,
+    entretienRhAt: row.entretien_rh_at ?? undefined,
+    entretienTechniqueAt: row.entretien_technique_at ?? undefined,
+    attenteReponseAt: row.attente_reponse_at ?? undefined,
+    refusAt: row.refus_at ?? undefined,
   };
 }
 
@@ -85,6 +93,7 @@ export async function insertCandidature(
   userId: string,
   form: AddCandidatureFormData
 ): Promise<Candidature> {
+  const now = new Date().toISOString();
   const row = {
     user_id: userId,
     entreprise: form.entreprise.trim(),
@@ -101,8 +110,11 @@ export async function insertCandidature(
     source: form.source,
     note_personnelle: form.notePersonnelle,
     salaire_ou_fourchette: form.salaireOuFourchette.trim() || null,
-    cv_envoye_at:
-      form.statut === "cv_envoye" ? new Date().toISOString() : null,
+    cv_envoye_at: form.statut === "cv_envoye" ? now : null,
+    entretien_rh_at: form.statut === "entretien_rh" ? now : null,
+    entretien_technique_at: form.statut === "entretien_technique" ? now : null,
+    attente_reponse_at: form.statut === "attente_reponse" ? now : null,
+    refus_at: form.statut === "refus" ? now : null,
   };
 
   const { data, error } = await supabase
@@ -130,6 +142,10 @@ export type UpdateCandidaturePayload = {
   salaireOuFourchette?: string | null;
   notes?: string | null;
   cvEnvoyeAt?: string | null;
+  entretienRhAt?: string | null;
+  entretienTechniqueAt?: string | null;
+  attenteReponseAt?: string | null;
+  refusAt?: string | null;
 };
 
 function payloadToRow(
@@ -156,6 +172,13 @@ function payloadToRow(
     row.salaire_ou_fourchette = payload.salaireOuFourchette?.trim() || null;
   if (payload.notes !== undefined) row.notes = payload.notes?.trim() || null;
   if (payload.cvEnvoyeAt !== undefined) row.cv_envoye_at = payload.cvEnvoyeAt;
+  if (payload.entretienRhAt !== undefined)
+    row.entretien_rh_at = payload.entretienRhAt;
+  if (payload.entretienTechniqueAt !== undefined)
+    row.entretien_technique_at = payload.entretienTechniqueAt;
+  if (payload.attenteReponseAt !== undefined)
+    row.attente_reponse_at = payload.attenteReponseAt;
+  if (payload.refusAt !== undefined) row.refus_at = payload.refusAt;
   return row;
 }
 
@@ -166,10 +189,20 @@ export async function updateCandidature(
 ): Promise<Candidature> {
   let row = payloadToRow(payload);
 
-  if (payload.statut === "cv_envoye" && payload.cvEnvoyeAt === undefined) {
+  const now = new Date().toISOString();
+  if (payload.statut !== undefined) {
     const current = await fetchCandidature(userId, candidatureId);
-    if (current && current.statut !== "cv_envoye") {
-      row = { ...row, cv_envoye_at: new Date().toISOString() };
+    if (current && current.statut !== payload.statut) {
+      if (payload.statut === "cv_envoye" && payload.cvEnvoyeAt === undefined)
+        row = { ...row, cv_envoye_at: now };
+      if (payload.statut === "entretien_rh" && payload.entretienRhAt === undefined)
+        row = { ...row, entretien_rh_at: now };
+      if (payload.statut === "entretien_technique" && payload.entretienTechniqueAt === undefined)
+        row = { ...row, entretien_technique_at: now };
+      if (payload.statut === "attente_reponse" && payload.attenteReponseAt === undefined)
+        row = { ...row, attente_reponse_at: now };
+      if (payload.statut === "refus" && payload.refusAt === undefined)
+        row = { ...row, refus_at: now };
     }
   }
 

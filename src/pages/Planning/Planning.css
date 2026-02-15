@@ -45,6 +45,12 @@
   border-color: var(--border);
 }
 
+.planning__loading {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0 0 1rem 0;
+}
+
 .planning__calendar-nav {
   display: flex;
   align-items: center;
@@ -99,12 +105,19 @@
   border-color: var(--primary);
 }
 
+.planning__calendar-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -0.25rem;
+}
+
 .planning__calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 1px;
   max-width: 750px;
   margin: 0 auto;
+  min-width: 280px;
 }
 
 .planning__day-label {
@@ -121,15 +134,215 @@
   aspect-ratio: 1;
   min-height: 60px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0.2rem;
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--text);
   background: var(--background-subtle);
   border-radius: var(--radius-sm);
   transition: background 0.2s ease, border-color 0.2s ease;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
 }
+
+.planning__day-num {
+  flex-shrink: 0;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.planning__day-events {
+  flex: 1;
+  margin: 0.15rem 0 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow: hidden;
+}
+
+.planning__event {
+  margin: 0;
+}
+
+.planning__event-count {
+  display: block;
+  padding: 0.1rem 0.25rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.planning__event--nouvelle .planning__event-count {
+  color: var(--primary);
+  background: var(--primary-pale);
+}
+
+.planning__event--cv_envoye .planning__event-count {
+  background: var(--surface-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border-light);
+}
+
+.planning__event--entretien_rh .planning__event-count {
+  background: rgba(147, 112, 219, 0.15);
+  color: #6b5b95;
+  border: 1px solid rgba(147, 112, 219, 0.3);
+}
+
+.planning__event--entretien_technique .planning__event-count {
+  background: rgba(70, 130, 180, 0.15);
+  color: #4682b4;
+  border: 1px solid rgba(70, 130, 180, 0.3);
+}
+
+.planning__event--attente_reponse .planning__event-count {
+  background: rgba(184, 134, 11, 0.12);
+  color: #b8860b;
+  border: 1px solid rgba(184, 134, 11, 0.3);
+}
+
+.planning__event--refus .planning__event-count {
+  background: rgba(183, 110, 121, 0.2);
+  color: var(--text-muted);
+  border: 1px solid var(--primary-soft);
+}
+
+/* Modal */
+.planning__modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.planning__modal {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-lg);
+  max-width: 420px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.planning__modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+.planning__modal-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--text);
+}
+
+.planning__modal-close {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.planning__modal-close:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.planning__modal-body {
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.planning__modal-empty {
+  color: var(--text-muted);
+  margin: 0;
+  font-style: italic;
+}
+
+.planning__modal-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.planning__modal-event {
+  margin: 0;
+}
+
+.planning__modal-event-link {
+  display: block;
+  padding: 0.6rem 0.85rem;
+  background: var(--background-subtle);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  text-decoration: none;
+  color: var(--text);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.planning__modal-event-link:hover {
+  background: var(--primary-pale);
+  border-color: var(--primary-soft);
+  color: var(--primary);
+}
+
+.planning__modal-event-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.2rem;
+}
+
+.planning__modal-event-detail {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.planning__modal-event--cv_envoye .planning__modal-event-label { color: var(--text-muted); }
+.planning__modal-event--entretien_rh .planning__modal-event-label { color: #6b5b95; }
+.planning__modal-event--entretien_technique .planning__modal-event-label { color: #4682b4; }
+.planning__modal-event--attente_reponse .planning__modal-event-label { color: #b8860b; }
+.planning__modal-event--refus .planning__modal-event-label { color: var(--text-muted); }
 
 .planning__day:hover:not(.planning__day--other-month) {
   background: var(--hover);
@@ -199,6 +412,10 @@
     min-height: 44px;
     font-size: 0.8rem;
   }
+
+  .planning__modal {
+    max-width: calc(100% - 2rem);
+  }
 }
 
 /* Téléphone */
@@ -253,5 +470,53 @@
   .planning__day {
     min-height: 36px;
     font-size: 0.75rem;
+  }
+
+  .planning__event-count {
+    font-size: 0.55rem;
+    padding: 0.08rem 0.2rem;
+  }
+
+  .planning__modal {
+    max-width: calc(100% - 2rem);
+    margin: 1rem;
+  }
+
+  .planning__modal-header,
+  .planning__modal-body {
+    padding: 0.85rem 1rem;
+  }
+
+  .planning__modal-title {
+    font-size: 1.1rem;
+  }
+}
+
+/* Très petit écran */
+@media (max-width: 360px) {
+  .planning {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .planning__calendar {
+    padding: 0.5rem;
+  }
+
+  .planning__calendar-title {
+    font-size: 0.95rem;
+    min-width: 100px;
+  }
+
+  .planning__calendar-grid {
+    min-width: 260px;
+  }
+
+  .planning__day-label {
+    font-size: 0.55rem;
+  }
+
+  .planning__day {
+    min-height: 32px;
+    font-size: 0.7rem;
   }
 }

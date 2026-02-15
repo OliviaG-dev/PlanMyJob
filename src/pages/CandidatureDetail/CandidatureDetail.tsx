@@ -372,7 +372,7 @@ function CandidatureDetail() {
                 : undefined
             }
           />
-          {candidature.statut === "cv_envoye" && candidature.cvEnvoyeAt && (
+          {candidature.cvEnvoyeAt && (
             <DetailRow
               label="CV envoyé depuis"
               value={formatTemporalite(candidature.cvEnvoyeAt)}
