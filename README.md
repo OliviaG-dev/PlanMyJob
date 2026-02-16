@@ -9,7 +9,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-2.x-3ECF8E?style=flat-square&logo=supabase)
 ![ESLint](https://img.shields.io/badge/ESLint-9-E34F26?style=flat-square&logo=eslint)
 
-PlanMyJob est une application React / TypeScript conçue pour structurer et optimiser la recherche d'emploi. Tableau Kanban pour le suivi des candidatures, semainier pour la planification, système de tâches inspiré des outils de gestion de projet et dashboard de progression. Objectif : une architecture front-end propre, une gestion d'état claire et une expérience utilisateur orientée productivité.
+PlanMyJob est une application React / TypeScript conçue pour structurer et optimiser la recherche d'emploi. Tableau Kanban pour le suivi des candidatures, calendrier mensuel pour la planification, système de tâches inspiré des outils de gestion de projet et dashboard de progression. Thème élégant (rose/beige), dark mode et design cohérent. Architecture front-end propre et expérience utilisateur orientée productivité.
 
 ---
 
@@ -17,24 +17,27 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 ### Cœur (MVP)
 
-- **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes, localisation, type de contrat, télétravail, source, note personnelle. Liste paginée (3 par section), filtres (nom, télétravail, ville, note), drag & drop entre listes (En cours / Terminée / Refus).
-- **Fiche candidature** — Détail complet ; **temporalité « CV envoyé »** : affichage du temps écoulé depuis le passage en statut « CV envoyé » (secondes, minutes, heures, jours, semaines, mois).
+- **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes, localisation, type de contrat, télétravail, source, note personnelle. Liste paginée (3 par section), filtres (nom, télétravail, ville, note) avec icônes, drag & drop entre listes (En cours / Terminée / Refus).
+- **Fiche candidature** — Détail complet, badge de statut Kanban coloré (à postuler, offre, refus, etc.), **temporalité « CV envoyé »** : affichage du temps écoulé depuis le passage en statut « CV envoyé » (secondes, minutes, heures, jours, semaines, mois), bouton supprimer avec style rouge.
 - **Kanban** — Colonnes (À postuler → CV envoyé → Entretien RH → Entretien technique → Attente de réponse → Refus / Offre), drag & drop pour changer le statut, pagination par colonne, badge de comptage centré par colonne.
-- **Tâches** — Todo liées aux candidatures (CV, lettre, relance, prépa entretien)
-- **Planning** — Semainier : entretiens, relances, deadlines
+- **Tâches** — Todo liées aux candidatures (CV, lettre, relance, prépa entretien), navigation mois précédent/suivant + bouton « Aujourd'hui », affichage des événements par jour : Nouvelle candidature, CV envoyé, Entretien RH, Entretien technique, Attente de réponse, Refus (couleurs distinctes). Clic sur une journée : modal avec liste des événements et liens vers les fiches candidature.
 
 ### Tableau de bord
 
 - Stats : candidatures envoyées, en cours, entretiens
 - Visualisations et objectifs (à venir)
 
-### Avancé (prévu)
+### Avancé
+
+- **Dark mode** — Bascule thème clair/sombre (paramètres)
+- Auth Supabase (connexion, inscription)
+
+### Prévu
 
 - Objectifs hebdo, streak, badges
 - Rappels et notifications
 - Gestion des documents (CV, lettres)
 - Recherche par entreprise, techno, statut
-- Dark mode, auth optionnelle
 
 ---
 
@@ -65,7 +68,7 @@ src/
 ├── pages/
 │   ├── Dashboard/
 │   ├── Candidatures/      # Liste + AddCandidatureModal + filtres + pagination
-│   ├── CandidatureDetail/ # Détail + temporalité CV envoyé
+│   ├── CandidatureDetail/ # Détail + badges statut + temporalité CV envoyé
 │   ├── Kanban/
 │   ├── Planning/
 │   ├── Taches/
@@ -82,9 +85,11 @@ src/
 # Installer les dépendances
 npm install
 
-# Créer un fichier .env avec VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY
+# Créer un fichier .env à la racine :
+# VITE_SUPABASE_URL=https://xxx.supabase.co
+# VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-# (Optionnel) Pour la temporalité « CV envoyé », exécuter une migration SQL (colonne cv_envoye_at) dans l’éditeur SQL Supabase
+# (Optionnel) Pour le planning et la temporalité, exécuter une migration SQL (colonnes : cv_envoye_at, entretien_rh_at, entretien_technique_at, attente_reponse_at, refus_at) dans l’éditeur SQL Supabase
 
 # Démarrer en développement
 npm run dev
@@ -110,7 +115,7 @@ npm run lint
 | `/candidatures`     | Liste des candidatures        |
 | `/candidatures/:id` | Détail d'une candidature      |
 | `/kanban`           | Vue Kanban                    |
-| `/planning`         | Semainier                     |
+| `/planning`         | Calendrier mensuel            |
 | `/taches`           | Tâches                        |
 | `/settings`         | Paramètres                    |
 | `/login`            | Connexion                     |
