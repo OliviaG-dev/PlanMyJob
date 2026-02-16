@@ -4,16 +4,31 @@
   margin: 0 auto;
 }
 
-.settings h1 {
+.settings__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.settings__icon {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.settings__header h1 {
   font-family: var(--font-heading);
   font-weight: 500;
-  margin-bottom: 0.35rem;
+  margin: 0 0 0.35rem 0;
 }
 
 .settings__intro {
   color: var(--text-muted);
   font-size: 0.98rem;
-  margin-bottom: 1.75rem;
+  margin: 0;
 }
 
 .settings__sections {

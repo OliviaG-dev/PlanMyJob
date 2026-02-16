@@ -48,4 +48,12 @@ export type Candidature = {
   createdAt?: string; // ISO date from DB
   /** Date de passage en statut « CV envoyé » (ISO), pour afficher la temporalité */
   cvEnvoyeAt?: string;
+  /** Date de passage en statut « Entretien RH » (ISO) */
+  entretienRhAt?: string;
+  /** Date de passage en statut « Entretien technique » (ISO) */
+  entretienTechniqueAt?: string;
+  /** Date de passage en statut « Attente de réponse » (ISO) */
+  attenteReponseAt?: string;
+  /** Date de passage en statut « Refus » (ISO) */
+  refusAt?: string;
 };

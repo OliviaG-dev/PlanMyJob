@@ -399,12 +399,21 @@ function Candidatures() {
   return (
     <main className="candidatures">
       <div className="candidatures__head">
-        <div>
+        <div className="candidatures__head-left">
           <h1>Candidatures</h1>
           <p className="candidatures__intro">
             Liste de toutes vos candidatures.
           </p>
         </div>
+        <div className="candidatures__head-center">
+          <img
+            src="/icons/candidatures.png"
+            alt=""
+            className="candidatures__icon"
+            aria-hidden
+          />
+        </div>
+        <div className="candidatures__head-right">
         <button
           type="button"
           className="candidatures__add-btn"
@@ -414,6 +423,7 @@ function Candidatures() {
           <span className="candidatures__add-btn-plus">+</span> Ajouter une
           candidature
         </button>
+        </div>
       </div>
 
       {error && (

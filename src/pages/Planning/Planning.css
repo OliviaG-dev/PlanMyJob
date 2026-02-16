@@ -4,30 +4,690 @@
   margin: 0 auto;
 }
 
-.planning h1 {
+.planning__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.planning__icon {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.planning__header h1 {
   font-family: var(--font-heading);
   font-weight: 500;
-  margin-bottom: 0.35rem;
+  margin: 0 0 0.35rem 0;
 }
 
 .planning__intro {
   color: var(--text-muted);
   font-size: 0.98rem;
-  margin-bottom: 1.75rem;
+  margin: 0;
 }
 
-.planning__week {
-  min-height: 320px;
+.planning__calendar {
   background: var(--surface);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.planning__empty {
+.planning__calendar:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border);
+}
+
+.planning__loading {
   color: var(--text-muted);
-  font-style: italic;
   font-size: 0.95rem;
+  margin: 0 0 1rem 0;
+}
+
+.planning__calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.planning__calendar-title {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 500;
   margin: 0;
+  color: var(--text);
+  min-width: 180px;
+  text-align: center;
+}
+
+.planning__nav-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--primary);
+  background: var(--primary-pale);
+  border: 1px solid var(--primary-soft);
+}
+
+.planning__nav-btn:hover {
+  background: var(--primary-soft);
+  color: var(--surface);
+  border-color: var(--primary);
+}
+
+.planning__today-btn {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  color: var(--primary);
+  background: var(--primary-pale);
+  border: 1px solid var(--primary-soft);
+}
+
+.planning__today-btn:hover {
+  background: var(--primary-soft);
+  color: var(--surface);
+  border-color: var(--primary);
+}
+
+.planning__calendar-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -0.25rem;
+}
+
+.planning__calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 1px;
+  max-width: 750px;
+  margin: 0 auto;
+  min-width: 280px;
+}
+
+.planning__day-label {
+  padding: 0.15rem 0.05rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.planning__day {
+  aspect-ratio: 1;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0.2rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--background-subtle);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease, border-color 0.2s ease;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.planning__day-num {
+  flex-shrink: 0;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.planning__day-events {
+  flex: 1;
+  margin: 0.15rem 0 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-soft) var(--border-light);
+}
+
+.planning__day-events::-webkit-scrollbar {
+  width: 4px;
+}
+
+.planning__day-events::-webkit-scrollbar-track {
+  background: var(--border-light);
+  border-radius: var(--radius-sm);
+}
+
+.planning__day-events::-webkit-scrollbar-thumb {
+  background: var(--primary-soft);
+  border-radius: var(--radius-sm);
+}
+
+.planning__day-events::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+.planning__event {
+  margin: 0 0 0.15rem 0;
+  padding: 0.25rem 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
+  gap: 0.35rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  background: var(--surface);
+  font-size: 0.6rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.planning__event:last-child {
+  margin-bottom: 0;
+}
+
+.planning__event-label {
+  flex: 1;
+  min-width: 0;
+  font-size: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.planning__event-count {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 1.1rem;
+  text-align: right;
+}
+
+/* Nouvelle candidature — rose vif */
+.planning__event--nouvelle {
+  background: #ffc8d4;
+  border-color: #ff8fa8;
+}
+
+.planning__event--nouvelle .planning__event-label,
+.planning__event--nouvelle .planning__event-count { color: #c41e4a; }
+
+/* CV envoyé — cyan/bleu vif */
+.planning__event--cv_envoye {
+  background: #b3e5fc;
+  border-color: #4dd0e1;
+}
+
+.planning__event--cv_envoye .planning__event-label,
+.planning__event--cv_envoye .planning__event-count { color: #006064; }
+
+/* Entretien RH — violet vif */
+.planning__event--entretien_rh {
+  background: #e1bee7;
+  border-color: #ce93d8;
+}
+
+.planning__event--entretien_rh .planning__event-label,
+.planning__event--entretien_rh .planning__event-count { color: #4a148c; }
+
+/* Entretien technique — bleu vif */
+.planning__event--entretien_technique {
+  background: #bbdefb;
+  border-color: #64b5f6;
+}
+
+.planning__event--entretien_technique .planning__event-label,
+.planning__event--entretien_technique .planning__event-count { color: #0d47a1; }
+
+/* Attente de réponse — orange/ambre vif */
+.planning__event--attente_reponse {
+  background: #ffe0b2;
+  border-color: #ffb74d;
+}
+
+.planning__event--attente_reponse .planning__event-label,
+.planning__event--attente_reponse .planning__event-count { color: #e65100; }
+
+/* Refus — rouge doux */
+.planning__event--refus {
+  background: #ffcdd2;
+  border-color: #ef9a9a;
+}
+
+.planning__event--refus .planning__event-label,
+.planning__event--refus .planning__event-count { color: #b71c1c; }
+
+/* Thème sombre — versions plus saturées */
+[data-theme="dark"] .planning__event--nouvelle {
+  background: rgba(255, 105, 135, 0.35);
+  border-color: #ff6b87;
+}
+[data-theme="dark"] .planning__event--nouvelle .planning__event-label,
+[data-theme="dark"] .planning__event--nouvelle .planning__event-count { color: #ffb3c1; }
+
+[data-theme="dark"] .planning__event--cv_envoye {
+  background: rgba(0, 188, 212, 0.3);
+  border-color: #26c6da;
+}
+[data-theme="dark"] .planning__event--cv_envoye .planning__event-label,
+[data-theme="dark"] .planning__event--cv_envoye .planning__event-count { color: #80deea; }
+
+[data-theme="dark"] .planning__event--entretien_rh {
+  background: rgba(156, 39, 176, 0.35);
+  border-color: #ba68c8;
+}
+[data-theme="dark"] .planning__event--entretien_rh .planning__event-label,
+[data-theme="dark"] .planning__event--entretien_rh .planning__event-count { color: #e1bee7; }
+
+[data-theme="dark"] .planning__event--entretien_technique {
+  background: rgba(33, 150, 243, 0.35);
+  border-color: #64b5f6;
+}
+[data-theme="dark"] .planning__event--entretien_technique .planning__event-label,
+[data-theme="dark"] .planning__event--entretien_technique .planning__event-count { color: #90caf9; }
+
+[data-theme="dark"] .planning__event--attente_reponse {
+  background: rgba(255, 152, 0, 0.35);
+  border-color: #ffb74d;
+}
+[data-theme="dark"] .planning__event--attente_reponse .planning__event-label,
+[data-theme="dark"] .planning__event--attente_reponse .planning__event-count { color: #ffcc80; }
+
+[data-theme="dark"] .planning__event--refus {
+  background: rgba(244, 67, 54, 0.3);
+  border-color: #e57373;
+}
+[data-theme="dark"] .planning__event--refus .planning__event-label,
+[data-theme="dark"] .planning__event--refus .planning__event-count { color: #ef9a9a; }
+
+/* Modal — mêmes couleurs en thème sombre */
+[data-theme="dark"] .planning__modal-event--nouvelle .planning__modal-event-link {
+  background: rgba(255, 105, 135, 0.35);
+  border-color: #ff6b87;
+}
+[data-theme="dark"] .planning__modal-event--nouvelle .planning__modal-event-label { color: #ffb3c1; }
+
+[data-theme="dark"] .planning__modal-event--cv_envoye .planning__modal-event-link {
+  background: rgba(0, 188, 212, 0.3);
+  border-color: #26c6da;
+}
+[data-theme="dark"] .planning__modal-event--cv_envoye .planning__modal-event-label { color: #80deea; }
+
+[data-theme="dark"] .planning__modal-event--entretien_rh .planning__modal-event-link {
+  background: rgba(156, 39, 176, 0.35);
+  border-color: #ba68c8;
+}
+[data-theme="dark"] .planning__modal-event--entretien_rh .planning__modal-event-label { color: #e1bee7; }
+
+[data-theme="dark"] .planning__modal-event--entretien_technique .planning__modal-event-link {
+  background: rgba(33, 150, 243, 0.35);
+  border-color: #64b5f6;
+}
+[data-theme="dark"] .planning__modal-event--entretien_technique .planning__modal-event-label { color: #90caf9; }
+
+[data-theme="dark"] .planning__modal-event--attente_reponse .planning__modal-event-link {
+  background: rgba(255, 152, 0, 0.35);
+  border-color: #ffb74d;
+}
+[data-theme="dark"] .planning__modal-event--attente_reponse .planning__modal-event-label { color: #ffcc80; }
+
+[data-theme="dark"] .planning__modal-event--refus .planning__modal-event-link {
+  background: rgba(244, 67, 54, 0.3);
+  border-color: #e57373;
+}
+[data-theme="dark"] .planning__modal-event--refus .planning__modal-event-label { color: #ef9a9a; }
+
+/* Modal */
+.planning__modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.planning__modal {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-lg);
+  max-width: 420px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.planning__modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+.planning__modal-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--text);
+}
+
+.planning__modal-close {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.planning__modal-close:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.planning__modal-body {
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.planning__modal-empty {
+  color: var(--text-muted);
+  margin: 0;
+  font-style: italic;
+}
+
+.planning__modal-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.planning__modal-event {
+  margin: 0;
+}
+
+.planning__modal-event-link {
+  display: block;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  text-decoration: none;
+  color: var(--text);
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.planning__modal-event-link:hover {
+  opacity: 0.9;
+  filter: brightness(0.97);
+}
+
+.planning__modal-event-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.2rem;
+}
+
+.planning__modal-event-detail {
+  display: block;
+  font-size: 0.95rem;
+}
+
+/* Mêmes couleurs que planning__event */
+.planning__modal-event--nouvelle .planning__modal-event-link {
+  background: #ffc8d4;
+  border-color: #ff8fa8;
+}
+.planning__modal-event--nouvelle .planning__modal-event-label { color: #c41e4a; }
+
+.planning__modal-event--cv_envoye .planning__modal-event-link {
+  background: #b3e5fc;
+  border-color: #4dd0e1;
+}
+.planning__modal-event--cv_envoye .planning__modal-event-label { color: #006064; }
+
+.planning__modal-event--entretien_rh .planning__modal-event-link {
+  background: #e1bee7;
+  border-color: #ce93d8;
+}
+.planning__modal-event--entretien_rh .planning__modal-event-label { color: #4a148c; }
+
+.planning__modal-event--entretien_technique .planning__modal-event-link {
+  background: #bbdefb;
+  border-color: #64b5f6;
+}
+.planning__modal-event--entretien_technique .planning__modal-event-label { color: #0d47a1; }
+
+.planning__modal-event--attente_reponse .planning__modal-event-link {
+  background: #ffe0b2;
+  border-color: #ffb74d;
+}
+.planning__modal-event--attente_reponse .planning__modal-event-label { color: #e65100; }
+
+.planning__modal-event--refus .planning__modal-event-link {
+  background: #ffcdd2;
+  border-color: #ef9a9a;
+}
+.planning__modal-event--refus .planning__modal-event-label { color: #b71c1c; }
+
+.planning__day:hover:not(.planning__day--other-month) {
+  background: var(--hover);
+}
+
+.planning__day--today {
+  background: var(--primary-pale);
+  color: var(--primary);
+  border: 2px solid var(--primary-soft);
+  font-weight: 600;
+}
+
+.planning__day--other-month {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* Tablette */
+@media (max-width: 768px) {
+  .planning {
+    padding: 1.25rem 1rem;
+  }
+
+  .planning__header {
+    flex-wrap: wrap;
+  }
+
+  .planning__icon {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .planning__header h1 {
+    font-size: 1.5rem;
+  }
+
+  .planning__calendar {
+    padding: 1rem;
+  }
+
+  .planning__calendar-nav {
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .planning__calendar-title {
+    font-size: 1.2rem;
+    min-width: 140px;
+  }
+
+  .planning__nav-btn {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.35rem;
+  }
+
+  .planning__today-btn {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .planning__calendar-grid {
+    max-width: 100%;
+  }
+
+  .planning__day {
+    min-height: 44px;
+    font-size: 0.8rem;
+  }
+
+  .planning__modal {
+    max-width: calc(100% - 2rem);
+  }
+}
+
+/* Téléphone */
+@media (max-width: 480px) {
+  .planning {
+    padding: 1rem 0.75rem;
+  }
+
+  .planning__header {
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .planning__icon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .planning__header h1 {
+    font-size: 1.35rem;
+  }
+
+  .planning__intro {
+    font-size: 0.9rem;
+  }
+
+  .planning__calendar {
+    padding: 0.75rem;
+  }
+
+  .planning__calendar-nav {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .planning__calendar-title {
+    font-size: 1.05rem;
+    min-width: 120px;
+  }
+
+  .planning__nav-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 1.25rem;
+  }
+
+  .planning__day-label {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.02rem;
+  }
+
+  .planning__day {
+    min-height: 36px;
+    font-size: 0.75rem;
+  }
+
+  .planning__event-count {
+    font-size: 0.55rem;
+    padding: 0.08rem 0.2rem;
+  }
+
+  .planning__modal {
+    max-width: calc(100% - 2rem);
+    margin: 1rem;
+  }
+
+  .planning__modal-header,
+  .planning__modal-body {
+    padding: 0.85rem 1rem;
+  }
+
+  .planning__modal-title {
+    font-size: 1.1rem;
+  }
+}
+
+/* Très petit écran */
+@media (max-width: 360px) {
+  .planning {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .planning__calendar {
+    padding: 0.5rem;
+  }
+
+  .planning__calendar-title {
+    font-size: 0.95rem;
+    min-width: 100px;
+  }
+
+  .planning__calendar-grid {
+    min-width: 260px;
+  }
+
+  .planning__day-label {
+    font-size: 0.55rem;
+  }
+
+  .planning__day {
+    min-height: 32px;
+    font-size: 0.7rem;
+  }
 }

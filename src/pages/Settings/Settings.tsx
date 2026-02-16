@@ -8,10 +8,20 @@ function Settings() {
 
   return (
     <main className="settings">
-      <h1>Paramètres</h1>
-      <p className="settings__intro">
-        Préférences et configuration de PlanMyJob.
-      </p>
+      <div className="settings__header">
+        <div>
+          <h1>Paramètres</h1>
+          <p className="settings__intro">
+            Préférences et configuration de PlanMyJob.
+          </p>
+        </div>
+        <img
+          src="/icons/setting.png"
+          alt=""
+          className="settings__icon"
+          aria-hidden
+        />
+      </div>
       <section className="settings__sections">
         <div className="settings__block">
           <h2>Compte</h2>

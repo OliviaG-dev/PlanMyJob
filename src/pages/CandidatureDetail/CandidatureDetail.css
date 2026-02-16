@@ -4,20 +4,44 @@
   margin: 0 auto;
 }
 
+.candidature-detail__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
 .candidature-detail__back {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 1.25rem;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
   color: var(--primary);
   font-weight: 500;
   font-size: 0.95rem;
-  transition: color 0.2s ease;
+  background: var(--surface);
+  border: 1px solid var(--primary-soft);
+  border-radius: var(--radius-sm);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.candidature-detail__back-arrow {
+  font-weight: 800;
+  font-size: 1.1em;
 }
 
 .candidature-detail__back:hover {
-  color: var(--primary-soft);
+  background: var(--primary-pale);
+  color: var(--primary);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
 }
 
 .candidature-detail__loading,
@@ -35,7 +59,7 @@
 .candidature-detail__header {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.75rem;
@@ -52,6 +76,10 @@
   min-width: 0;
 }
 
+.candidature-detail__header-right {
+  flex-shrink: 0;
+}
+
 .candidature-detail__title {
   font-family: var(--font-heading);
   font-weight: 600;
@@ -66,6 +94,13 @@
   font-size: 1.05rem;
   margin: 0;
   font-weight: 600;
+}
+
+.candidature-detail__icon {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .candidature-detail__stars {
@@ -138,14 +173,14 @@
 }
 
 .candidature-detail__btn--delete {
-  border-color: rgba(198, 40, 40, 0.35);
-  color: var(--error, #c62828);
-  background: rgba(198, 40, 40, 0.06);
+  border-color: #b71c1c;
+  color: #b71c1c;
+  background: rgba(183, 28, 28, 0.06);
 }
 
 .candidature-detail__btn--delete:hover:not(:disabled) {
-  background: rgba(198, 40, 40, 0.12);
-  border-color: rgba(198, 40, 40, 0.5);
+  background: rgba(183, 28, 28, 0.1);
+  border-color: #b71c1c;
 }
 
 .candidature-detail__btn:disabled {
@@ -239,14 +274,14 @@
 }
 
 .candidature-detail__confirm-btn--delete {
-  background: rgba(198, 40, 40, 0.12);
-  border: 1px solid rgba(198, 40, 40, 0.4);
-  color: var(--error, #c62828);
+  background: rgba(183, 28, 28, 0.1);
+  border: 1px solid #b71c1c;
+  color: #b71c1c;
 }
 
 .candidature-detail__confirm-btn--delete:hover:not(:disabled) {
-  background: rgba(198, 40, 40, 0.2);
-  border-color: rgba(198, 40, 40, 0.55);
+  background: rgba(183, 28, 28, 0.15);
+  border-color: #b71c1c;
 }
 
 .candidature-detail__confirm-btn--delete:disabled {
@@ -298,6 +333,18 @@
   box-shadow: 0 2px 8px rgba(183, 110, 121, 0.18);
 }
 
+/* À postuler — même structure que refus (fond pâle, bordure, texte) */
+.candidature-detail__badge--kanban.candidature-detail__badge--a_postuler {
+  background: var(--primary-pale);
+  color: var(--primary);
+  border-color: var(--primary-soft);
+  box-shadow: 0 1px 2px rgba(183, 110, 121, 0.15);
+}
+
+.candidature-detail__badge--kanban.candidature-detail__badge--a_postuler:hover {
+  box-shadow: 0 2px 8px rgba(183, 110, 121, 0.25);
+}
+
 .candidature-detail__badge--kanban.candidature-detail__badge--offre {
   background: var(--primary);
   color: var(--surface);
@@ -321,10 +368,10 @@
 }
 
 .candidature-detail__badge--kanban.candidature-detail__badge--refus {
-  background: rgba(198, 40, 40, 0.1);
-  color: var(--error, #c62828);
-  border-color: rgba(198, 40, 40, 0.3);
-  box-shadow: 0 1px 2px rgba(198, 40, 40, 0.08);
+  background: #ffcdd2;
+  color: #b71c1c;
+  border-color: #e57373;
+  box-shadow: 0 1px 2px rgba(239, 154, 154, 0.2);
 }
 
 .candidature-detail__badge--kanban.candidature-detail__badge--refus::after {
@@ -332,14 +379,14 @@
     105deg,
     transparent 0%,
     transparent 35%,
-    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.35) 50%,
     transparent 65%,
     transparent 100%
   );
 }
 
 .candidature-detail__badge--kanban.candidature-detail__badge--refus:hover {
-  box-shadow: 0 2px 8px rgba(198, 40, 40, 0.15);
+  box-shadow: 0 2px 8px rgba(229, 115, 115, 0.3);
 }
 
 .candidature-detail__section {
