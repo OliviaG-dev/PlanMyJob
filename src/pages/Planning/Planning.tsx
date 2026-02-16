@@ -384,7 +384,9 @@ function Planning() {
             onClick={goPrev}
             aria-label="Mois précédent"
           >
-            ‹
+            <svg className="planning__nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
           <h2 className="planning__calendar-title">
             {MONTHS[month]} {year}
@@ -395,7 +397,9 @@ function Planning() {
             onClick={goNext}
             aria-label="Mois suivant"
           >
-            ›
+            <svg className="planning__nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </button>
           <button
             type="button"

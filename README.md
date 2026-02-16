@@ -89,7 +89,6 @@ npm install
 # VITE_SUPABASE_URL=https://xxx.supabase.co
 # VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-# (Optionnel) Pour le planning et la temporalité, exécuter une migration SQL (colonnes : cv_envoye_at, entretien_rh_at, entretien_technique_at, attente_reponse_at, refus_at) dans l’éditeur SQL Supabase
 
 # Démarrer en développement
 npm run dev
