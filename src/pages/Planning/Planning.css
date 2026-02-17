@@ -90,6 +90,12 @@
   border-color: var(--primary);
 }
 
+.planning__nav-chevron {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
 .planning__today-btn {
   margin-left: 0.5rem;
   padding: 0.4rem 0.9rem;

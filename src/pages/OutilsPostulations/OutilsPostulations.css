@@ -1,0 +1,48 @@
+.outils-postulations {
+  padding: 2rem 1.75rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.outils-postulations__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.outils-postulations__icon {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.outils-postulations__header h1 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  margin: 0 0 0.35rem 0;
+}
+
+.outils-postulations__intro {
+  color: var(--text-muted);
+  font-size: 0.98rem;
+  margin: 0;
+}
+
+.outils-postulations__content {
+  min-height: 220px;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.outils-postulations__empty {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.95rem;
+  margin: 0;
+}

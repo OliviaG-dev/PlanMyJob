@@ -20,7 +20,8 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 - **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes, localisation, type de contrat, télétravail, source, note personnelle. Liste paginée (3 par section), filtres (nom, télétravail, ville, note) avec icônes, drag & drop entre listes (En cours / Terminée / Refus).
 - **Fiche candidature** — Détail complet, badge de statut Kanban coloré (à postuler, offre, refus, etc.), **temporalité « CV envoyé »** : affichage du temps écoulé depuis le passage en statut « CV envoyé » (secondes, minutes, heures, jours, semaines, mois), bouton supprimer avec style rouge.
 - **Kanban** — Colonnes (À postuler → CV envoyé → Entretien RH → Entretien technique → Attente de réponse → Refus / Offre), drag & drop pour changer le statut, pagination par colonne, badge de comptage centré par colonne.
-- **Tâches** — Todo liées aux candidatures (CV, lettre, relance, prépa entretien), navigation mois précédent/suivant + bouton « Aujourd'hui », affichage des événements par jour : Nouvelle candidature, CV envoyé, Entretien RH, Entretien technique, Attente de réponse, Refus (couleurs distinctes). Clic sur une journée : modal avec liste des événements et liens vers les fiches candidature.
+- **Planning** — Calendrier mensuel avec navigation mois précédent/suivant + bouton « Aujourd'hui ». Affichage des événements par jour : Nouvelle candidature, CV envoyé, Entretien RH, Entretien technique, Attente de réponse, Refus (couleurs distinctes). Clic sur une journée : modal avec liste des événements et liens vers les fiches candidature.
+- **Tâches** — Todo liste par semaine ISO (lundi = début). Navigation mois précédent/suivant + bouton « Ce mois ». Semaines en accordéon (ouvrir/fermer), priorités (basse, normale, haute), badge « En cours » pour la semaine courante, semaines passées grisées. Persistance Supabase.
 
 ### Tableau de bord
 
@@ -56,8 +57,8 @@ Chaque **page** et chaque **composant** a son propre dossier avec un fichier `.t
 
 ```
 src/
-├── types/           # Modèles (Candidature, Statut, Priorite, etc.)
-├── lib/             # Supabase client, candidatures (CRUD)
+├── types/           # Modèles (Candidature, Tache, Statut, Priorite, etc.)
+├── lib/             # Supabase client, candidatures (CRUD), taches (CRUD)
 ├── contexts/        # AuthContext, ThemeContext
 ├── components/      # Layout, Sidebar, Pagination, Select, CandidaturesFilters
 │   ├── Layout/
@@ -70,8 +71,8 @@ src/
 │   ├── Candidatures/      # Liste + AddCandidatureModal + filtres + pagination
 │   ├── CandidatureDetail/ # Détail + badges statut + temporalité CV envoyé
 │   ├── Kanban/
-│   ├── Planning/
-│   ├── Taches/
+│   ├── Planning/         # Calendrier mensuel + événements candidatures
+│   ├── Taches/           # Todo par semaine ISO (accordéon, priorités)
 │   ├── Settings/
 │   ├── Login/
 │   └── Signup/
@@ -89,7 +90,6 @@ npm install
 # VITE_SUPABASE_URL=https://xxx.supabase.co
 # VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-# (Optionnel) Pour le planning et la temporalité, exécuter une migration SQL (colonnes : cv_envoye_at, entretien_rh_at, entretien_technique_at, attente_reponse_at, refus_at) dans l’éditeur SQL Supabase
 
 # Démarrer en développement
 npm run dev
@@ -117,6 +117,7 @@ npm run lint
 | `/kanban`           | Vue Kanban                    |
 | `/planning`         | Calendrier mensuel            |
 | `/taches`           | Tâches                        |
+| `/outils-postulations` | Outils de postulation      |
 | `/settings`         | Paramètres                    |
 | `/login`            | Connexion                     |
 | `/signup`           | Inscription                   |
