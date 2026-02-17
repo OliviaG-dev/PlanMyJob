@@ -43,7 +43,7 @@ function App() {
           <Route path="kanban" element={<Kanban />} />
           <Route path="planning" element={<Planning />} />
           <Route path="taches" element={<Taches />} />
-          <Route path="outils-postulations" element={<OutilsPostulations />} />
+          <Route path="ressources" element={<OutilsPostulations />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
