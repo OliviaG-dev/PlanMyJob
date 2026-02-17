@@ -117,6 +117,7 @@ npm run lint
 | `/kanban`           | Vue Kanban                    |
 | `/planning`         | Calendrier mensuel            |
 | `/taches`           | Tâches                        |
+| `/outils-postulations` | Outils de postulation      |
 | `/settings`         | Paramètres                    |
 | `/login`            | Connexion                     |
 | `/signup`           | Inscription                   |

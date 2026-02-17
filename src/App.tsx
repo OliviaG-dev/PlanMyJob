@@ -9,6 +9,7 @@ import CandidatureDetail from "./pages/CandidatureDetail/CandidatureDetail";
 import Kanban from "./pages/Kanban/Kanban";
 import Planning from "./pages/Planning/Planning";
 import Taches from "./pages/Taches/Taches";
+import OutilsPostulations from "./pages/OutilsPostulations/OutilsPostulations";
 import Settings from "./pages/Settings/Settings";
 import "./App.css";
 
@@ -42,6 +43,7 @@ function App() {
           <Route path="kanban" element={<Kanban />} />
           <Route path="planning" element={<Planning />} />
           <Route path="taches" element={<Taches />} />
+          <Route path="outils-postulations" element={<OutilsPostulations />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
