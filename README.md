@@ -117,7 +117,7 @@ npm run lint
 | `/kanban`           | Vue Kanban                    |
 | `/planning`         | Calendrier mensuel            |
 | `/taches`           | Tâches                        |
-| `/ressources`          | Ressources                 |
+| `/ressources`       | Ressources                    |
 | `/settings`         | Paramètres                    |
 | `/login`            | Connexion                     |
 | `/signup`           | Inscription                   |

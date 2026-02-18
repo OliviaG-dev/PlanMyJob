@@ -23,7 +23,9 @@ const CV_FORMAT_LABELS: Record<CvFormat, string> = {
 /** Convertit une URL en version affichable (Google Drive → preview ou viewer PDF) */
 function getEmbedUrl(url: string): string {
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  const driveOpenMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+  const driveOpenMatch = url.match(
+    /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
+  );
   const fileId = driveMatch?.[1] ?? driveOpenMatch?.[1];
   if (fileId) {
     return `https://drive.google.com/file/d/${fileId}/preview`;
@@ -132,6 +134,53 @@ function CvSection() {
       <p className="outils-postulations__block-desc">
         Stockez vos CV avec un lien et visualisez-les en grand.
       </p>
+
+      {!loading && (
+        <div
+          className="outils-postulations__cv-progress-wrap"
+          role="progressbar"
+          aria-valuenow={cvs.length}
+          aria-valuemin={0}
+          aria-valuemax={10}
+          aria-label={
+            cvs.length === 0
+              ? "Aucun CV pour l'instant"
+              : `${cvs.length} CV${cvs.length > 1 ? "s" : ""} disponible${cvs.length > 1 ? "s" : ""} sur 10`
+          }
+        >
+          <div className="outils-postulations__cv-progress-inner">
+            <div className="outils-postulations__cv-progress-header-row">
+              <span className="outils-postulations__cv-progress-label">
+                {cvs.length === 0
+                  ? "Aucun CV pour l'instant"
+                  : cvs.length === 1
+                    ? "1 CV disponible"
+                    : `${cvs.length} CVs disponibles`}
+              </span>
+              <div className="outils-postulations__cv-progress-badge">
+                <span className="outils-postulations__cv-progress-number">
+                  {cvs.length}
+                </span>
+                <span className="outils-postulations__cv-progress-max">/10</span>
+              </div>
+            </div>
+            <div className="outils-postulations__cv-progress-segments">
+              {Array.from({ length: 10 }, (_, i) => (
+                <span
+                  key={i}
+                  className={`outils-postulations__cv-progress-segment ${i < cvs.length ? "outils-postulations__cv-progress-segment--filled" : ""}`}
+                />
+              ))}
+              <img
+                src="/icons/stars.png"
+                alt=""
+                className="outils-postulations__cv-progress-stars"
+                aria-hidden
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading && <p className="outils-postulations__loading">Chargement…</p>}
 
@@ -298,7 +347,10 @@ function CvSection() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="outils-postulations__view-header">
-              <h2 id="cv-view-title" className="outils-postulations__view-title">
+              <h2
+                id="cv-view-title"
+                className="outils-postulations__view-title"
+              >
                 {viewCv.titre}
               </h2>
               <button
