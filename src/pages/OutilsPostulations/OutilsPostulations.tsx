@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   fetchCvRessources,
@@ -6,6 +6,7 @@ import {
   deleteCvRessource,
 } from "../../lib/cvRessources";
 import type { CvRessource, CvType, CvFormat } from "../../types/cvRessource";
+import { OutilsProgressWrap } from "./OutilsProgressWrap";
 import "./OutilsPostulations.css";
 
 const CV_TYPE_LABELS: Record<CvType, string> = {
@@ -136,78 +137,17 @@ function CvSection() {
       </p>
 
       {!loading && (
-        <div
-          className="outils-postulations__cv-progress-wrap"
-          role="progressbar"
-          aria-valuenow={cvs.length}
-          aria-valuemin={0}
-          aria-valuemax={10}
-          aria-label={
+        <OutilsProgressWrap
+          value={cvs.length}
+          max={10}
+          label={
             cvs.length === 0
               ? "Aucun CV pour l'instant"
-              : `${cvs.length} CV${cvs.length > 1 ? "s" : ""} disponible${cvs.length > 1 ? "s" : ""} sur 10`
+              : cvs.length === 1
+                ? "1 CV disponible"
+                : `${cvs.length} CVs disponibles`
           }
-        >
-          <div className="outils-postulations__cv-progress-inner">
-            <div className="outils-postulations__cv-progress-header-row">
-              <span className="outils-postulations__cv-progress-label">
-                {cvs.length === 0
-                  ? "Aucun CV pour l'instant"
-                  : cvs.length === 1
-                    ? "1 CV disponible"
-                    : `${cvs.length} CVs disponibles`}
-              </span>
-              <div className="outils-postulations__cv-progress-badge">
-                <span className="outils-postulations__cv-progress-number">
-                  {cvs.length}
-                </span>
-                <span className="outils-postulations__cv-progress-max">/10</span>
-              </div>
-            </div>
-            <div className="outils-postulations__cv-progress-segments">
-              {Array.from({ length: 10 }, (_, i) => (
-                <span
-                  key={i}
-                  className={`outils-postulations__cv-progress-segment ${i < cvs.length ? "outils-postulations__cv-progress-segment--filled" : ""}`}
-                />
-              ))}
-              <span className="outils-postulations__cv-progress-stars-wrap">
-                {[
-                  { dx: "-8px", dy: "-10px", color: "primary", rotate: "45deg", size: 3 },
-                  { dx: "18px", dy: "-14px", color: "primary-soft", rotate: "-30deg", size: 4 },
-                  { dx: "-6px", dy: "8px", color: "primary-pale", rotate: "120deg", size: 2 },
-                  { dx: "14px", dy: "12px", color: "muted", rotate: "-80deg", size: 4 },
-                  { dx: "-20px", dy: "-8px", color: "primary", rotate: "200deg", size: 3 },
-                  { dx: "7px", dy: "16px", color: "primary-soft", rotate: "-150deg", size: 2 },
-                  { dx: "0px", dy: "-22px", color: "primary-pale", rotate: "15deg", size: 4 },
-                  { dx: "-12px", dy: "6px", color: "primary", rotate: "90deg", size: 3 },
-                  { dx: "16px", dy: "-16px", color: "muted", rotate: "-60deg", size: 2 },
-                ].map((p, i) => (
-                  <span
-                    key={i}
-                    className={`outils-postulations__cv-progress-confetti-piece outils-postulations__cv-progress-confetti-piece--${p.color}`}
-                    style={
-                      {
-                        "--confetti-dx": p.dx,
-                        "--confetti-dy": p.dy,
-                        "--confetti-rotate": p.rotate,
-                        "--confetti-size": `${p.size}px`,
-                        "--confetti-delay": `${i * 0.02}s`,
-                      } as React.CSSProperties
-                    }
-                    aria-hidden
-                  />
-                ))}
-                <img
-                  src="/icons/stars.png"
-                  alt=""
-                  className="outils-postulations__cv-progress-stars"
-                  aria-hidden
-                />
-              </span>
-            </div>
-          </div>
-        </div>
+        />
       )}
 
       {loading && <p className="outils-postulations__loading">Chargement…</p>}
@@ -414,7 +354,109 @@ function CvSection() {
   );
 }
 
+const SITES_EMPLOI_STORAGE_KEY = "plan-my-job-sites-emploi";
+
+type SiteEmploiId =
+  | "linkedin"
+  | "hellowork"
+  | "indeed"
+  | "welcometothejungle"
+  | "franceemploi";
+
+type SiteEmploiCheckboxes = Record<
+  SiteEmploiId,
+  { created: boolean; updated: boolean }
+>;
+
+const SITES_EMPLOI: Array<{
+  id: SiteEmploiId;
+  label: string;
+  url: string;
+}> = [
+  { id: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/jobs/" },
+  { id: "hellowork", label: "HelloWork", url: "https://www.hellowork.com/" },
+  { id: "indeed", label: "Indeed", url: "https://www.indeed.fr/" },
+  {
+    id: "welcometothejungle",
+    label: "Welcome to the Jungle",
+    url: "https://www.welcometothejungle.com/fr",
+  },
+  {
+    id: "franceemploi",
+    label: "France Travail",
+    url: "https://www.francetravail.fr/",
+  },
+];
+
+const initialSiteCheckboxes: SiteEmploiCheckboxes = {
+  linkedin: { created: false, updated: false },
+  hellowork: { created: false, updated: false },
+  indeed: { created: false, updated: false },
+  welcometothejungle: { created: false, updated: false },
+  franceemploi: { created: false, updated: false },
+};
+
+function loadSiteCheckboxesFromStorage(): SiteEmploiCheckboxes {
+  try {
+    const raw = localStorage.getItem(SITES_EMPLOI_STORAGE_KEY);
+    if (!raw) return initialSiteCheckboxes;
+    const parsed = JSON.parse(raw) as Partial<SiteEmploiCheckboxes>;
+    const next = { ...initialSiteCheckboxes };
+    (Object.keys(initialSiteCheckboxes) as SiteEmploiId[]).forEach((id) => {
+      const v = parsed[id];
+      if (
+        v &&
+        typeof v.created === "boolean" &&
+        typeof v.updated === "boolean"
+      ) {
+        next[id] = { created: v.created, updated: v.updated };
+      }
+    });
+    return next;
+  } catch {
+    return initialSiteCheckboxes;
+  }
+}
+
 function OutilsPostulations() {
+  const [siteCheckboxes, setSiteCheckboxes] = useState<SiteEmploiCheckboxes>(
+    loadSiteCheckboxesFromStorage
+  );
+
+  const sitesUsedCount = useMemo(
+    () =>
+      (Object.keys(siteCheckboxes) as SiteEmploiId[]).filter(
+        (id) => siteCheckboxes[id].created || siteCheckboxes[id].updated
+      ).length,
+    [siteCheckboxes]
+  );
+
+  const sitesUsedLabel =
+    sitesUsedCount === 0
+      ? "Aucun site utilisé"
+      : sitesUsedCount === 1
+        ? "1 site utilisé"
+        : `${sitesUsedCount} sites utilisés`;
+
+  const setSiteCheckbox = (
+    siteId: SiteEmploiId,
+    field: "created" | "updated",
+    value: boolean
+  ) => {
+    setSiteCheckboxes((prev) => {
+      const next = {
+        ...prev,
+        [siteId]: { ...prev[siteId], [field]: value },
+      };
+      try {
+        localStorage.setItem(SITES_EMPLOI_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
   return (
     <main className="outils-postulations">
       <div className="outils-postulations__header">
@@ -452,7 +494,51 @@ function OutilsPostulations() {
           <p className="outils-postulations__block-desc">
             Liens vers les plateformes de recherche d&apos;emploi.
           </p>
-          <p className="outils-postulations__placeholder">Contenu à venir…</p>
+          <OutilsProgressWrap
+            value={sitesUsedCount}
+            max={SITES_EMPLOI.length}
+            label={sitesUsedLabel}
+          />
+          <div className="outils-postulations__sites-grid">
+            {SITES_EMPLOI.map((site) => (
+              <div key={site.id} className="outils-postulations__site-card">
+                <a
+                  href={site.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="outils-postulations__site-card-link"
+                >
+                  {site.label}
+                </a>
+                <div className="outils-postulations__site-card-checkboxes">
+                  <label className="outils-postulations__site-card-check">
+                    <input
+                      type="checkbox"
+                      checked={siteCheckboxes[site.id].created}
+                      onChange={(e) =>
+                        setSiteCheckbox(site.id, "created", e.target.checked)
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={`Compte créé sur ${site.label}`}
+                    />
+                    <span>Compte créé</span>
+                  </label>
+                  <label className="outils-postulations__site-card-check">
+                    <input
+                      type="checkbox"
+                      checked={siteCheckboxes[site.id].updated}
+                      onChange={(e) =>
+                        setSiteCheckbox(site.id, "updated", e.target.checked)
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={`Compte mis à jour sur ${site.label}`}
+                    />
+                    <span>Compte mis à jour</span>
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="outils-postulations__block">
