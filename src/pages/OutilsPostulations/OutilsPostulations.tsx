@@ -6,6 +6,14 @@ import {
   deleteCvRessource,
 } from "../../lib/cvRessources";
 import type { CvRessource, CvType, CvFormat } from "../../types/cvRessource";
+import {
+  fetchJobSites,
+  fetchUserJobSiteStatus,
+  upsertUserJobSiteStatus,
+  insertJobSite,
+  deleteJobSite,
+} from "../../lib/jobSites";
+import type { JobSite } from "../../lib/jobSites";
 import { OutilsProgressWrap } from "./OutilsProgressWrap";
 import "./OutilsPostulations.css";
 
@@ -356,79 +364,92 @@ function CvSection() {
 
 const SITES_EMPLOI_STORAGE_KEY = "plan-my-job-sites-emploi";
 
-type SiteEmploiId =
-  | "linkedin"
-  | "hellowork"
-  | "indeed"
-  | "welcometothejungle"
-  | "franceemploi";
-
-type SiteEmploiCheckboxes = Record<
-  SiteEmploiId,
-  { created: boolean; updated: boolean }
+type SiteCheckboxesState = Record<
+  string,
+  { created: boolean; cvSent: boolean }
 >;
 
-const SITES_EMPLOI: Array<{
-  id: SiteEmploiId;
-  label: string;
-  url: string;
-}> = [
-  { id: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/jobs/" },
-  { id: "hellowork", label: "HelloWork", url: "https://www.hellowork.com/" },
-  { id: "indeed", label: "Indeed", url: "https://www.indeed.fr/" },
-  {
-    id: "welcometothejungle",
-    label: "Welcome to the Jungle",
-    url: "https://www.welcometothejungle.com/fr",
-  },
-  {
-    id: "franceemploi",
-    label: "France Travail",
-    url: "https://www.francetravail.fr/",
-  },
-];
-
-const initialSiteCheckboxes: SiteEmploiCheckboxes = {
-  linkedin: { created: false, updated: false },
-  hellowork: { created: false, updated: false },
-  indeed: { created: false, updated: false },
-  welcometothejungle: { created: false, updated: false },
-  franceemploi: { created: false, updated: false },
-};
-
-function loadSiteCheckboxesFromStorage(): SiteEmploiCheckboxes {
+function loadSiteCheckboxesFromStorage(): SiteCheckboxesState {
   try {
     const raw = localStorage.getItem(SITES_EMPLOI_STORAGE_KEY);
-    if (!raw) return initialSiteCheckboxes;
-    const parsed = JSON.parse(raw) as Partial<SiteEmploiCheckboxes>;
-    const next = { ...initialSiteCheckboxes };
-    (Object.keys(initialSiteCheckboxes) as SiteEmploiId[]).forEach((id) => {
-      const v = parsed[id];
-      if (
-        v &&
-        typeof v.created === "boolean" &&
-        typeof v.updated === "boolean"
-      ) {
-        next[id] = { created: v.created, updated: v.updated };
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const next: SiteCheckboxesState = {};
+    Object.entries(parsed).forEach(([id, v]) => {
+      if (v && typeof v === "object") {
+        const o = v as Record<string, unknown>;
+        const created = o.created === true;
+        const cvSent = o.cvSent === true || o.updated === true;
+        next[id] = { created, cvSent };
       }
     });
     return next;
   } catch {
-    return initialSiteCheckboxes;
+    return {};
   }
 }
 
 function OutilsPostulations() {
-  const [siteCheckboxes, setSiteCheckboxes] = useState<SiteEmploiCheckboxes>(
+  const { user } = useAuth();
+  const [jobSites, setJobSites] = useState<JobSite[]>([]);
+  const [loadingSites, setLoadingSites] = useState(true);
+  const [siteCheckboxes, setSiteCheckboxes] = useState<SiteCheckboxesState>(
     loadSiteCheckboxesFromStorage
   );
+  const [showAddSite, setShowAddSite] = useState(false);
+  const [addLabel, setAddLabel] = useState("");
+  const [addUrl, setAddUrl] = useState("");
+  const [addingSite, setAddingSite] = useState(false);
+
+  useEffect(() => {
+    fetchJobSites()
+      .then(setJobSites)
+      .catch(() => setJobSites([]))
+      .finally(() => setLoadingSites(false));
+  }, []);
+
+  useEffect(() => {
+    if (jobSites.length === 0) return;
+    setSiteCheckboxes((prev) => {
+      const next: SiteCheckboxesState = {};
+      jobSites.forEach((s) => {
+        next[s.id] = prev[s.id] ?? { created: false, cvSent: false };
+      });
+      try {
+        localStorage.setItem(SITES_EMPLOI_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, [jobSites]);
+
+  useEffect(() => {
+    if (!user?.id || jobSites.length === 0) return;
+    fetchUserJobSiteStatus(user.id)
+      .then((statusList) => {
+        setSiteCheckboxes((prev) => {
+          const next = { ...prev };
+          statusList.forEach((st) => {
+            if (next[st.jobSiteId] !== undefined) {
+              next[st.jobSiteId] = {
+                created: st.accountCreated,
+                cvSent: st.cvSent,
+              };
+            }
+          });
+          return next;
+        });
+      })
+      .catch(() => {});
+  }, [user?.id, jobSites]);
 
   const sitesUsedCount = useMemo(
     () =>
-      (Object.keys(siteCheckboxes) as SiteEmploiId[]).filter(
-        (id) => siteCheckboxes[id].created || siteCheckboxes[id].updated
+      jobSites.filter(
+        (s) => siteCheckboxes[s.id]?.created || siteCheckboxes[s.id]?.cvSent
       ).length,
-    [siteCheckboxes]
+    [jobSites, siteCheckboxes]
   );
 
   const sitesUsedLabel =
@@ -439,22 +460,68 @@ function OutilsPostulations() {
         : `${sitesUsedCount} sites utilisés`;
 
   const setSiteCheckbox = (
-    siteId: SiteEmploiId,
-    field: "created" | "updated",
+    siteId: string,
+    field: "created" | "cvSent",
     value: boolean
   ) => {
     setSiteCheckboxes((prev) => {
+      const current = prev[siteId] ?? { created: false, cvSent: false };
       const next = {
         ...prev,
-        [siteId]: { ...prev[siteId], [field]: value },
+        [siteId]: { ...current, [field]: value },
       };
       try {
         localStorage.setItem(SITES_EMPLOI_STORAGE_KEY, JSON.stringify(next));
       } catch {
         // ignore
       }
+      if (user?.id) {
+        upsertUserJobSiteStatus(user.id, siteId, {
+          accountCreated: field === "created" ? value : current.created,
+          cvSent: field === "cvSent" ? value : current.cvSent,
+        }).catch(() => {});
+      }
       return next;
     });
+  };
+
+  const handleAddSite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const label = addLabel.trim();
+    const url = addUrl.trim();
+    if (!label || !url || addingSite) return;
+    setAddingSite(true);
+    try {
+      const site = await insertJobSite({ label, url });
+      setJobSites((prev) => [...prev, site].sort((a, b) => a.position - b.position));
+      setAddLabel("");
+      setAddUrl("");
+      setShowAddSite(false);
+    } catch {
+      // error could be shown in UI
+    } finally {
+      setAddingSite(false);
+    }
+  };
+
+  const handleDeleteSite = async (id: string) => {
+    if (!window.confirm("Supprimer ce site de la liste ?")) return;
+    try {
+      await deleteJobSite(id);
+      setJobSites((prev) => prev.filter((s) => s.id !== id));
+      setSiteCheckboxes((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        try {
+          localStorage.setItem(SITES_EMPLOI_STORAGE_KEY, JSON.stringify(next));
+        } catch {
+          // ignore
+        }
+        return next;
+      });
+    } catch {
+      // error could be shown in UI
+    }
   };
 
   return (
@@ -494,51 +561,128 @@ function OutilsPostulations() {
           <p className="outils-postulations__block-desc">
             Liens vers les plateformes de recherche d&apos;emploi.
           </p>
-          <OutilsProgressWrap
-            value={sitesUsedCount}
-            max={SITES_EMPLOI.length}
-            label={sitesUsedLabel}
-          />
-          <div className="outils-postulations__sites-grid">
-            {SITES_EMPLOI.map((site) => (
-              <div key={site.id} className="outils-postulations__site-card">
-                <a
-                  href={site.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="outils-postulations__site-card-link"
-                >
-                  {site.label}
-                </a>
-                <div className="outils-postulations__site-card-checkboxes">
-                  <label className="outils-postulations__site-card-check">
-                    <input
-                      type="checkbox"
-                      checked={siteCheckboxes[site.id].created}
-                      onChange={(e) =>
-                        setSiteCheckbox(site.id, "created", e.target.checked)
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                      aria-label={`Compte créé sur ${site.label}`}
-                    />
-                    <span>Compte créé</span>
-                  </label>
-                  <label className="outils-postulations__site-card-check">
-                    <input
-                      type="checkbox"
-                      checked={siteCheckboxes[site.id].updated}
-                      onChange={(e) =>
-                        setSiteCheckbox(site.id, "updated", e.target.checked)
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                      aria-label={`Compte mis à jour sur ${site.label}`}
-                    />
-                    <span>Compte mis à jour</span>
-                  </label>
-                </div>
+          {!loadingSites && (
+            <OutilsProgressWrap
+              value={sitesUsedCount}
+              max={jobSites.length}
+              label={sitesUsedLabel}
+            />
+          )}
+          {loadingSites && (
+            <p className="outils-postulations__loading">Chargement des sites…</p>
+          )}
+          {!loadingSites && (
+            <>
+              <div className="outils-postulations__sites-grid">
+                {jobSites.map((site) => (
+                  <div key={site.id} className="outils-postulations__site-card">
+                    <div className="outils-postulations__site-card-head">
+                      <a
+                        href={site.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="outils-postulations__site-card-link"
+                      >
+                        {site.label}
+                      </a>
+                      <div className="outils-postulations__site-card-actions">
+                        <button
+                          type="button"
+                          className="outils-postulations__site-card-btn outils-postulations__site-card-btn--delete"
+                          onClick={() => handleDeleteSite(site.id)}
+                          aria-label={`Supprimer ${site.label}`}
+                          title="Supprimer"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                    <div className="outils-postulations__site-card-checkboxes">
+                          <label className="outils-postulations__site-card-check">
+                            <input
+                              type="checkbox"
+                              checked={siteCheckboxes[site.id]?.created ?? false}
+                              onChange={(e) =>
+                                setSiteCheckbox(site.id, "created", e.target.checked)
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                              aria-label={`Compte créé sur ${site.label}`}
+                            />
+                            <span>Compte créé</span>
+                          </label>
+                          <label className="outils-postulations__site-card-check">
+                            <input
+                              type="checkbox"
+                              checked={siteCheckboxes[site.id]?.cvSent ?? false}
+                              onChange={(e) =>
+                                setSiteCheckbox(site.id, "cvSent", e.target.checked)
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                              aria-label={`Compte mis à jour sur ${site.label}`}
+                            />
+                            <span>Compte mis à jour</span>
+                          </label>
+                        </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+              {showAddSite ? (
+                <form
+                  className="outils-postulations__site-add-form"
+                  onSubmit={handleAddSite}
+                >
+                  <input
+                    type="text"
+                    value={addLabel}
+                    onChange={(e) => setAddLabel(e.target.value)}
+                    className="outils-postulations__add-input"
+                    placeholder="Nom du site (ex. LinkedIn)"
+                    required
+                    disabled={addingSite}
+                  />
+                  <input
+                    type="url"
+                    value={addUrl}
+                    onChange={(e) => setAddUrl(e.target.value)}
+                    className="outils-postulations__add-input"
+                    placeholder="URL (ex. https://…)"
+                    required
+                    disabled={addingSite}
+                  />
+                  <div className="outils-postulations__add-actions">
+                    <button
+                      type="submit"
+                      className="outils-postulations__add-btn"
+                      disabled={addingSite}
+                    >
+                      Ajouter
+                    </button>
+                    <button
+                      type="button"
+                      className="outils-postulations__add-cancel"
+                      onClick={() => {
+                        setShowAddSite(false);
+                        setAddLabel("");
+                        setAddUrl("");
+                      }}
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="outils-postulations__site-add-trigger-wrap">
+                  <button
+                    type="button"
+                    className="outils-postulations__add-trigger"
+                    onClick={() => setShowAddSite(true)}
+                  >
+                    + Ajouter un site
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </section>
 
         <section className="outils-postulations__block">

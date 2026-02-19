@@ -282,6 +282,82 @@
   cursor: pointer;
 }
 
+.outils-postulations__site-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.outils-postulations__site-card-head .outils-postulations__site-card-link {
+  flex: 1;
+  min-width: 0;
+}
+
+.outils-postulations__site-card-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.outils-postulations__site-card-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.outils-postulations__site-card-btn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.outils-postulations__site-card-btn--delete:hover {
+  background: var(--primary-pale);
+  color: var(--primary);
+}
+
+.outils-postulations__site-card-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.outils-postulations__site-card-edit .outils-postulations__add-input {
+  width: 100%;
+}
+
+.outils-postulations__site-card-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.outils-postulations__site-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--background-subtle);
+  border: 1px dashed var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.outils-postulations__site-add-trigger-wrap {
+  margin-top: 1rem;
+  text-align: center;
+}
+
 .outils-postulations__loading {
   color: var(--text-muted);
   font-size: 0.95rem;
