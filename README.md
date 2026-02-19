@@ -33,11 +33,16 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 - **Dark mode** — Bascule thème clair/sombre (paramètres)
 - Auth Supabase (connexion, inscription)
 
+### Ressources (Outils postulations)
+
+- **CV** — Stockage de CV avec lien (Google Drive, etc.), type (Tech, Agence, Grande entreprise, Autre), format (Court, Complet). Barre de progression (X / 10) avec segments et indicateur par site. Visualisation en grand (iframe) et copie du lien. Persistance Supabase par utilisateur.
+- **Sites d’emploi** — Liste de sites (LinkedIn, HelloWork, Indeed, Welcome to the Jungle, France Travail, etc.) chargée depuis Supabase. Ajout et suppression de sites. Par site : cases « Compte créé » et « Compte mis à jour », sauvegardées en base (utilisateur connecté) ou en localStorage. Grille 2 colonnes (1 en mobile/tablette).
+
 ### Prévu
 
 - Objectifs hebdo, streak, badges
 - Rappels et notifications
-- Gestion des documents (CV, lettres)
+- Gestion des documents (lettres)
 - Recherche par entreprise, techno, statut
 
 ---
@@ -46,8 +51,8 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 - **React 19** + **TypeScript**
 - **Vite 7**
-- **React Router** (pages : dashboard, candidatures, kanban, planning, tâches, paramètres, login, inscription)
-- **Supabase** (persistance des données, authentification)
+- **React Router** (pages : dashboard, candidatures, kanban, planning, tâches, ressources, paramètres, login, inscription)
+- **Supabase** (persistance des données, authentification ; tables : candidatures, tâches, cv_ressources, job_sites, user_job_site_status)
 
 ---
 
@@ -57,8 +62,8 @@ Chaque **page** et chaque **composant** a son propre dossier avec un fichier `.t
 
 ```
 src/
-├── types/           # Modèles (Candidature, Tache, Statut, Priorite, etc.)
-├── lib/             # Supabase client, candidatures (CRUD), taches (CRUD)
+├── types/           # Modèles (Candidature, Tache, Statut, Priorite, CvRessource, etc.)
+├── lib/             # Supabase client, candidatures, taches, cvRessources, jobSites
 ├── contexts/        # AuthContext, ThemeContext
 ├── components/      # Layout, Sidebar, Pagination, Select, CandidaturesFilters
 │   ├── Layout/
@@ -73,6 +78,7 @@ src/
 │   ├── Kanban/
 │   ├── Planning/         # Calendrier mensuel + événements candidatures
 │   ├── Taches/           # Todo par semaine ISO (accordéon, priorités)
+│   ├── OutilsPostulations/# Ressources : CV (liens, types), sites d’emploi (Supabase, checkboxes)
 │   ├── Settings/
 │   ├── Login/
 │   └── Signup/
