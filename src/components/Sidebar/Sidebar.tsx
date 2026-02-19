@@ -17,7 +17,7 @@ function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     { to: "/kanban", label: "Kanban" },
     { to: "/planning", label: "Planning" },
     { to: "/taches", label: "Tâches" },
-    { to: "/outils-postulations", label: "Outils de postulation" },
+    { to: "/ressources", label: "Ressources" },
     { to: "/settings", label: "Paramètres" },
   ];
 
