@@ -426,6 +426,7 @@
 .outils-postulations__add-actions {
   display: flex;
   gap: 0.5rem;
+  justify-content: flex-end;
 }
 
 .outils-postulations__add-btn {
@@ -799,6 +800,10 @@
 
 /* Responsive tablette / téléphone */
 @media (max-width: 768px) {
+  .outils-postulations__sites-grid {
+    grid-template-columns: 1fr;
+  }
+
   .outils-postulations__cv-progress-inner {
     flex-direction: column;
     align-items: flex-start;
