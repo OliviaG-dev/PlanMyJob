@@ -171,12 +171,40 @@ function CvSection() {
                   className={`outils-postulations__cv-progress-segment ${i < cvs.length ? "outils-postulations__cv-progress-segment--filled" : ""}`}
                 />
               ))}
-              <img
-                src="/icons/stars.png"
-                alt=""
-                className="outils-postulations__cv-progress-stars"
-                aria-hidden
-              />
+              <span className="outils-postulations__cv-progress-stars-wrap">
+                {[
+                  { dx: "-8px", dy: "-10px", color: "primary", rotate: "45deg", size: 3 },
+                  { dx: "18px", dy: "-14px", color: "primary-soft", rotate: "-30deg", size: 4 },
+                  { dx: "-6px", dy: "8px", color: "primary-pale", rotate: "120deg", size: 2 },
+                  { dx: "14px", dy: "12px", color: "muted", rotate: "-80deg", size: 4 },
+                  { dx: "-20px", dy: "-8px", color: "primary", rotate: "200deg", size: 3 },
+                  { dx: "7px", dy: "16px", color: "primary-soft", rotate: "-150deg", size: 2 },
+                  { dx: "0px", dy: "-22px", color: "primary-pale", rotate: "15deg", size: 4 },
+                  { dx: "-12px", dy: "6px", color: "primary", rotate: "90deg", size: 3 },
+                  { dx: "16px", dy: "-16px", color: "muted", rotate: "-60deg", size: 2 },
+                ].map((p, i) => (
+                  <span
+                    key={i}
+                    className={`outils-postulations__cv-progress-confetti-piece outils-postulations__cv-progress-confetti-piece--${p.color}`}
+                    style={
+                      {
+                        "--confetti-dx": p.dx,
+                        "--confetti-dy": p.dy,
+                        "--confetti-rotate": p.rotate,
+                        "--confetti-size": `${p.size}px`,
+                        "--confetti-delay": `${i * 0.02}s`,
+                      } as React.CSSProperties
+                    }
+                    aria-hidden
+                  />
+                ))}
+                <img
+                  src="/icons/stars.png"
+                  alt=""
+                  className="outils-postulations__cv-progress-stars"
+                  aria-hidden
+                />
+              </span>
             </div>
           </div>
         </div>
