@@ -728,7 +728,7 @@ function MotivationGeneratorSection() {
       <div className="outils-postulations__letter-grid">
         <div className="outils-postulations__letter-form">
           <label className="outils-postulations__letter-label">
-            Poste vise
+            Poste visé
             <input
               type="text"
               value={position}
@@ -748,7 +748,7 @@ function MotivationGeneratorSection() {
             />
           </label>
           <div className="outils-postulations__letter-skills">
-            <p className="outils-postulations__letter-subtitle">3 competences cles</p>
+            <p className="outils-postulations__letter-subtitle">3 compétences clés</p>
             {skills.map((skill, index) => (
               <input
                 key={index}
@@ -761,7 +761,7 @@ function MotivationGeneratorSection() {
             ))}
           </div>
           <label className="outils-postulations__letter-label">
-            1 realisation importante
+            Réalisation importante (projet)
             <textarea
               value={achievement}
               onChange={(e) => setAchievement(e.target.value)}
@@ -789,7 +789,7 @@ function MotivationGeneratorSection() {
           </label>
           <div className="outils-postulations__add-row">
             <label className="outils-postulations__letter-label">
-              Ton souhaite
+              Style souhaité
               <select
                 value={toneSelection}
                 onChange={(e) => setToneSelection(e.target.value as LetterTone | "auto")}
@@ -802,7 +802,7 @@ function MotivationGeneratorSection() {
               </select>
             </label>
             <label className="outils-postulations__letter-label">
-              Annees d'experience
+              Années d'expérience
               <input
                 type="number"
                 min={0}
@@ -821,7 +821,7 @@ function MotivationGeneratorSection() {
               onClick={handleGenerate}
               disabled={!hasRequiredFields}
             >
-              Generer la lettre
+              Générer la lettre
             </button>
           </div>
         </div>
@@ -837,7 +837,7 @@ function MotivationGeneratorSection() {
                 )}
                 {lastToneUsed && (
                   <span className="outils-postulations__letter-badge">
-                    Ton applique: {TONE_LABELS[lastToneUsed]}
+                    Style: {TONE_LABELS[lastToneUsed]}
                   </span>
                 )}
                 {toneSelection === "auto" && detectedTone && (
@@ -859,13 +859,13 @@ function MotivationGeneratorSection() {
                   className="outils-postulations__letter-textarea outils-postulations__letter-textarea--result"
                 />
               </label>
-              <div className="outils-postulations__add-actions">
+              <div className="outils-postulations__letter-result-actions">
                 <button
                   type="button"
                   className="outils-postulations__cv-card-link"
                   onClick={handleCopy}
                 >
-                  {copied ? "Copiee !" : "Copier"}
+                  {copied ? "Copiée !" : "Copier la lettre"}
                 </button>
               </div>
             </>

@@ -221,37 +221,80 @@
   margin: 0;
 }
 
+/* Générateur lettre de motivation — aligné sur cv-card + site-card */
 .outils-postulations__letter-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 1rem;
-}
-
-.outils-postulations__letter-form,
-.outils-postulations__letter-result {
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  background: var(--surface-elevated);
-  padding: 1rem;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
 }
 
 .outils-postulations__letter-form {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--primary-soft);
+  background: linear-gradient(
+    to right,
+    rgba(183, 110, 121, 0.03) 0%,
+    var(--surface) 18%
+  );
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+[data-theme="dark"] .outils-postulations__letter-form {
+  background: linear-gradient(
+    to right,
+    rgba(212, 165, 165, 0.06) 0%,
+    var(--surface) 18%
+  );
+}
+
+.outils-postulations__letter-form:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border);
+}
+
+.outils-postulations__letter-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.outils-postulations__letter-result:hover {
+  background: var(--primary-pale);
+  border-color: var(--primary-soft);
+  box-shadow: var(--shadow-sm);
 }
 
 .outils-postulations__letter-label {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  font-size: 0.86rem;
-  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.outils-postulations__letter-label .outils-postulations__add-input,
+.outils-postulations__letter-label .outils-postulations__add-select {
+  width: 100%;
 }
 
 .outils-postulations__letter-subtitle {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.86rem;
+  margin: 0 0 0.35rem 0;
+  font-size: 0.9rem;
+  font-weight: 500;
   color: var(--text-muted);
 }
 
@@ -266,7 +309,7 @@
   min-height: 80px;
   resize: vertical;
   padding: 0.55rem 0.75rem;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface-elevated);
@@ -286,36 +329,61 @@
 .outils-postulations__letter-textarea--result {
   min-height: 320px;
   font-size: 0.88rem;
-  line-height: 1.45;
-}
-
-.outils-postulations__letter-result {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  line-height: 1.5;
 }
 
 .outils-postulations__letter-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+  align-items: center;
 }
 
 .outils-postulations__letter-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(183, 110, 121, 0.18);
   color: var(--primary);
-  background: var(--primary-pale);
-  border: 1px solid var(--primary-soft);
 }
 
 .outils-postulations__letter-keywords {
   margin: 0;
-  font-size: 0.84rem;
-  color: var(--text);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.outils-postulations__letter-result .outils-postulations__letter-label {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.outils-postulations__letter-result .outils-postulations__letter-textarea--result {
+  flex: 1;
+  min-height: 280px;
+}
+
+.outils-postulations__letter-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.outils-postulations__letter-result .outils-postulations__placeholder {
+  padding: 1rem 0;
+  text-align: center;
 }
 
 /* Grille sites d'emploi — 2 par 2 */
