@@ -221,6 +221,103 @@
   margin: 0;
 }
 
+.outils-postulations__letter-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.outils-postulations__letter-form,
+.outils-postulations__letter-result {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--surface-elevated);
+  padding: 1rem;
+}
+
+.outils-postulations__letter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.outils-postulations__letter-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.outils-postulations__letter-subtitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.outils-postulations__letter-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.outils-postulations__letter-textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.92rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated);
+  color: var(--text);
+  font-family: inherit;
+}
+
+.outils-postulations__letter-textarea:focus {
+  outline: none;
+  border-color: var(--primary-soft);
+}
+
+.outils-postulations__letter-textarea--large {
+  min-height: 120px;
+}
+
+.outils-postulations__letter-textarea--result {
+  min-height: 320px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.outils-postulations__letter-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.outils-postulations__letter-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.outils-postulations__letter-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--primary);
+  background: var(--primary-pale);
+  border: 1px solid var(--primary-soft);
+}
+
+.outils-postulations__letter-keywords {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--text);
+}
+
 /* Grille sites d'emploi — 2 par 2 */
 .outils-postulations__sites-grid {
   display: grid;
@@ -800,6 +897,10 @@
 
 /* Responsive tablette / téléphone */
 @media (max-width: 768px) {
+  .outils-postulations__letter-grid {
+    grid-template-columns: 1fr;
+  }
+
   .outils-postulations__sites-grid {
     grid-template-columns: 1fr;
   }
