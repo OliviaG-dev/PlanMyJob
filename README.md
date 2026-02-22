@@ -35,6 +35,8 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 ### Ressources (Outils postulations)
 
+- **Mail / lettre de motivation** — Générateur de lettre semi-automatique : formulaire (poste, entreprise, 3 compétences, réalisation, motivation), optionnellement offre d'emploi collée, style (Auto / Classique / Moderne / Startup), prénom/nom pour la signature. Réalisation = choix d'un **projet** (Mes projets) ou saisie libre. Génération d'une lettre personnalisée (templates par ton), score de matching indicatif, mots-clés détectés depuis l'offre, copie en un clic. Voir `doc.md` pour la doc détaillée.
+- **Mes projets** — Gestion de projets (titre + description) dans la page Ressources : ajout, édition, suppression. Les projets servent de « réalisation importante » dans le générateur de lettre. Persistance Supabase par utilisateur.
 - **CV** — Stockage de CV avec lien (Google Drive, etc.), type (Tech, Agence, Grande entreprise, Autre), format (Court, Complet). Barre de progression (X / 10) avec segments et indicateur par site. Visualisation en grand (iframe) et copie du lien. Persistance Supabase par utilisateur.
 - **Sites d’emploi** — Liste de sites (LinkedIn, HelloWork, Indeed, Welcome to the Jungle, France Travail, etc.) chargée depuis Supabase. Ajout et suppression de sites. Par site : cases « Compte créé » et « Compte mis à jour », sauvegardées en base (utilisateur connecté) ou en localStorage. Grille 2 colonnes (1 en mobile/tablette).
 
@@ -42,7 +44,7 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 - Objectifs hebdo, streak, badges
 - Rappels et notifications
-- Gestion des documents (lettres)
+- Export PDF des lettres
 - Recherche par entreprise, techno, statut
 
 ---
@@ -52,7 +54,7 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 - **React 19** + **TypeScript**
 - **Vite 7**
 - **React Router** (pages : dashboard, candidatures, kanban, planning, tâches, ressources, paramètres, login, inscription)
-- **Supabase** (persistance des données, authentification ; tables : candidatures, tâches, cv_ressources, job_sites, user_job_site_status)
+- **Supabase** (persistance des données, authentification ; tables : candidatures, tâches, cv_ressources, job_sites, user_job_site_status, projets)
 
 ---
 
@@ -63,7 +65,7 @@ Chaque **page** et chaque **composant** a son propre dossier avec un fichier `.t
 ```
 src/
 ├── types/           # Modèles (Candidature, Tache, Statut, Priorite, CvRessource, etc.)
-├── lib/             # Supabase client, candidatures, taches, cvRessources, jobSites
+├── lib/             # Supabase client, candidatures, taches, cvRessources, jobSites, projets
 ├── contexts/        # AuthContext, ThemeContext
 ├── components/      # Layout, Sidebar, Pagination, Select, CandidaturesFilters
 │   ├── Layout/
@@ -78,7 +80,7 @@ src/
 │   ├── Kanban/
 │   ├── Planning/         # Calendrier mensuel + événements candidatures
 │   ├── Taches/           # Todo par semaine ISO (accordéon, priorités)
-│   ├── OutilsPostulations/# Ressources : CV (liens, types), sites d’emploi (Supabase, checkboxes)
+│   ├── OutilsPostulations/# Ressources : CV, sites d’emploi, générateur lettre, Mes projets
 │   ├── Settings/
 │   ├── Login/
 │   └── Signup/
