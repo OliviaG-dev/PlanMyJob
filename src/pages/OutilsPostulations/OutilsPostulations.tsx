@@ -18,7 +18,11 @@ import { OutilsProgressWrap } from "./OutilsProgressWrap";
 import { Select } from "../../components/Select/Select";
 import { fetchProjets, insertProjet, updateProjet, deleteProjet } from "../../lib/projets";
 import type { Projet } from "../../types/projet";
+import type { WhyCompanyTemplate } from "../../data/interface";
+import whyCompanyTemplates from "../../data/whyCompanyTemplates.json";
 import "./OutilsPostulations.css";
+
+const WHY_COMPANY_TEMPLATES = whyCompanyTemplates as WhyCompanyTemplate[];
 
 const CV_TYPE_LABELS: Record<CvType, string> = {
   tech: "Tech",
@@ -695,6 +699,11 @@ function MotivationGeneratorSection() {
       ? (projets.find((p) => p.id === selectedProjetId)?.description ?? "").trim()
       : customAchievement.trim();
 
+  const whyCompanySelectValue = useMemo(() => {
+    const idx = WHY_COMPANY_TEMPLATES.findIndex((t) => t.text === motivation);
+    return idx >= 0 ? String(idx) : "";
+  }, [motivation]);
+
   const hasRequiredFields =
     position.trim() &&
     company.trim() &&
@@ -916,15 +925,21 @@ function MotivationGeneratorSection() {
               </>
             )}
           </div>
-          <label className="outils-postulations__letter-label">
-            Pourquoi cette entreprise ?
-            <textarea
-              value={motivation}
-              onChange={(e) => setMotivation(e.target.value)}
-              className="outils-postulations__letter-textarea"
-              placeholder="Ex. sa mission, son produit, sa culture d'execution..."
+          <div className="outils-postulations__letter-label">
+            <Select
+              id="letter-why-company"
+              label="Pourquoi cette entreprise ?"
+              value={whyCompanySelectValue}
+              options={WHY_COMPANY_TEMPLATES.map((t, i) => ({
+                value: String(i),
+                label: t.title,
+              }))}
+              onChange={(value) =>
+                setMotivation(WHY_COMPANY_TEMPLATES[Number(value)].text)
+              }
+              wrapClassName="outils-postulations__letter-why-company-select"
             />
-          </label>
+          </div>
           <label className="outils-postulations__letter-label">
             Offre d'emploi (optionnel)
             <textarea
