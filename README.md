@@ -25,8 +25,10 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 ### Tableau de bord
 
-- Stats : candidatures envoyées, en cours, entretiens
-- Visualisations et objectifs (à venir)
+- **Stats** — Candidatures (envoyées, en cours, entretiens), taux de conversion, organisation par statut.
+- **Répartition** — Liste par statut + graphique donut (répartition des candidatures).
+- **Objectifs & motivation** — Bloc objectifs et indicateurs de progression.
+- Thème et design alignés avec le reste de l’app (stat-cards, couleurs primary).
 
 ### Avancé
 
@@ -35,6 +37,7 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 ### Ressources (Outils postulations)
 
+- **Analyser une offre d'emploi** — Collez le texte d’une annonce (LinkedIn, Indeed, etc.) : extraction automatique du poste, entreprise, type de contrat, télétravail, localisation, expérience, compétences techniques, points clés, salaire, lien. Formulaire éditable puis **Créer une candidature** pour pré-remplir le modal d’ajout. Logique d’extraction dans `src/lib/offerAnalyzer.ts` (voir `src/lib/offerAnalyzer.md` pour la doc).
 - **Mail / lettre de motivation** — Générateur de lettre semi-automatique : formulaire (poste, entreprise, 3 compétences, réalisation, motivation), optionnellement offre d'emploi collée, style (Auto / Classique / Moderne / Startup), prénom/nom pour la signature. Réalisation = choix d'un **projet** (Mes projets) ou saisie libre. Génération d'une lettre personnalisée (templates par ton), score de matching indicatif, mots-clés détectés depuis l'offre, copie en un clic. Voir `doc.md` pour la doc détaillée.
 - **Mes projets** — Gestion de projets (titre + description) dans la page Ressources : ajout, édition, suppression. Les projets servent de « réalisation importante » dans le générateur de lettre. Persistance Supabase par utilisateur.
 - **CV** — Stockage de CV avec lien (Google Drive, etc.), type (Tech, Agence, Grande entreprise, Autre), format (Court, Complet). Barre de progression (X / 10) avec segments et indicateur par site. Visualisation en grand (iframe) et copie du lien. Persistance Supabase par utilisateur.
@@ -65,7 +68,8 @@ Chaque **page** et chaque **composant** a son propre dossier avec un fichier `.t
 ```
 src/
 ├── types/           # Modèles (Candidature, Tache, Statut, Priorite, CvRessource, etc.)
-├── lib/             # Supabase client, candidatures, taches, cvRessources, jobSites, projets
+├── lib/             # Supabase client, candidatures, taches, cvRessources, jobSites, projets, offerAnalyzer
+├── data/            # Données statiques (whyCompanyTemplates.json, interface.ts)
 ├── contexts/        # AuthContext, ThemeContext
 ├── components/      # Layout, Sidebar, Pagination, Select, CandidaturesFilters
 │   ├── Layout/

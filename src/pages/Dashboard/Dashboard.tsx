@@ -12,6 +12,7 @@ import {
   type JobSite,
   type UserJobSiteStatus,
 } from "../../lib/jobSites";
+import { getWeeklyGoals } from "../../lib/userGoals";
 import "./Dashboard.css";
 
 const STATUT_LABELS: Record<Statut, string> = {
@@ -41,8 +42,6 @@ const TYPE_CONTRAT_LABELS: Record<TypeContrat, string> = {
   freelance: "Freelance",
   autre: "Autre",
 };
-
-const OBJECTIF_CANDIDATURES_HEBDO = 5;
 
 /** Couleurs pour le graphique radial (répartition par statut) */
 const STATUT_CHART_COLORS: Record<Statut, string> = {
@@ -213,6 +212,7 @@ function Dashboard() {
   const [error, setError] = useState<string | null>(null);
 
   const weekStart = useMemo(() => getCurrentWeekStart(), []);
+  const weeklyGoals = getWeeklyGoals(user?.id);
 
   useEffect(() => {
     if (!user?.id) {
@@ -561,9 +561,15 @@ function Dashboard() {
         <div className="dashboard__stats">
           <div className="stat-card stat-card--highlight">
             <span className="stat-card__value">
-              {stats.candidaturesCetteSemaine} / {OBJECTIF_CANDIDATURES_HEBDO}
+              {stats.candidaturesCetteSemaine} / {weeklyGoals.candidatures}
             </span>
             <span className="stat-card__label">Candidatures cette semaine (objectif)</span>
+          </div>
+          <div className="stat-card stat-card--highlight">
+            <span className="stat-card__value">
+              {stats.candidaturesCeMois} / {weeklyGoals.candidaturesMois}
+            </span>
+            <span className="stat-card__label">Candidatures ce mois (objectif)</span>
           </div>
           <div className="stat-card">
             <span className="stat-card__value">
