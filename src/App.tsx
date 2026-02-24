@@ -11,6 +11,8 @@ import Planning from "./pages/Planning/Planning";
 import Taches from "./pages/Taches/Taches";
 import OutilsPostulations from "./pages/OutilsPostulations/OutilsPostulations";
 import Settings from "./pages/Settings/Settings";
+import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import "./App.css";
 
 function ProtectedLayout() {
@@ -35,6 +37,8 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/" element={<ProtectedLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
