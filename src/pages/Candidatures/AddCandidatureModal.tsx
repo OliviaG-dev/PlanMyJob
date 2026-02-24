@@ -123,9 +123,7 @@ function AddCandidatureModal({
   initialData = null,
 }: AddCandidatureModalProps) {
   const [formData, setFormData] = useState<AddCandidatureFormData>(() =>
-    mode === "edit" && initialData
-      ? candidatureToFormData(initialData)
-      : defaultFormData
+    initialData ? candidatureToFormData(initialData) : defaultFormData
   );
 
   function update<K extends keyof AddCandidatureFormData>(
