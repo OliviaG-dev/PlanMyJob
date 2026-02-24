@@ -1244,14 +1244,10 @@ function OfferAnalyzerSection() {
   return (
     <section className="outils-postulations__block">
       <h2 className="outils-postulations__block-title">
-        Outils d&apos;aide à la postulation
+        Analyser une offre d&apos;emploi
       </h2>
-      <p className="outils-postulations__block-desc">
-        Analysez une offre d&apos;emploi pour en extraire les informations utiles et créer une candidature.
-      </p>
 
       <div className="outils-postulations__offer-analyzer">
-        <h3 className="outils-postulations__offer-analyzer-title">Analyser une offre d&apos;emploi</h3>
         <p className="outils-postulations__offer-analyzer-desc">
           Collez le texte d&apos;une annonce (LinkedIn, Indeed, site entreprise…) puis cliquez sur « Extraire les informations ».
         </p>
