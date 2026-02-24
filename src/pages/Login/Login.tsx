@@ -66,6 +66,11 @@ function Login() {
               disabled={loading}
             />
           </label>
+          <p className="auth-form__forgot">
+            <Link to="/forgot-password" className="auth-form__forgot-link">
+              Mot de passe oublié ?
+            </Link>
+          </p>
           <button
             type="submit"
             className="auth-form__submit"

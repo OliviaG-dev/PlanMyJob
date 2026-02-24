@@ -111,6 +111,20 @@
   cursor: not-allowed;
 }
 
+.auth-form__forgot {
+  margin: -0.25rem 0 0 0;
+  font-size: 0.9rem;
+}
+
+.auth-form__forgot-link {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.auth-form__forgot-link:hover {
+  text-decoration: underline;
+}
+
 .auth-card__footer {
   text-align: center;
   margin-top: 1.5rem;

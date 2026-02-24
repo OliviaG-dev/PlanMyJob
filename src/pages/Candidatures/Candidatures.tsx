@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   fetchCandidatures,
@@ -85,7 +85,10 @@ function formatCreatedAt(iso?: string): string {
 
 function Candidatures() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [modalOpen, setModalOpen] = useState(false);
+  const [initialDataForAdd, setInitialDataForAdd] = useState<AddCandidatureFormData | null>(null);
   const [candidatures, setCandidatures] = useState<Candidature[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -147,6 +150,15 @@ function Candidatures() {
       .catch((err) => setError(err.message ?? "Erreur au chargement"))
       .finally(() => setLoading(false));
   }, [user?.id]);
+
+  useEffect(() => {
+    const data = (location.state as { addWithInitialData?: AddCandidatureFormData } | null)?.addWithInitialData;
+    if (data) {
+      setInitialDataForAdd(data);
+      setModalOpen(true);
+      navigate("/candidatures", { replace: true, state: {} });
+    }
+  }, [location.state, navigate]);
 
   async function handleAddCandidature(data: AddCandidatureFormData) {
     if (!user?.id) return;
@@ -600,10 +612,15 @@ function Candidatures() {
       )}
 
       <AddCandidatureModal
+        key={initialDataForAdd ? "prefilled" : "add"}
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          setInitialDataForAdd(null);
+        }}
         onSubmit={handleAddCandidature}
         isSubmitting={submitting}
+        initialData={initialDataForAdd ?? undefined}
       />
     </main>
   );

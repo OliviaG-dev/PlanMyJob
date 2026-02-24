@@ -8,7 +8,19 @@ import type {
   SourceCandidature,
 } from "../../types/candidature";
 import { Select } from "../../components/Select/Select";
+import { COMPETENCES_OPTIONS } from "../../lib/offerAnalyzer";
 import "./AddCandidatureModal.css";
+
+function parseCompetences(s: string): string[] {
+  return s
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
+function joinCompetences(arr: string[]): string {
+  return arr.join(", ");
+}
 
 const STATUT_LABELS: Record<Statut, string> = {
   a_postuler: "À postuler",
@@ -64,6 +76,7 @@ export type AddCandidatureFormData = {
   statut: Statut;
   salaireOuFourchette: string;
   notes: string;
+  competences: string;
 };
 
 const defaultFormData: AddCandidatureFormData = {
@@ -80,6 +93,7 @@ const defaultFormData: AddCandidatureFormData = {
   statut: "a_postuler",
   salaireOuFourchette: "",
   notes: "",
+  competences: "",
 };
 
 type AddCandidatureModalProps = {
@@ -111,6 +125,7 @@ function candidatureToFormData(
     statut: (c.statut as Statut) ?? "a_postuler",
     salaireOuFourchette: c.salaireOuFourchette ?? "",
     notes: c.notes ?? "",
+    competences: c.competences ?? "",
   };
 }
 
@@ -123,9 +138,7 @@ function AddCandidatureModal({
   initialData = null,
 }: AddCandidatureModalProps) {
   const [formData, setFormData] = useState<AddCandidatureFormData>(() =>
-    mode === "edit" && initialData
-      ? candidatureToFormData(initialData)
-      : defaultFormData
+    initialData ? candidatureToFormData(initialData) : defaultFormData
   );
 
   function update<K extends keyof AddCandidatureFormData>(
@@ -301,6 +314,57 @@ function AddCandidatureModal({
                 placeholder="Ex. 45–50 k€, à préciser…"
                 className="add-candidature-form__input"
               />
+            </label>
+            <label className="add-candidature-form__label add-candidature-form__label--full add-candidature-form__label--top-spaced">
+              Compétences / mots-clés
+              <div className="add-candidature-form__competences">
+                <div className="add-candidature-form__competences-badges">
+                  {parseCompetences(formData.competences).map((c) => (
+                    <span
+                      key={c}
+                      className="add-candidature-form__competence-badge"
+                    >
+                      {c}
+                      <button
+                        type="button"
+                        className="add-candidature-form__competence-badge-remove"
+                        onClick={() => {
+                          const next = parseCompetences(formData.competences).filter(
+                            (x) => x !== c
+                          );
+                          update("competences", joinCompetences(next));
+                        }}
+                        aria-label={`Retirer ${c}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <select
+                  className="add-candidature-form__competences-select"
+                  value=""
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (!v) return;
+                    const current = parseCompetences(formData.competences);
+                    if (current.includes(v)) return;
+                    update("competences", joinCompetences([...current, v]));
+                    e.target.value = "";
+                  }}
+                  aria-label="Ajouter une compétence"
+                >
+                  <option value="">Ajouter une compétence…</option>
+                  {COMPETENCES_OPTIONS.filter(
+                    (opt) =>
+                      !parseCompetences(formData.competences).includes(opt)
+                  ).map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </label>
           </section>
 

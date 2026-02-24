@@ -35,6 +35,7 @@ function candidatureToFormData(c: Candidature): AddCandidatureFormData {
     statut: c.statut ?? "a_postuler",
     salaireOuFourchette: c.salaireOuFourchette ?? "",
     notes: c.notes ?? "",
+    competences: c.competences ?? "",
   };
 }
 
@@ -239,6 +240,7 @@ function CandidatureDetail() {
         statut: data.statut,
         salaireOuFourchette: data.salaireOuFourchette || null,
         notes: data.notes || null,
+        competences: data.competences || null,
       });
       setState((s) => ({ ...s, candidature: updated }));
       setEditModalOpen(false);
@@ -416,6 +418,26 @@ function CandidatureDetail() {
             label="Salaire ou fourchette"
             value={candidature.salaireOuFourchette}
           />
+          <DetailRow label="Compétences / mots-clés">
+            {candidature.competences ? (
+              <div className="candidature-detail__competences">
+                {candidature.competences
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+                  .map((c) => (
+                    <span
+                      key={c}
+                      className="candidature-detail__competence-badge"
+                    >
+                      {c}
+                    </span>
+                  ))}
+              </div>
+            ) : (
+              "—"
+            )}
+          </DetailRow>
         </dl>
       </section>
 

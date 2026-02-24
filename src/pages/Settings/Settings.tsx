@@ -1,10 +1,31 @@
+import { useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
+import { getWeeklyGoals, setWeeklyGoals, type WeeklyGoals } from "../../lib/userGoals";
 import "./Settings.css";
 
 function Settings() {
   const { theme, setTheme } = useTheme();
-  const { user, signOut } = useAuth();
+  const { user, signOut, sendPasswordResetEmail } = useAuth();
+  const [goals, setGoals] = useState<WeeklyGoals>(() => getWeeklyGoals(user?.id));
+  const [passwordResetMessage, setPasswordResetMessage] = useState<"success" | "error" | null>(null);
+
+  const handleCandidaturesChange = (value: number) => {
+    const next = setWeeklyGoals(user?.id, { ...goals, candidatures: value });
+    setGoals(next);
+  };
+
+  const handleCandidaturesMoisChange = (value: number) => {
+    const next = setWeeklyGoals(user?.id, { ...goals, candidaturesMois: value });
+    setGoals(next);
+  };
+
+  const handleSendPasswordReset = async () => {
+    if (!user?.email) return;
+    setPasswordResetMessage(null);
+    const { error } = await sendPasswordResetEmail(user.email);
+    setPasswordResetMessage(error ? "error" : "success");
+  };
 
   return (
     <main className="settings">
@@ -26,13 +47,32 @@ function Settings() {
         <div className="settings__block">
           <h2>Compte</h2>
           <p className="settings__block-desc">{user?.email}</p>
-          <button
-            type="button"
-            className="settings__signout"
-            onClick={() => signOut()}
-          >
-            Déconnexion
-          </button>
+          <div className="settings__compte-actions">
+            <button
+              type="button"
+              className="settings__password-btn"
+              onClick={handleSendPasswordReset}
+            >
+              Changer le mot de passe
+            </button>
+            <button
+              type="button"
+              className="settings__signout"
+              onClick={() => signOut()}
+            >
+              Déconnexion
+            </button>
+          </div>
+          {passwordResetMessage === "success" && (
+            <p className="settings__password-message settings__password-message--success">
+              Un lien pour réinitialiser votre mot de passe a été envoyé à votre adresse email.
+            </p>
+          )}
+          {passwordResetMessage === "error" && (
+            <p className="settings__password-message settings__password-message--error">
+              L&apos;envoi de l&apos;email a échoué. Réessayez plus tard.
+            </p>
+          )}
         </div>
         <div className="settings__block">
           <h2>Apparence</h2>
@@ -62,11 +102,61 @@ function Settings() {
         </div>
         <div className="settings__block">
           <h2>Objectifs</h2>
-          <p>Objectif hebdo de candidatures (à venir).</p>
+          <p className="settings__block-desc">
+            Définissez vos objectifs de candidatures (semaine et mois). Ils sont utilisés sur le tableau de bord.
+          </p>
+          <div className="settings__goals">
+            <label className="settings__goal-label">
+              <span className="settings__goal-text">Candidatures par semaine</span>
+              <div className="settings__goal-input-wrap">
+                <input
+                  type="number"
+                  min={0}
+                  max={99}
+                  value={goals.candidatures}
+                  onChange={(e) => handleCandidaturesChange(parseInt(e.target.value, 10) || 0)}
+                  className="settings__goal-input"
+                />
+                <button
+                  type="button"
+                  className="settings__goal-validate"
+                  onClick={() => setWeeklyGoals(user?.id, goals)}
+                >
+                  OK
+                </button>
+              </div>
+            </label>
+            <label className="settings__goal-label">
+              <span className="settings__goal-text">Candidatures par mois</span>
+              <div className="settings__goal-input-wrap">
+                <input
+                  type="number"
+                  min={0}
+                  max={999}
+                  value={goals.candidaturesMois}
+                  onChange={(e) => handleCandidaturesMoisChange(parseInt(e.target.value, 10) || 0)}
+                  className="settings__goal-input"
+                />
+                <button
+                  type="button"
+                  className="settings__goal-validate"
+                  onClick={() => setWeeklyGoals(user?.id, goals)}
+                >
+                  OK
+                </button>
+              </div>
+            </label>
+          </div>
         </div>
       </section>
     </main>
   );
 }
 
-export default Settings;
+/** Wrapper pour réinitialiser l’état objectifs quand l’utilisateur change (key). */
+function SettingsKeyed() {
+  const { user } = useAuth();
+  return <Settings key={user?.id ?? "anon"} />;
+}
+
+export default SettingsKeyed;

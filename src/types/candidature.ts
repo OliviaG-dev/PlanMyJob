@@ -45,6 +45,8 @@ export type Candidature = {
   source?: SourceCandidature;
   notePersonnelle?: number; // 1–5
   salaireOuFourchette?: string;
+  /** Compétences / mots-clés (ex. React, TypeScript, gestion de projet) */
+  competences?: string;
   createdAt?: string; // ISO date from DB
   /** Date de passage en statut « CV envoyé » (ISO), pour afficher la temporalité */
   cvEnvoyeAt?: string;

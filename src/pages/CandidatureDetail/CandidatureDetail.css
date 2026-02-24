@@ -389,6 +389,22 @@
   box-shadow: 0 2px 8px rgba(229, 115, 115, 0.3);
 }
 
+.candidature-detail__competences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.candidature-detail__competence-badge {
+  display: inline-block;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary-pale);
+  color: var(--primary);
+  border: 1px solid var(--primary-soft);
+}
+
 .candidature-detail__section {
   margin-bottom: 1.75rem;
   padding: 1.25rem 1.5rem;

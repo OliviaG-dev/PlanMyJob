@@ -1208,3 +1208,119 @@
     min-height: 300px;
   }
 }
+
+/* Analyse offre d'emploi */
+.outils-postulations__offer-analyzer {
+  margin-top: 0.5rem;
+}
+
+.outils-postulations__offer-analyzer-title {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin: 0 0 0.35rem 0;
+  color: var(--text);
+}
+
+.outils-postulations__offer-analyzer-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+  line-height: 1.45;
+}
+
+.outils-postulations__offer-analyzer .outils-postulations__add-actions {
+  margin-top: 1rem;
+}
+
+.outils-postulations__offer-result {
+  margin-top: 1.75rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  border-left: 4px solid var(--primary-soft);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.outils-postulations__offer-result-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem 0;
+  color: var(--primary);
+  letter-spacing: 0.01em;
+}
+
+.outils-postulations__offer-result-desc {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin: 0 0 1.25rem 0;
+  line-height: 1.45;
+}
+
+.outils-postulations__offer-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem 1.25rem;
+}
+
+.outils-postulations__offer-result-grid .outils-postulations__letter-label {
+  margin-bottom: 0;
+}
+
+.outils-postulations__offer-result-full {
+  grid-column: 1 / -1;
+}
+
+/* Sections optionnelles après la grille (compétences, points clés) */
+.outils-postulations__offer-result-grid ~ .outils-postulations__letter-label.outils-postulations__offer-result-full {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.outils-postulations__offer-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0 0;
+}
+
+.outils-postulations__offer-tag {
+  display: inline-block;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary-pale);
+  color: var(--primary);
+  border: 1px solid var(--primary-soft);
+}
+
+.outils-postulations__offer-points {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.35rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.outils-postulations__offer-points li {
+  margin-bottom: 0.25rem;
+}
+
+.outils-postulations__offer-points li:last-child {
+  margin-bottom: 0;
+}
+
+.outils-postulations__offer-result-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-light);
+}
+
+@media (max-width: 768px) {
+  .outils-postulations__offer-result-grid {
+    grid-template-columns: 1fr;
+  }
+}
