@@ -85,6 +85,12 @@ export const KNOWN_STACK_KEYWORDS = [
 
 const KNOWN_STACK_KEYWORDS_MULTI = ["react native"];
 
+/** Liste de toutes les compétences pour les selects (badges) — multi d’abord pour tri cohérent. */
+export const COMPETENCES_OPTIONS = [
+  ...KNOWN_STACK_KEYWORDS_MULTI,
+  ...KNOWN_STACK_KEYWORDS,
+].sort((a, b) => a.localeCompare(b, "fr"));
+
 const CONTRAT_PATTERNS: { pattern: RegExp; value: TypeContrat }[] = [
   { pattern: /\bCDI\b/i, value: "cdi" },
   { pattern: /\bCDD\b/i, value: "cdd" },
@@ -343,5 +349,6 @@ export function extractedToFormData(ext: ExtractedOffer): AddCandidatureFormData
     statut: "a_postuler",
     salaireOuFourchette: ext.salaireOuFourchette,
     notes: ext.pointsCles.length > 0 ? ext.pointsCles.join("\n• ") : "",
+    competences: ext.competences.length > 0 ? ext.competences.join(", ") : "",
   };
 }

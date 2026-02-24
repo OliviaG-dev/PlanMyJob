@@ -26,6 +26,7 @@ type CandidatureRow = {
   source: string | null;
   note_personnelle: number | null;
   salaire_ou_fourchette: string | null;
+  competences: string | null;
   created_at: string;
   updated_at: string;
   cv_envoye_at: string | null;
@@ -52,6 +53,7 @@ function rowToCandidature(row: CandidatureRow): Candidature {
     source: (row.source as Candidature["source"]) ?? undefined,
     notePersonnelle: row.note_personnelle ?? undefined,
     salaireOuFourchette: row.salaire_ou_fourchette ?? undefined,
+    competences: row.competences ?? undefined,
     createdAt: row.created_at,
     cvEnvoyeAt: row.cv_envoye_at ?? undefined,
     entretienRhAt: row.entretien_rh_at ?? undefined,
@@ -110,6 +112,7 @@ export async function insertCandidature(
     source: form.source,
     note_personnelle: form.notePersonnelle,
     salaire_ou_fourchette: form.salaireOuFourchette.trim() || null,
+    competences: form.competences.trim() || null,
     cv_envoye_at: form.statut === "cv_envoye" ? now : null,
     entretien_rh_at: form.statut === "entretien_rh" ? now : null,
     entretien_technique_at: form.statut === "entretien_technique" ? now : null,
@@ -141,6 +144,7 @@ export type UpdateCandidaturePayload = {
   notePersonnelle?: number | null;
   salaireOuFourchette?: string | null;
   notes?: string | null;
+  competences?: string | null;
   cvEnvoyeAt?: string | null;
   entretienRhAt?: string | null;
   entretienTechniqueAt?: string | null;
@@ -171,6 +175,7 @@ function payloadToRow(
   if (payload.salaireOuFourchette !== undefined)
     row.salaire_ou_fourchette = payload.salaireOuFourchette?.trim() || null;
   if (payload.notes !== undefined) row.notes = payload.notes?.trim() || null;
+  if (payload.competences !== undefined) row.competences = payload.competences?.trim() || null;
   if (payload.cvEnvoyeAt !== undefined) row.cv_envoye_at = payload.cvEnvoyeAt;
   if (payload.entretienRhAt !== undefined)
     row.entretien_rh_at = payload.entretienRhAt;
