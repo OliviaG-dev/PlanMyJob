@@ -13,6 +13,7 @@ import OutilsPostulations from "./pages/OutilsPostulations/OutilsPostulations";
 import Settings from "./pages/Settings/Settings";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
+import NotFound from "./pages/NotFound/NotFound";
 import "./App.css";
 
 function ProtectedLayout() {
@@ -50,6 +51,7 @@ function App() {
           <Route path="ressources" element={<OutilsPostulations />} />
           <Route path="settings" element={<Settings />} />
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
