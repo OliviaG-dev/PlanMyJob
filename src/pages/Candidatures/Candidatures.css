@@ -31,6 +31,32 @@
   min-width: 0;
 }
 
+/* Bouton « Ajouter » en bas sur mobile */
+.candidatures__add-bottom {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .candidatures__head-right {
+    display: none;
+  }
+
+  .candidatures__add-bottom {
+    display: flex;
+    justify-content: center;
+    padding: 1.25rem 0 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .candidatures__add-bottom .candidatures__add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
 .candidatures__icon {
   width: 5rem;
   height: 5rem;

@@ -438,6 +438,18 @@ function Candidatures() {
         </div>
       </div>
 
+      <div className="candidatures__add-bottom">
+        <button
+          type="button"
+          className="candidatures__add-btn"
+          onClick={() => setModalOpen(true)}
+          disabled={!user}
+        >
+          <span className="candidatures__add-btn-plus">+</span> Ajouter une
+          candidature
+        </button>
+      </div>
+
       {error && (
         <p className="candidatures__error" role="alert">
           {error}
