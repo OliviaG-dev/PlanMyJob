@@ -1,0 +1,45 @@
+.not-found-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--background-subtle);
+}
+
+.not-found-card {
+  width: 100%;
+  max-width: min(96vw, 1000px);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-lg);
+  padding: 2.5rem;
+  text-align: center;
+}
+
+.not-found-illustration {
+  display: block;
+  width: 100%;
+  max-width: min(90vw, 880px);
+  height: auto;
+  margin: 0 auto 1.5rem auto;
+  object-fit: contain;
+}
+
+.not-found-link {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.not-found-link:hover {
+  background: var(--primary-soft);
+  color: white;
+}
