@@ -35,6 +35,8 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 - **Dark mode** — Bascule thème clair/sombre (paramètres).
 - **Auth Supabase** — Connexion, inscription, **mot de passe oublié** (lien sur la page de connexion → saisie email → envoi du lien), **réinitialisation du mot de passe** (page dédiée après clic sur le lien email), **changer le mot de passe** depuis Paramètres (envoi d’un email de réinitialisation).
 - **Paramètres** — Compte (email, bouton « Changer le mot de passe », déconnexion), Apparence (thème clair/sombre), **Objectifs** (candidatures par semaine et par mois, sauvegardés en localStorage par utilisateur).
+- **Page 404** — Illustration dédiée et bouton « Retour à l'accueil » pour toute URL non reconnue.
+- **Loader** — Composant de chargement réutilisable (spinner plein écran au chargement auth, réutilisable en inline ailleurs).
 
 ### Ressources (Outils postulations)
 
@@ -57,7 +59,7 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 - **React 19** + **TypeScript**
 - **Vite 7**
-- **React Router** (pages : dashboard, candidatures, kanban, planning, tâches, ressources, paramètres, login, inscription, mot de passe oublié, réinitialisation mot de passe)
+- **React Router** (pages : dashboard, candidatures, kanban, planning, tâches, ressources, paramètres, login, inscription, mot de passe oublié, réinitialisation mot de passe, 404)
 - **Supabase** (persistance des données, authentification ; tables : candidatures, tâches, cv_ressources, job_sites, user_job_site_status, projets)
 - **localStorage** (objectifs hebdo/mois par utilisateur, voir `src/lib/userGoals.ts`)
 
@@ -73,12 +75,13 @@ src/
 ├── lib/             # Supabase client, candidatures, taches, cvRessources, jobSites, projets, offerAnalyzer, userGoals
 ├── data/            # Données statiques (whyCompanyTemplates.json, interface.ts)
 ├── contexts/        # AuthContext, ThemeContext
-├── components/      # Layout, Sidebar, Pagination, Select, CandidaturesFilters
+├── components/      # Layout, Sidebar, Pagination, Select, CandidaturesFilters, Loader
 │   ├── Layout/
 │   ├── Sidebar/
 │   ├── Pagination/
 │   ├── Select/           # Menu déroulant réutilisable (filtres, formulaire)
-│   └── CandidaturesFilters/
+│   ├── CandidaturesFilters/
+│   └── Loader/           # Spinner de chargement réutilisable (plein écran ou inline)
 ├── pages/
 │   ├── Dashboard/
 │   ├── Candidatures/      # Liste + AddCandidatureModal + filtres + pagination
@@ -91,7 +94,8 @@ src/
 │   ├── Login/
 │   ├── Signup/
 │   ├── ForgotPassword/  # Mot de passe oublié (saisie email, envoi lien)
-│   └── ResetPassword/  # Nouveau mot de passe après clic sur le lien email
+│   ├── ResetPassword/  # Nouveau mot de passe après clic sur le lien email
+│   └── NotFound/       # Page 404 (illustration + bouton Retour à l'accueil)
 ```
 
 ---
@@ -139,6 +143,7 @@ npm run lint
 | `/signup`           | Inscription                   |
 | `/forgot-password`  | Mot de passe oublié           |
 | `/reset-password`   | Réinitialisation du mot de passe (après clic sur le lien email) |
+| `*`                 | Page 404 (toute URL non reconnue)                              |
 
 ---
 

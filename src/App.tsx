@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import Layout from "./components/Layout/Layout";
+import Loader from "./components/Loader/Loader";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -19,12 +20,7 @@ import "./App.css";
 function ProtectedLayout() {
   const { user, loading } = useAuth();
   if (loading) {
-    return (
-      <div className="app-loading">
-        <div className="app-loading__spinner" aria-hidden />
-        <p>Chargement…</p>
-      </div>
-    );
+    return <Loader fullScreen label="Chargement…" />;
   }
   if (!user) {
     return <Navigate to="/login" replace />;
