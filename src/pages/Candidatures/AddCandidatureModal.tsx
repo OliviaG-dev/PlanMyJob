@@ -29,6 +29,7 @@ const STATUT_LABELS: Record<Statut, string> = {
   entretien_technique: "Entretien technique",
   attente_reponse: "Attente de réponse",
   refus: "Refus",
+  sans_reponse: "Sans réponse",
   offre: "Offre",
 };
 
@@ -51,6 +52,7 @@ const TELETRAVAIL_OPTIONS = [
 const SOURCE_OPTIONS = [
   { value: "linkedin", label: "LinkedIn" },
   { value: "indeed", label: "Indeed" },
+  { value: "france_travail", label: "France Travail" },
   { value: "welcome_to_the_jungle", label: "Welcome to the Jungle" },
   { value: "hellowork", label: "HelloWork" },
   { value: "site_entreprise", label: "Site entreprise" },

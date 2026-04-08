@@ -46,6 +46,7 @@ const STATUT_KANBAN_LABELS: Record<Statut, string> = {
   entretien_technique: "Entretien technique",
   attente_reponse: "Attente de réponse",
   refus: "Refus",
+  sans_reponse: "Sans réponse",
   offre: "Offre",
 };
 
@@ -73,6 +74,7 @@ const TELETRAVAIL_LABELS: Record<Teletravail, string> = {
 const SOURCE_LABELS: Record<SourceCandidature, string> = {
   linkedin: "LinkedIn",
   indeed: "Indeed",
+  france_travail: "France Travail",
   welcome_to_the_jungle: "Welcome to the Jungle",
   hellowork: "HelloWork",
   site_entreprise: "Site entreprise",

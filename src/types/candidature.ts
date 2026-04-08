@@ -5,6 +5,7 @@ export type Statut =
   | "entretien_technique"
   | "attente_reponse"
   | "refus"
+  | "sans_reponse"
   | "offre";
 
 export type StatutSuivi = "en_cours" | "terminee";
@@ -24,6 +25,7 @@ export type Teletravail = "oui" | "non" | "hybride" | "inconnu";
 export type SourceCandidature =
   | "linkedin"
   | "indeed"
+  | "france_travail"
   | "welcome_to_the_jungle"
   | "hellowork"
   | "site_entreprise"

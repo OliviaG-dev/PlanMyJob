@@ -22,12 +22,14 @@ const STATUT_LABELS: Record<Statut, string> = {
   entretien_technique: "Entretien technique",
   attente_reponse: "Attente de réponse",
   refus: "Refus",
+  sans_reponse: "Sans réponse",
   offre: "Offre",
 };
 
 const SOURCE_LABELS: Record<SourceCandidature, string> = {
   linkedin: "LinkedIn",
   indeed: "Indeed",
+  france_travail: "France Travail",
   welcome_to_the_jungle: "Welcome to the Jungle",
   hellowork: "HelloWork",
   site_entreprise: "Site entreprise",
@@ -51,6 +53,7 @@ const STATUT_CHART_COLORS: Record<Statut, string> = {
   entretien_technique: "#7a7573",
   attente_reponse: "#e8d5d7",
   refus: "#c4b5b7",
+  sans_reponse: "#b9a8aa",
   offre: "#8f6b72",
 };
 
@@ -265,6 +268,7 @@ function Dashboard() {
     const enCours = candidatures.filter(
       (c) =>
         c.statut !== "refus" &&
+        c.statut !== "sans_reponse" &&
         (c.statutSuivi === "en_cours" || c.statutSuivi !== "terminee")
     );
     const avecEntretien = candidatures.filter((c) =>
@@ -274,6 +278,7 @@ function Dashboard() {
       ["entretien_rh", "entretien_technique", "attente_reponse", "offre"].includes(c.statut)
     );
     const refus = candidatures.filter((c) => c.statut === "refus");
+    const sansReponse = candidatures.filter((c) => c.statut === "sans_reponse");
     const offres = candidatures.filter((c) => c.statut === "offre");
     const totalEnvoyees = cvEnvoye.length;
     const tauxReponse =
@@ -293,7 +298,7 @@ function Dashboard() {
     const tachesTermineesSemaine = tachesSemaine.filter((t) => t.terminee).length;
 
     const repartitionStatut = Object.fromEntries(
-      (["a_postuler", "cv_envoye", "entretien_rh", "entretien_technique", "attente_reponse", "refus", "offre"] as const).map(
+      (["a_postuler", "cv_envoye", "entretien_rh", "entretien_technique", "attente_reponse", "refus", "sans_reponse", "offre"] as const).map(
         (s) => [s, candidatures.filter((c) => c.statut === s).length]
       )
     ) as Record<Statut, number>;
@@ -302,6 +307,7 @@ function Dashboard() {
         [
           "linkedin",
           "indeed",
+          "france_travail",
           "welcome_to_the_jungle",
           "hellowork",
           "site_entreprise",
@@ -335,6 +341,7 @@ function Dashboard() {
       tauxReponse,
       tauxRefus,
       offres: offres.length,
+      sansReponse: sansReponse.length,
       candidaturesCetteSemaine,
       candidaturesCeMois,
       tachesAFaire,
@@ -462,6 +469,10 @@ function Dashboard() {
           <div className="stat-card">
             <span className="stat-card__value">{stats.offres}</span>
             <span className="stat-card__label">Offres</span>
+          </div>
+          <div className="stat-card">
+            <span className="stat-card__value">{stats.sansReponse}</span>
+            <span className="stat-card__label">Sans réponse</span>
           </div>
           <div className="stat-card">
             <span className="stat-card__value">{stats.candidaturesCetteSemaine}</span>

@@ -30,6 +30,7 @@ const STATUT_KANBAN_LABELS: Record<Statut, string> = {
   entretien_technique: "Entretien technique",
   attente_reponse: "Attente de réponse",
   refus: "Refus",
+  sans_reponse: "Sans réponse",
   offre: "Offre",
 };
 

@@ -19,14 +19,15 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 - **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes, localisation, type de contrat, télétravail, source, note personnelle. Liste paginée (3 par section), filtres (nom, télétravail, ville, note) avec icônes, drag & drop entre listes (En cours / Terminée / Refus).
 - **Fiche candidature** — Détail complet, badge de statut Kanban coloré (à postuler, offre, refus, etc.), **temporalité « CV envoyé »** : affichage du temps écoulé depuis le passage en statut « CV envoyé » (secondes, minutes, heures, jours, semaines, mois), bouton supprimer avec style rouge.
-- **Kanban** — Colonnes (À postuler → CV envoyé → Entretien RH → Entretien technique → Attente de réponse → Refus / Offre), drag & drop pour changer le statut, pagination par colonne, badge de comptage centré par colonne.
+- **Kanban** — Colonnes (À postuler → CV envoyé → Entretien RH → Entretien technique → Attente de réponse → Refus → Sans réponse → Offre), drag & drop pour changer le statut, pagination par colonne, badge de comptage centré par colonne. Les colonnes **Refus / Sans réponse / Offre** utilisent des cartes compactes carrées.
+- **Automatisation Kanban** — Au chargement de la page Kanban, une candidature restée en `cv_envoye` depuis plus de 15 jours (basé sur `cvEnvoyeAt`) est automatiquement déplacée en `sans_reponse`.
 - **Planning** — Calendrier mensuel avec navigation mois précédent/suivant + bouton « Aujourd'hui ». Affichage des événements par jour : Nouvelle candidature, CV envoyé, Entretien RH, Entretien technique, Attente de réponse, Refus (couleurs distinctes). Clic sur une journée : modal avec liste des événements et liens vers les fiches candidature.
 - **Tâches** — Todo liste par semaine ISO (lundi = début). Navigation mois précédent/suivant + bouton « Ce mois ». Semaines en accordéon (ouvrir/fermer), priorités (basse, normale, haute), badge « En cours » pour la semaine courante, semaines passées grisées. Persistance Supabase.
 
 ### Tableau de bord
 
 - **Stats** — Candidatures (envoyées, en cours, entretiens), taux de conversion, organisation par statut.
-- **Répartition** — Liste par statut + graphique donut (répartition des candidatures).
+- **Répartition** — Liste par statut (inclut **Sans réponse**, même à 0) + graphique donut (répartition des candidatures).
 - **Objectifs & motivation** — Objectifs candidatures (semaine et mois) réglables dans Paramètres, jours depuis la dernière candidature, sites d’emploi utilisés.
 - Thème et design alignés avec le reste de l’app (stat-cards, couleurs primary).
 
@@ -37,6 +38,7 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 - **Paramètres** — Compte (email, bouton « Changer le mot de passe », déconnexion), Apparence (thème clair/sombre), **Objectifs** (candidatures par semaine et par mois, sauvegardés en localStorage par utilisateur).
 - **Page 404** — Illustration dédiée et bouton « Retour à l'accueil » pour toute URL non reconnue.
 - **Loader** — Composant de chargement réutilisable (spinner plein écran au chargement auth, réutilisable en inline ailleurs).
+- **Sources de candidature** — Ajout de la source **France Travail** (formulaire candidature, détail candidature, dashboard).
 
 ### Ressources (Outils postulations)
 

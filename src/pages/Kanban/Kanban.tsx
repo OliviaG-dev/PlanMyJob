@@ -21,6 +21,7 @@ const STATUT_ICONS: Record<Statut, string> = {
   entretien_technique: "/icons/entretien-technique.png",
   attente_reponse: "/icons/attente d'une reponse.png",
   refus: "/icons/refus.png",
+  sans_reponse: "/icons/attente d'une reponse.png",
   offre: "/icons/offre.png",
 };
 
@@ -34,6 +35,7 @@ const COLUMNS_MAIN: { statut: Statut; label: string }[] = [
 
 const COLUMNS_BOTTOM: { statut: Statut; label: string }[] = [
   { statut: "refus", label: "Refus" },
+  { statut: "sans_reponse", label: "Sans réponse" },
   { statut: "offre", label: "Offre" },
 ];
 
@@ -42,10 +44,13 @@ const ALL_COLUMNS = [...COLUMNS_MAIN, ...COLUMNS_BOTTOM];
 const MAX_STARS = 5;
 const MAIN_PAGE_SIZE = 5;
 const REFUS_PAGE_SIZE = 10;
-const OFFRE_PAGE_SIZE = 5;
+const OFFRE_PAGE_SIZE = 10;
+const SANS_REPONSE_PAGE_SIZE = 10;
+const AUTO_SANS_REPONSE_DELAY_MS = 15 * 24 * 60 * 60 * 1000;
 
 function getPageSize(statut: Statut): number {
   if (statut === "refus") return REFUS_PAGE_SIZE;
+  if (statut === "sans_reponse") return SANS_REPONSE_PAGE_SIZE;
   if (statut === "offre") return OFFRE_PAGE_SIZE;
   return MAIN_PAGE_SIZE;
 }
@@ -132,9 +137,50 @@ function Kanban() {
   useEffect(() => {
     if (!user?.id) return;
     fetchCandidatures(user.id)
-      .then((data) => {
-        setError(null);
-        setCandidatures(data);
+      .then(async (data) => {
+        const now = Date.now();
+        const toAutoMove = data.filter((c) => {
+          if (c.statut !== "cv_envoye" || !c.cvEnvoyeAt) return false;
+          const cvEnvoyeTs = new Date(c.cvEnvoyeAt).getTime();
+          return (
+            Number.isFinite(cvEnvoyeTs) &&
+            now - cvEnvoyeTs > AUTO_SANS_REPONSE_DELAY_MS
+          );
+        });
+
+        if (toAutoMove.length === 0) {
+          setError(null);
+          setCandidatures(data);
+          return;
+        }
+
+        const results = await Promise.allSettled(
+          toAutoMove.map((c) =>
+            updateCandidature(user.id, c.id, {
+              statut: "sans_reponse",
+              statutSuivi: "terminee",
+            })
+          )
+        );
+
+        const updatedById = new Map<string, Candidature>();
+        let hasFailure = false;
+        results.forEach((result) => {
+          if (result.status === "fulfilled") {
+            updatedById.set(result.value.id, result.value);
+          } else {
+            hasFailure = true;
+          }
+        });
+
+        setError(
+          hasFailure
+            ? "Certaines candidatures n'ont pas pu être passées en Sans réponse automatiquement."
+            : null
+        );
+        setCandidatures(
+          data.map((c) => updatedById.get(c.id) ?? c)
+        );
       })
       .catch((err) => {
         setError(err.message ?? "Erreur au chargement");
@@ -165,10 +211,14 @@ function Kanban() {
   const candidaturesEnCours = filteredCandidatures.filter(
     (c) =>
       c.statut !== "refus" &&
+      c.statut !== "sans_reponse" &&
       (c.statutSuivi === "en_cours" || c.statutSuivi !== "terminee")
   );
   const candidaturesRefus = filteredCandidatures.filter(
     (c) => c.statut === "refus"
+  );
+  const candidaturesSansReponse = filteredCandidatures.filter(
+    (c) => c.statut === "sans_reponse"
   );
   const candidaturesOffre = filteredCandidatures.filter(
     (c) => c.statut === "offre"
@@ -178,7 +228,11 @@ function Kanban() {
     candidaturesEnCours.filter((c) => c.statut === statut);
 
   const getBottomCandidatures = (statut: Statut) =>
-    statut === "refus" ? candidaturesRefus : candidaturesOffre;
+    statut === "refus"
+      ? candidaturesRefus
+      : statut === "sans_reponse"
+        ? candidaturesSansReponse
+        : candidaturesOffre;
 
   function handleDragStart(e: React.DragEvent, c: Candidature) {
     setDraggingId(c.id);
@@ -211,7 +265,7 @@ function Kanban() {
     const payload: { statut: Statut; statutSuivi?: StatutSuivi } = {
       statut: newStatut,
     };
-    if (newStatut === "refus") {
+    if (newStatut === "refus" || newStatut === "sans_reponse") {
       payload.statutSuivi = "terminee";
     }
 
@@ -486,7 +540,11 @@ function Kanban() {
                       >
                         <div
                           className={`kanban__card ${
-                            statut === "refus" ? "kanban__card--refus" : ""
+                            statut === "refus" ||
+                            statut === "offre" ||
+                            statut === "sans_reponse"
+                              ? "kanban__card--refus"
+                              : ""
                           } ${
                             draggingId === c.id ? "kanban__card--dragging" : ""
                           }`}
@@ -501,11 +559,15 @@ function Kanban() {
                             title={c.entreprise}
                           >
                             <span className="kanban__card-entreprise">
-                              {statut === "refus"
+                              {statut === "refus" ||
+                              statut === "offre" ||
+                              statut === "sans_reponse"
                                 ? (c.entreprise.slice(0, 2) || "?").toUpperCase()
                                 : c.entreprise}
                             </span>
                             {statut !== "refus" &&
+                              statut !== "offre" &&
+                              statut !== "sans_reponse" &&
                               c.notePersonnelle != null && (
                                 <StarRating value={c.notePersonnelle} />
                               )}
