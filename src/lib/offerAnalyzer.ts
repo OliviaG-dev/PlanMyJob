@@ -399,7 +399,7 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
 
   let experienceYears = "";
   const expMatch =
-    text.match(/\bdébutant\s+accepté\b/i) ??
+    text.match(/\bd[ée]butant\s+accept[ée]?\b/i) ??
     text.match(/\bexp(?:[ée]rience)?\s+confirm[ée]e?\b/i) ??
     text.match(/\bexp(?:[ée]rience)?\s+souhait[ée]e?\b/i) ??
     text.match(
