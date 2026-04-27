@@ -210,6 +210,10 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     /\d{5}\s+[A-Za-zÀ-ÿ-]+/.test(s);
   const looksLikeCityDept = (s: string) =>
     /^[A-Za-zÀ-ÿ-]+\s*\(\d{2}\)$/.test(s) && s.length <= 50;
+  const looksLikeCityDashDept = (s: string) =>
+    /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,60}\s*[-–]\s*(?:\d{2}|2A|2B|97\d)\b/.test(
+      s,
+    );
 
   if (
     lines.length >= 2 &&
@@ -225,6 +229,10 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
   if (!localisation && lines.some(looksLikeCityDept)) {
     const cityLine = lines.find(looksLikeCityDept);
     if (cityLine) localisation = cityLine;
+  }
+  if (!localisation && lines.some(looksLikeCityDashDept)) {
+    const cityDashLine = lines.find(looksLikeCityDashDept);
+    if (cityDashLine) localisation = cityDashLine;
   }
 
   if (!poste) {
@@ -361,9 +369,22 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     if (cityDeptMatch && !/€|par mois|Détails/i.test(cityDeptMatch[1]))
       localisation = cityDeptMatch[1].trim();
   }
+  if (!localisation) {
+    const cityDashMatch = text.match(
+      /\b([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,60}\s*[-–]\s*(?:\d{2}|2A|2B|97\d))\b/,
+    );
+    if (cityDashMatch && !/€|par mois|Détails/i.test(cityDashMatch[1]))
+      localisation = cityDashMatch[1].trim();
+  }
 
   let experienceYears = "";
   const expMatch =
+    text.match(
+      /\bExp(?:[ée]rience)?\.?\s*[:-]?\s*(\d+\s*(?:à|-)\s*\d+|\d+)\s*ans?\s*(min(?:imum)?\.?|et\s*\+|ou\s*plus)?/i,
+    ) ??
+    text.match(
+      /\b(\d+\s*(?:à|-)\s*\d+|\d+)\s*ans?\s*(?:min(?:imum)?\.?|d['’]exp(?:[ée]rience)?|d['’]experience)/i,
+    ) ??
     text.match(
       /(\d+)\s*(?:à|-)\s*(\d+)?\s*ans?\s*(?:d'exp|d'expérience|d'experience)?/i,
     ) ??
@@ -447,6 +468,9 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
 
   let salaireOuFourchette = "";
   const salMatch =
+    text.match(
+      /((?:\d{1,3}(?:[ \u00A0\u202F]\d{3})+|\d{2,3}\s*k)\s*(?:€|euros?)?\s*(?:[-–à]\s*(?:\d{1,3}(?:[ \u00A0\u202F]\d{3})+|\d{2,3}\s*k)\s*(?:€|euros?)?)\s*(?:\/\s*(?:an|mois)|annuel|brut)?)/i,
+    ) ??
     text.match(
       /(?:salaire|rémunération|rémuneration|fourchette)\s*[:-]?\s*([^\n]+?)(?:\s*€|$)/i,
     ) ??
