@@ -8,7 +8,7 @@ import type {
   SourceCandidature,
 } from "../../types/candidature";
 import { Select } from "../../components/Select/Select";
-import { COMPETENCES_OPTIONS } from "../../lib/offerAnalyzer";
+import { COMPETENCES_OPTIONS, inferSourceFromUrl } from "../../lib/offerAnalyzer";
 import "./AddCandidatureModal.css";
 
 function parseCompetences(s: string): string[] {
@@ -58,6 +58,16 @@ const SOURCE_OPTIONS = [
   { value: "site_entreprise", label: "Site entreprise" },
   { value: "autre", label: "Autre" },
 ] satisfies { value: SourceCandidature; label: string }[];
+
+const SOURCE_LABELS: Record<SourceCandidature, string> = {
+  linkedin: "LinkedIn",
+  indeed: "Indeed",
+  france_travail: "France Travail",
+  welcome_to_the_jungle: "Welcome to the Jungle",
+  hellowork: "HelloWork",
+  site_entreprise: "Site entreprise",
+  autre: "Autre",
+};
 
 const STATUT_SUIVI_OPTIONS = [
   { value: "en_cours", label: "En cours" },
@@ -112,16 +122,21 @@ type AddCandidatureModalProps = {
 function candidatureToFormData(
   c: Partial<AddCandidatureFormData> & { dateCandidature?: string }
 ): AddCandidatureFormData {
+  const lienOffre = c.lienOffre ?? "";
+  const detectedSource = inferSourceFromUrl(lienOffre);
   return {
     entreprise: c.entreprise ?? "",
     poste: c.poste ?? "",
-    lienOffre: c.lienOffre ?? "",
+    lienOffre,
     localisation: c.localisation ?? "",
     typeContrat: (c.typeContrat as TypeContrat) ?? "cdi",
     teletravail: (c.teletravail as Teletravail) ?? "inconnu",
     dateCandidature:
       c.dateCandidature?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
-    source: (c.source as SourceCandidature) ?? "linkedin",
+    source:
+      detectedSource !== "autre"
+        ? detectedSource
+        : (c.source as SourceCandidature) ?? "linkedin",
     notePersonnelle: c.notePersonnelle != null ? c.notePersonnelle : 3,
     statutSuivi: (c.statutSuivi as StatutSuivi) ?? "en_cours",
     statut: (c.statut as Statut) ?? "a_postuler",
@@ -142,6 +157,11 @@ function AddCandidatureModal({
   const [formData, setFormData] = useState<AddCandidatureFormData>(() =>
     initialData ? candidatureToFormData(initialData) : defaultFormData
   );
+  const sourceDetectedFromCurrentLink = inferSourceFromUrl(formData.lienOffre);
+  const isAutoDetectedSourceLocked =
+    mode === "add" &&
+    !!formData.lienOffre.trim() &&
+    sourceDetectedFromCurrentLink !== "autre";
 
   function update<K extends keyof AddCandidatureFormData>(
     key: K,
@@ -226,10 +246,24 @@ function AddCandidatureModal({
                 <input
                   type="url"
                   value={formData.lienOffre}
-                  onChange={(e) => update("lienOffre", e.target.value)}
+                  onChange={(e) => {
+                    const lienOffre = e.target.value;
+                    const detectedSource = inferSourceFromUrl(lienOffre);
+                    setFormData((prev) => ({
+                      ...prev,
+                      lienOffre,
+                      source:
+                        detectedSource !== "autre" ? detectedSource : prev.source,
+                    }));
+                  }}
                   placeholder="https://..."
                   className="add-candidature-form__input"
                 />
+                {sourceDetectedFromCurrentLink !== "autre" && (
+                  <span className="add-candidature-form__hint">
+                    Source détectée automatiquement : {SOURCE_LABELS[sourceDetectedFromCurrentLink]}
+                  </span>
+                )}
               </label>
               <label className="add-candidature-form__label">
                 Localisation
@@ -271,14 +305,27 @@ function AddCandidatureModal({
                 />
               </label>
               <div className="add-candidature-form__label">
-                <Select
-                  id="add-source"
-                  label="Source"
-                  value={formData.source}
-                  options={SOURCE_OPTIONS}
-                  onChange={(v) => update("source", v as SourceCandidature)}
-                  wrapClassName="add-candidature-form__select-field"
-                />
+                {isAutoDetectedSourceLocked ? (
+                  <>
+                    <label className="select__label">Source</label>
+                    <input
+                      type="text"
+                      value={`${SOURCE_LABELS[formData.source]} (détectée automatiquement)`}
+                      readOnly
+                      className="add-candidature-form__input"
+                      aria-label="Source détectée automatiquement"
+                    />
+                  </>
+                ) : (
+                  <Select
+                    id="add-source"
+                    label="Source"
+                    value={formData.source}
+                    options={SOURCE_OPTIONS}
+                    onChange={(v) => update("source", v as SourceCandidature)}
+                    wrapClassName="add-candidature-form__select-field"
+                  />
+                )}
               </div>
             </div>
           </section>

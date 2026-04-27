@@ -1,4 +1,8 @@
-import type { TypeContrat, Teletravail } from "../types/candidature";
+import type {
+  SourceCandidature,
+  TypeContrat,
+  Teletravail,
+} from "../types/candidature";
 import type { AddCandidatureFormData } from "../pages/Candidatures/AddCandidatureModal";
 
 export type ExtractedOffer = {
@@ -6,6 +10,7 @@ export type ExtractedOffer = {
   entreprise: string;
   typeContrat: TypeContrat;
   teletravail: Teletravail;
+  source: SourceCandidature;
   localisation: string;
   experienceYears: string;
   competences: string[];
@@ -13,6 +18,66 @@ export type ExtractedOffer = {
   salaireOuFourchette: string;
   lienCandidature: string;
 };
+
+const SOURCE_BY_HOST: { source: SourceCandidature; hosts: string[] }[] = [
+  { source: "linkedin", hosts: ["linkedin.com"] },
+  { source: "indeed", hosts: ["indeed.", "smartapply.indeed.com"] },
+  {
+    source: "france_travail",
+    hosts: ["francetravail.fr", "pole-emploi.fr", "candidat.pole-emploi.fr"],
+  },
+  {
+    source: "welcome_to_the_jungle",
+    hosts: ["welcometothejungle.com", "welcome-to-the-jungle.com"],
+  },
+  { source: "hellowork", hosts: ["hellowork.com"] },
+];
+
+export function inferSourceFromUrl(url: string): SourceCandidature {
+  if (!url) return "autre";
+
+  const cleaned = url.trim().replace(/[),.;!?]+$/g, "");
+  const candidates = /^https?:\/\//i.test(cleaned)
+    ? [cleaned]
+    : [cleaned, `https://${cleaned}`];
+
+  for (const candidate of candidates) {
+    try {
+      const parsed = new URL(candidate);
+      const host = parsed.hostname.replace(/^www\./i, "").toLowerCase();
+      for (const entry of SOURCE_BY_HOST) {
+        if (entry.hosts.some((knownHost) => host.includes(knownHost))) {
+          return entry.source;
+        }
+      }
+    } catch {
+      // L'URL peut être incomplète ou mal formée.
+    }
+  }
+
+  const fallback = cleaned.toLowerCase();
+  for (const entry of SOURCE_BY_HOST) {
+    if (entry.hosts.some((knownHost) => fallback.includes(knownHost))) {
+      return entry.source;
+    }
+  }
+
+  return "autre";
+}
+
+function inferSourceFromText(text: string): SourceCandidature {
+  const lower = text.toLowerCase();
+  if (/\bhello\s*work\b|\bhellowork\b/.test(lower)) return "hellowork";
+  if (/\blinkedin\b/.test(lower)) return "linkedin";
+  if (/\bindeed\b/.test(lower)) return "indeed";
+  if (/\bfrance\s*travail\b|\bpole\s*emploi\b/.test(lower))
+    return "france_travail";
+  if (/\bwelcome\s*to\s*the\s*jungle\b/.test(lower))
+    return "welcome_to_the_jungle";
+  if (/\bsite\s+(?:de\s+)?l['’]entreprise\b|\bcarri[eè]res?\b/.test(lower))
+    return "site_entreprise";
+  return "autre";
+}
 
 export const KNOWN_STACK_KEYWORDS = [
   "react",
@@ -101,15 +166,25 @@ const CONTRAT_PATTERNS: { pattern: RegExp; value: TypeContrat }[] = [
 ];
 
 const TELETRAVAIL_PATTERNS: { pattern: RegExp; value: Teletravail }[] = [
-  { pattern: /\b(100%|totalement)\s*(remote|télétravail|teletravail)/i, value: "oui" },
-  { pattern: /\b(remote|télétravail|teletravail|distanciel)\s*(?:possible|autorisé|oui)?/i, value: "oui" },
+  {
+    pattern: /\b(100%|totalement)\s*(remote|télétravail|teletravail)/i,
+    value: "oui",
+  },
+  {
+    pattern:
+      /\b(remote|télétravail|teletravail|distanciel)\s*(?:possible|autorisé|oui)?/i,
+    value: "oui",
+  },
   { pattern: /\bhybride\b/i, value: "hybride" },
   { pattern: /\b(présentiel|sur site|sur site uniquement)\b/i, value: "non" },
 ];
 
 export function extractOfferFromText(raw: string): ExtractedOffer {
   const text = raw.trim();
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
 
   let poste = "";
   let entreprise = "";
@@ -120,7 +195,10 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     s.length <= 100 &&
     !/^https?:\/\//i.test(s) &&
     !/€|par mois|Route|rue\s|avenue\s|Détails\s+de/i.test(s) &&
-    (/développeur|ingénieur|manager|designer|consultant|technicien|H\/F|h\/f|F\/H|f\/h|react\s+native/i.test(s) || s.length <= 50);
+    (/développeur|ingénieur|manager|designer|consultant|technicien|H\/F|h\/f|F\/H|f\/h|react\s+native/i.test(
+      s,
+    ) ||
+      s.length <= 50);
   const looksLikeCompany = (s: string) =>
     s.length >= 2 &&
     s.length <= 70 &&
@@ -128,11 +206,16 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     !/€|par mois|Route|rue\s|avenue\s|\d{5}|Détails|Type\s+d'emploi/i.test(s) &&
     !/^(nos|notre)\s+(produits?|équipes?|société|entreprise)/i.test(s);
   const looksLikeAddress = (s: string) =>
-    /^\d+\s*(?:Route|rue|avenue|av\.|boulevard|bd|place|allée)/i.test(s) && /\d{5}\s+[A-Za-zÀ-ÿ-]+/.test(s);
+    /^\d+\s*(?:Route|rue|avenue|av\.|boulevard|bd|place|allée)/i.test(s) &&
+    /\d{5}\s+[A-Za-zÀ-ÿ-]+/.test(s);
   const looksLikeCityDept = (s: string) =>
     /^[A-Za-zÀ-ÿ-]+\s*\(\d{2}\)$/.test(s) && s.length <= 50;
 
-  if (lines.length >= 2 && looksLikeJobTitle(lines[0]) && looksLikeCompany(lines[1])) {
+  if (
+    lines.length >= 2 &&
+    looksLikeJobTitle(lines[0]) &&
+    looksLikeCompany(lines[1])
+  ) {
     poste = lines[0].replace(/\s*[-–]\s*job post\s*$/i, "").trim();
     entreprise = lines[1];
   }
@@ -158,7 +241,11 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
       const m = text.match(re);
       if (m && m[1]) {
         const val = m[1].trim();
-        if (val.length > 1 && val.length < 150 && !/^(titre|restaurant|participation)/i.test(val)) {
+        if (
+          val.length > 1 &&
+          val.length < 150 &&
+          !/^(titre|restaurant|participation)/i.test(val)
+        ) {
           poste = val;
           break;
         }
@@ -169,7 +256,12 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
       for (let i = 0; i < Math.min(3, lines.length); i++) {
         const line = lines[i];
         if (!urlRe.test(line) && line.length >= 2 && line.length <= 120) {
-          if (!/^(bonjour|madame|monsieur|objet|ref\.?|candidature|titre\s|participation)/i.test(line) && !/restaurant|€|par mois/i.test(line)) {
+          if (
+            !/^(bonjour|madame|monsieur|objet|ref\.?|candidature|titre\s|participation)/i.test(
+              line,
+            ) &&
+            !/restaurant|€|par mois/i.test(line)
+          ) {
             poste = line.replace(/\s*[-–]\s*job post\s*$/i, "").trim();
             break;
           }
@@ -191,16 +283,28 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
       const m = text.match(re);
       if (m && m[1]) {
         const val = m[1].trim();
-        if (val.length > 1 && val.length < 100 && !/^(nos|notre)\s+(produits?|équipes?)/i.test(val) && !/€|par mois/i.test(val)) {
+        if (
+          val.length > 1 &&
+          val.length < 100 &&
+          !/^(nos|notre)\s+(produits?|équipes?)/i.test(val) &&
+          !/€|par mois/i.test(val)
+        ) {
           entreprise = val;
           break;
         }
       }
     }
-    if (!entreprise && lines.length >= 2 && looksLikeCompany(lines[1])) entreprise = lines[1];
-    if (!entreprise && lines.length >= 2 && looksLikeCompany(lines[0]) && !poste) {
+    if (!entreprise && lines.length >= 2 && looksLikeCompany(lines[1]))
+      entreprise = lines[1];
+    if (
+      !entreprise &&
+      lines.length >= 2 &&
+      looksLikeCompany(lines[0]) &&
+      !poste
+    ) {
       entreprise = lines[0];
-      if (!poste && lines[1]) poste = lines[1].replace(/\s*[-–]\s*job post\s*$/i, "").trim();
+      if (!poste && lines[1])
+        poste = lines[1].replace(/\s*[-–]\s*job post\s*$/i, "").trim();
     }
   }
 
@@ -225,32 +329,48 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     if (addrLine) localisation = addrLine;
   }
   if (!localisation) {
-    const addrMatch = text.match(/(\d+\s*(?:Route|rue|avenue|av\.|boulevard|bd|place|allée)\s+[^\n]+?\d{5}\s+[A-Za-zÀ-ÿ-]+)/i);
-    if (addrMatch && !/€|par mois|Détails/i.test(addrMatch[1])) localisation = addrMatch[1].trim();
+    const addrMatch = text.match(
+      /(\d+\s*(?:Route|rue|avenue|av\.|boulevard|bd|place|allée)\s+[^\n]+?\d{5}\s+[A-Za-zÀ-ÿ-]+)/i,
+    );
+    if (addrMatch && !/€|par mois|Détails/i.test(addrMatch[1]))
+      localisation = addrMatch[1].trim();
   }
   if (!localisation) {
-    const locMatch = text.match(/(?:localisation|lieu du poste|ville)\s*[:-]\s*([^\n]+?)(?:\s*$|\n)/i);
+    const locMatch = text.match(
+      /(?:localisation|lieu du poste|ville)\s*[:-]\s*([^\n]+?)(?:\s*$|\n)/i,
+    );
     if (locMatch && locMatch[1]) {
       const val = locMatch[1].trim();
-      if (!/€|par mois|Détails de l'emploi|CDI\s*Détails/i.test(val) && val.length < 120) localisation = val;
+      if (
+        !/€|par mois|Détails de l'emploi|CDI\s*Détails/i.test(val) &&
+        val.length < 120
+      )
+        localisation = val;
     }
   }
   if (!localisation) {
     const genericLoc = text.match(/(?:lieu|localisation)\s*[:-]\s*([^\n.,]+)/i);
     if (genericLoc && genericLoc[1]) {
       const val = genericLoc[1].trim();
-      if (!/€|par mois|Détails/i.test(val) && val.length < 100) localisation = val;
+      if (!/€|par mois|Détails/i.test(val) && val.length < 100)
+        localisation = val;
     }
   }
   if (!localisation) {
     const cityDeptMatch = text.match(/\b([A-Za-zÀ-ÿ-]+\s*\(\d{2}\))\b/);
-    if (cityDeptMatch && !/€|par mois|Détails/i.test(cityDeptMatch[1])) localisation = cityDeptMatch[1].trim();
+    if (cityDeptMatch && !/€|par mois|Détails/i.test(cityDeptMatch[1]))
+      localisation = cityDeptMatch[1].trim();
   }
 
   let experienceYears = "";
-  const expMatch = text.match(/(\d+)\s*(?:à|-)\s*(\d+)?\s*ans?\s*(?:d'exp|d'expérience|d'experience)?/i)
-    ?? text.match(/(\d+)\s*ans?\s*(?:d'exp|d'expérience|d'experience)/i)
-    ?? text.match(/(?:expérience|experience)\s*[:\s]*(\d+\s*(?:à|-)\s*\d+|\d+)\s*ans?/i);
+  const expMatch =
+    text.match(
+      /(\d+)\s*(?:à|-)\s*(\d+)?\s*ans?\s*(?:d'exp|d'expérience|d'experience)?/i,
+    ) ??
+    text.match(/(\d+)\s*ans?\s*(?:d'exp|d'expérience|d'experience)/i) ??
+    text.match(
+      /(?:expérience|experience)\s*[:\s]*(\d+\s*(?:à|-)\s*\d+|\d+)\s*ans?/i,
+    );
   if (expMatch) experienceYears = expMatch[0].replace(/\s+/g, " ").trim();
 
   const competences: string[] = [];
@@ -265,15 +385,20 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
   }
 
   const isRatingLine = (s: string) =>
-    /^[\d.]+\s*(\/\s*\d+)?\s*(étoiles?)?$/i.test(s.trim()) || /^\d\.\d$/.test(s.trim());
-  const sectionHeaders = /^(Description|Lieu|Qualités|Fonctions|Avantages|Type d'emploi|Rémunération|Horaires|Lieu du poste)\s*[:\s]|^&nbsp;$/i;
+    /^[\d.]+\s*(\/\s*\d+)?\s*(étoiles?)?$/i.test(s.trim()) ||
+    /^\d\.\d$/.test(s.trim());
+  const sectionHeaders =
+    /^(Description|Lieu|Qualités|Fonctions|Avantages|Type d'emploi|Rémunération|Horaires|Lieu du poste)\s*[:\s]|^&nbsp;$/i;
 
   const pointsCles: string[] = [];
 
-  const secteurMatch = text.match(/\bSecteur\s*(?:d'activité|de l'emploi|d'emploi)?\s*[:-]\s*([^\n]+?)(?:\s*$|\n)/i);
+  const secteurMatch = text.match(
+    /\bSecteur\s*(?:d'activité|de l'emploi|d'emploi)?\s*[:-]\s*([^\n]+?)(?:\s*$|\n)/i,
+  );
   if (secteurMatch && secteurMatch[1]) {
     const secteur = secteurMatch[1].trim();
-    if (secteur.length >= 2 && secteur.length < 150) pointsCles.push(`Secteur : ${secteur}`);
+    if (secteur.length >= 2 && secteur.length < 150)
+      pointsCles.push(`Secteur : ${secteur}`);
   }
 
   let inAvantages = false;
@@ -285,10 +410,17 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
       continue;
     }
     if (inAvantages) {
-      if (sectionHeaders.test(line) && !/avantages|extraits/i.test(lower)) break;
+      if (sectionHeaders.test(line) && !/avantages|extraits/i.test(lower))
+        break;
       let bullet = line.replace(/^[\s•*-]\s*/, "").trim();
       bullet = bullet.replace(/\s*Détails de l'emploi\s*/gi, "").trim();
-      if (!isRatingLine(bullet) && bullet.length >= 2 && bullet.length < 200 && bullet !== "&nbsp;" && !pointsCles.includes(bullet)) {
+      if (
+        !isRatingLine(bullet) &&
+        bullet.length >= 2 &&
+        bullet.length < 200 &&
+        bullet !== "&nbsp;" &&
+        !pointsCles.includes(bullet)
+      ) {
         pointsCles.push(bullet);
       }
     }
@@ -298,20 +430,41 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     if (pointsCles.length >= 8) break;
     let bullet = line.replace(/^[\s•*-]\s*/, "").trim();
     bullet = bullet.replace(/\s*Détails de l'emploi\s*/gi, "").trim();
-    if (isRatingLine(bullet) || bullet === "&nbsp;" || /^[\d.]+\s*\/\s*\d+/i.test(bullet)) continue;
-    if (bullet.length >= 2 && bullet.length < 200 && !pointsCles.includes(bullet)) {
+    if (
+      isRatingLine(bullet) ||
+      bullet === "&nbsp;" ||
+      /^[\d.]+\s*\/\s*\d+/i.test(bullet)
+    )
+      continue;
+    if (
+      bullet.length >= 2 &&
+      bullet.length < 200 &&
+      !pointsCles.includes(bullet)
+    ) {
       pointsCles.push(bullet);
     }
   }
 
   let salaireOuFourchette = "";
-  const salMatch = text.match(/(?:salaire|rémunération|rémuneration|fourchette)\s*[:-]?\s*([^\n]+?)(?:\s*€|$)/i)
-    ?? text.match(/(\d[\d\s]*(?:k|000)?\s*€?\s*(?:-\s*\d[\d\s]*(?:k|000)?\s*€?)?)/);
+  const salMatch =
+    text.match(
+      /(?:salaire|rémunération|rémuneration|fourchette)\s*[:-]?\s*([^\n]+?)(?:\s*€|$)/i,
+    ) ??
+    text.match(
+      /(\d[\d\s]*(?:k|000)?\s*€?\s*(?:-\s*\d[\d\s]*(?:k|000)?\s*€?)?)/,
+    );
   if (salMatch && salMatch[1]) {
     const raw = salMatch[1].trim();
     const numMatch = raw.match(/(\d[\d\s]*)/);
-    const firstNum = numMatch ? parseInt(numMatch[1].replace(/\s/g, ""), 10) : 0;
-    if (raw.includes("€") || raw.includes("k") || raw.includes("000") || firstNum >= 1000) {
+    const firstNum = numMatch
+      ? parseInt(numMatch[1].replace(/\s/g, ""), 10)
+      : 0;
+    if (
+      raw.includes("€") ||
+      raw.includes("k") ||
+      raw.includes("000") ||
+      firstNum >= 1000
+    ) {
       salaireOuFourchette = raw;
     }
   }
@@ -319,12 +472,14 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
   let lienCandidature = "";
   const urlMatch = text.match(/https?:\/\/[^\s<>"']+/);
   if (urlMatch) lienCandidature = urlMatch[0];
+  const source = inferSourceFromUrl(lienCandidature);
 
   return {
     poste,
     entreprise,
     typeContrat,
     teletravail,
+    source: source === "autre" ? inferSourceFromText(text) : source,
     localisation,
     experienceYears,
     competences,
@@ -334,7 +489,9 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
   };
 }
 
-export function extractedToFormData(ext: ExtractedOffer): AddCandidatureFormData {
+export function extractedToFormData(
+  ext: ExtractedOffer,
+): AddCandidatureFormData {
   return {
     entreprise: ext.entreprise,
     poste: ext.poste,
@@ -343,7 +500,7 @@ export function extractedToFormData(ext: ExtractedOffer): AddCandidatureFormData
     typeContrat: ext.typeContrat,
     teletravail: ext.teletravail,
     dateCandidature: new Date().toISOString().slice(0, 10),
-    source: "autre",
+    source: ext.source,
     notePersonnelle: 3,
     statutSuivi: "en_cours",
     statut: "a_postuler",

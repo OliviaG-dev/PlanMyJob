@@ -136,6 +136,12 @@
   color: var(--primary);
 }
 
+.add-candidature-form__hint {
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
 .add-candidature-form__input,
 .add-candidature-form__select,
 .add-candidature-form__textarea {

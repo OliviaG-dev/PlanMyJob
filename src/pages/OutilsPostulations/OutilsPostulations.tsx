@@ -20,7 +20,10 @@ import { Select } from "../../components/Select/Select";
 import { fetchProjets, insertProjet, updateProjet, deleteProjet } from "../../lib/projets";
 import type { Projet } from "../../types/projet";
 import type { WhyCompanyTemplate } from "../../data/interface";
-import type { TypeContrat, Teletravail } from "../../types/candidature";
+import type {
+  TypeContrat,
+  Teletravail,
+} from "../../types/candidature";
 import { extractOfferFromText, extractedToFormData, KNOWN_STACK_KEYWORDS, type ExtractedOffer } from "../../lib/offerAnalyzer";
 import whyCompanyTemplates from "../../data/whyCompanyTemplates.json";
 import "./OutilsPostulations.css";
