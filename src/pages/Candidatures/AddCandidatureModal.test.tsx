@@ -72,4 +72,67 @@ describe("AddCandidatureModal", () => {
     );
     expect(onClose).toHaveBeenCalled();
   });
+
+  it("keeps source select editable when link source is unknown", () => {
+    render(
+      <AddCandidatureModal
+        isOpen
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
+    );
+
+    fireEvent.change(screen.getAllByPlaceholderText("https://...")[0], {
+      target: { value: "https://example.com/job" },
+    });
+
+    expect(screen.queryByLabelText("Source détectée automatiquement")).toBeNull();
+    expect(screen.getByRole("button", { name: "Source" })).toBeTruthy();
+  });
+
+  it("prefills values in edit mode and submits edit label", () => {
+    const onSubmit = vi.fn();
+    render(
+      <AddCandidatureModal
+        isOpen
+        mode="edit"
+        initialData={{
+          entreprise: "Init Co",
+          poste: "Init Dev",
+          lienOffre: "https://example.com/job",
+          localisation: "Lyon",
+          typeContrat: "cdi",
+          teletravail: "hybride",
+          dateCandidature: "2026-04-28",
+          source: "autre",
+          notePersonnelle: 4,
+          statutSuivi: "en_cours",
+          statut: "a_postuler",
+          salaireOuFourchette: "",
+          notes: "",
+          competences: "react",
+        }}
+        onClose={vi.fn()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    expect(screen.getByDisplayValue("Init Co")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect(onSubmit).toHaveBeenCalled();
+  });
+
+  it("calls onClose when clicking overlay", () => {
+    const onClose = vi.fn();
+    render(
+      <AddCandidatureModal
+        isOpen
+        onClose={onClose}
+        onSubmit={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("dialog"));
+    expect(onClose).toHaveBeenCalled();
+  });
 });

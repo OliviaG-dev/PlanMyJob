@@ -180,4 +180,64 @@ describe("Candidatures interactions", () => {
     });
     expect(screen.queryByText("Alpha")).toBeNull();
   });
+
+  it("shows error message when fetch fails", async () => {
+    vi.mocked(fetchCandidatures).mockRejectedValue(new Error("Erreur chargement"));
+
+    render(
+      <MemoryRouter>
+        <Candidatures />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert").textContent).toContain("Erreur chargement");
+    });
+  });
+
+  it("moves refused candidature to en cours from mobile menu", async () => {
+    vi.stubGlobal("matchMedia", () => ({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    vi.mocked(fetchCandidatures).mockResolvedValue([
+      {
+        id: "c9",
+        entreprise: "Refused Co",
+        poste: "Dev",
+        statut: "refus",
+        statutSuivi: "terminee",
+        createdAt: "2026-04-28T00:00:00.000Z",
+      },
+    ] as never);
+    vi.mocked(updateCandidature).mockResolvedValue({
+      id: "c9",
+      entreprise: "Refused Co",
+      poste: "Dev",
+      statut: "a_postuler",
+      statutSuivi: "en_cours",
+      createdAt: "2026-04-28T00:00:00.000Z",
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <Candidatures />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Refused Co")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Déplacer" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "En cours" }));
+
+    await waitFor(() => {
+      expect(updateCandidature).toHaveBeenCalledWith("u1", "c9", {
+        statutSuivi: "en_cours",
+        statut: "a_postuler",
+      });
+    });
+  });
 });

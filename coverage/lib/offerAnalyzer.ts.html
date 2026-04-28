@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.32% </span>
+                <span class="strong">89.67% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>186/213</span>
+                <span class='fraction'>191/213</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80.4% </span>
+                <span class="strong">80.81% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>197/245</span>
+                <span class='fraction'>198/245</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">93.75% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>15/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">88.2% </span>
+                <span class="strong">90.25% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>172/195</span>
+                <span class='fraction'>176/195</span>
             </div>
         
             
@@ -660,20 +660,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-yes">56x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">56x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">66x</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">43x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">30x</span>
-<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -681,14 +681,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">36x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1242,14 +1242,14 @@ export function inferSourceFromUrl(url: string): SourceCandidature {
     }
   }
 &nbsp;
-  const fallback = <span class="cstat-no" title="statement not covered" >cleaned.toLowerCase();</span>
-<span class="cstat-no" title="statement not covered" >  for (const entry of SOURCE_BY_HOST) {</span>
-<span class="cstat-no" title="statement not covered" >    if (entry.hosts.some(<span class="fstat-no" title="function not covered" >(k</span>nownHost) =&gt; <span class="cstat-no" title="statement not covered" >fallback.includes(knownHost))</span>) {</span>
+  const fallback = cleaned.toLowerCase();
+  for (const entry of SOURCE_BY_HOST) {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (entry.hosts.some((knownHost) =&gt; fallback.includes(knownHost))) {
 <span class="cstat-no" title="statement not covered" >      return entry.source;</span>
     }
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return "autre";</span>
+  return "autre";
 }
 &nbsp;
 function inferSourceFromText(text: string): SourceCandidature {
@@ -1753,7 +1753,7 @@ export function extractedToFormData(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-28T21:28:12.700Z
+                at 2026-04-28T22:02:14.637Z
             </div>
         <script src="../prettify.js"></script>
         <script>
