@@ -7,9 +7,19 @@ vi.mock("./supabase", () => ({
 }));
 
 import { supabase } from "./supabase";
-import { insertJobSite, upsertUserJobSiteStatus } from "./jobSites";
+import {
+  deleteJobSite,
+  fetchJobSites,
+  fetchUserJobSiteStatus,
+  insertJobSite,
+  updateJobSite,
+  upsertUserJobSiteStatus,
+} from "./jobSites";
 
 type MockQuery = {
+  eq: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+  delete: ReturnType<typeof vi.fn>;
   select: ReturnType<typeof vi.fn>;
   order: ReturnType<typeof vi.fn>;
   limit: ReturnType<typeof vi.fn>;
@@ -21,6 +31,9 @@ type MockQuery = {
 
 function makeQuery(): MockQuery {
   const query: Partial<MockQuery> = {};
+  query.eq = vi.fn(() => query);
+  query.update = vi.fn(() => query);
+  query.delete = vi.fn(() => query);
   query.select = vi.fn(() => query);
   query.order = vi.fn(() => query);
   query.limit = vi.fn(() => query);
@@ -51,6 +64,71 @@ describe("jobSites lib", () => {
       expect.objectContaining({ label: "LinkedIn", url: "https://linkedin.com", position: 3 }),
     );
     expect(created.position).toBe(3);
+  });
+
+  it("fetches and maps job sites", async () => {
+    const query = makeQuery();
+    query.order.mockResolvedValue({
+      data: [{ id: "s1", label: "Indeed", url: "https://indeed.com", position: 1 }],
+      error: null,
+    });
+    vi.mocked(supabase.from).mockReturnValue(query as never);
+
+    const sites = await fetchJobSites();
+    expect(sites[0]).toMatchObject({ id: "s1", label: "Indeed" });
+  });
+
+  it("updates label and url with trimming", async () => {
+    const query = makeQuery();
+    query.single.mockResolvedValue({
+      data: { id: "s1", label: "LinkedIn", url: "https://linkedin.com", position: 0 },
+      error: null,
+    });
+    vi.mocked(supabase.from).mockReturnValue(query as never);
+
+    await updateJobSite("s1", { label: " LinkedIn ", url: " https://linkedin.com " });
+    expect(query.update).toHaveBeenCalledWith({
+      label: "LinkedIn",
+      url: "https://linkedin.com",
+    });
+  });
+
+  it("returns current job site when update payload is empty", async () => {
+    const query = makeQuery();
+    query.single.mockResolvedValue({
+      data: { id: "s1", label: "Current", url: "https://current.com", position: 1 },
+      error: null,
+    });
+    vi.mocked(supabase.from).mockReturnValue(query as never);
+
+    const current = await updateJobSite("s1", {});
+    expect(current.label).toBe("Current");
+    expect(query.update).not.toHaveBeenCalled();
+  });
+
+  it("deletes a job site", async () => {
+    const query = makeQuery();
+    query.eq.mockResolvedValue({ error: null });
+    vi.mocked(supabase.from).mockReturnValue(query as never);
+
+    await deleteJobSite("s1");
+    expect(query.delete).toHaveBeenCalled();
+  });
+
+  it("maps user job site statuses", async () => {
+    const query = makeQuery();
+    query.eq.mockResolvedValue({
+      data: [{ job_site_id: "s1", account_created: true, cv_sent: false }],
+      error: null,
+    });
+    vi.mocked(supabase.from).mockReturnValue(query as never);
+
+    const statuses = await fetchUserJobSiteStatus("u1");
+    expect(statuses[0]).toEqual({
+      jobSiteId: "s1",
+      accountCreated: true,
+      cvSent: false,
+    });
   });
 
   it("upserts user status with expected payload", async () => {
