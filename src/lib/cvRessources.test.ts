@@ -45,8 +45,8 @@ describe("cvRessources lib", () => {
         id: "r1",
         user_id: "u1",
         titre: "CV",
-        type: "cv",
-        format: "pdf",
+        type: "autre",
+        format: "complet",
         url: "https://example.com/cv.pdf",
         created_at: "2026-04-28T00:00:00.000Z",
       },
@@ -56,16 +56,16 @@ describe("cvRessources lib", () => {
 
     await insertCvRessource("u1", {
       titre: " CV ",
-      type: "cv",
-      format: "pdf",
+      type: "autre",
+      format: "complet",
       url: " https://example.com/cv.pdf ",
     });
 
     expect(query.insert).toHaveBeenCalledWith({
       user_id: "u1",
       titre: "CV",
-      type: "cv",
-      format: "pdf",
+      type: "autre",
+      format: "complet",
       url: "https://example.com/cv.pdf",
     });
   });
