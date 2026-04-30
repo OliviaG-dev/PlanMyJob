@@ -124,6 +124,9 @@ npm preview
 
 # Linter
 npm run lint
+
+# Exécuter les tests
+npm run test
 ```
 
 ---
