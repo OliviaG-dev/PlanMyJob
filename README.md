@@ -127,6 +127,9 @@ npm run lint
 
 # Exécuter les tests
 npm run test
+
+# Exécuter les tests en mode watch (optionnel)
+npx vitest
 ```
 
 ---
