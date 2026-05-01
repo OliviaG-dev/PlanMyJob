@@ -12,6 +12,7 @@ import CandidaturesFilters, {
   filterCandidaturesByFilters,
 } from "../../components/CandidaturesFilters/CandidaturesFilters";
 import { Pagination } from "../../components/Pagination/Pagination";
+import { isCandidatureInProgress } from "../../utils/candidatureStatus";
 import "./Kanban.css";
 
 const STATUT_ICONS: Record<Statut, string> = {
@@ -209,10 +210,7 @@ function Kanban() {
   const effectiveLoading = user?.id ? loading : false;
 
   const candidaturesEnCours = filteredCandidatures.filter(
-    (c) =>
-      c.statut !== "refus" &&
-      c.statut !== "sans_reponse" &&
-      (c.statutSuivi === "en_cours" || c.statutSuivi !== "terminee")
+    (c) => c.statut !== "sans_reponse" && isCandidatureInProgress(c)
   );
   const candidaturesRefus = filteredCandidatures.filter(
     (c) => c.statut === "refus"

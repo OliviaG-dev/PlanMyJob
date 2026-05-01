@@ -7,6 +7,7 @@ import type {
   Teletravail,
   SourceCandidature,
 } from "../../types/candidature";
+import type { AddCandidatureFormData } from "../../types/candidatureForm.types";
 import { Select } from "../../components/Select/Select";
 import { COMPETENCES_OPTIONS, inferSourceFromUrl } from "../../lib/offerAnalyzer";
 import "./AddCandidatureModal.css";
@@ -73,23 +74,6 @@ const STATUT_SUIVI_OPTIONS = [
   { value: "en_cours", label: "En cours" },
   { value: "terminee", label: "Terminée" },
 ] satisfies { value: StatutSuivi; label: string }[];
-
-export type AddCandidatureFormData = {
-  entreprise: string;
-  poste: string;
-  lienOffre: string;
-  localisation: string;
-  typeContrat: TypeContrat;
-  teletravail: Teletravail;
-  dateCandidature: string;
-  source: SourceCandidature;
-  notePersonnelle: number;
-  statutSuivi: StatutSuivi;
-  statut: Statut;
-  salaireOuFourchette: string;
-  notes: string;
-  competences: string;
-};
 
 const defaultFormData: AddCandidatureFormData = {
   entreprise: "",

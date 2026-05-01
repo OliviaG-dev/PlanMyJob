@@ -1,6 +1,19 @@
 import { supabase } from "./supabase";
 import type { Tache, PrioriteTache } from "../types/tache";
 
+const TACHES_SELECT_COLUMNS = `
+  id,
+  user_id,
+  semaine_debut,
+  titre,
+  priorite,
+  terminee,
+  candidature_id,
+  ordre,
+  created_at,
+  updated_at
+`;
+
 type TacheRow = {
   id: string;
   user_id: string;
@@ -36,7 +49,7 @@ export async function fetchTaches(
 
   const { data, error } = await supabase
     .from("taches")
-    .select("*")
+    .select(TACHES_SELECT_COLUMNS)
     .eq("user_id", userId)
     .in("semaine_debut", semaineDebuts)
     .order("ordre", { ascending: true })
@@ -103,7 +116,7 @@ export async function updateTache(
   if (Object.keys(row).length === 0) {
     const { data } = await supabase
       .from("taches")
-      .select("*")
+      .select(TACHES_SELECT_COLUMNS)
       .eq("id", tacheId)
       .eq("user_id", userId)
       .maybeSingle();

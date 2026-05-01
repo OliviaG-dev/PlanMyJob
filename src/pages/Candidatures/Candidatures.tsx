@@ -16,9 +16,13 @@ import CandidaturesFilters, {
   filterCandidaturesByFilters,
 } from "../../components/CandidaturesFilters/CandidaturesFilters";
 import { Pagination } from "../../components/Pagination/Pagination";
-import AddCandidatureModal, {
-  type AddCandidatureFormData,
-} from "./AddCandidatureModal";
+import type { AddCandidatureFormData } from "../../types/candidatureForm.types";
+import {
+  isCandidatureCompleted,
+  isCandidatureInProgress,
+  isCandidatureRefused,
+} from "../../utils/candidatureStatus";
+import AddCandidatureModal from "./AddCandidatureModal";
 import "./Candidatures.css";
 
 const CANDIDATURES_PAGE_SIZE = 3;
@@ -194,15 +198,9 @@ function Candidatures() {
     ),
   ].sort((a, b) => a.localeCompare(b, "fr"));
 
-  const refus = filteredCandidatures.filter((c) => c.statut === "refus");
-  const enCours = filteredCandidatures.filter(
-    (c) =>
-      c.statut !== "refus" &&
-      (c.statutSuivi === "en_cours" || c.statutSuivi !== "terminee")
-  );
-  const terminee = filteredCandidatures.filter(
-    (c) => c.statutSuivi === "terminee" && c.statut !== "refus"
-  );
+  const refus = filteredCandidatures.filter(isCandidatureRefused);
+  const enCours = filteredCandidatures.filter(isCandidatureInProgress);
+  const terminee = filteredCandidatures.filter(isCandidatureCompleted);
 
   const getPayloadForList = useCallback(
     (listType: ListType): { statut?: Statut; statutSuivi?: StatutSuivi } => {
@@ -253,13 +251,10 @@ function Candidatures() {
     }
     const alreadyInList =
       targetListType === "refus"
-        ? candidature.statut === "refus"
+        ? isCandidatureRefused(candidature)
         : targetListType === "terminee"
-        ? candidature.statutSuivi === "terminee" &&
-          candidature.statut !== "refus"
-        : candidature.statut !== "refus" &&
-          (candidature.statutSuivi === "en_cours" ||
-            candidature.statutSuivi !== "terminee");
+        ? isCandidatureCompleted(candidature)
+        : isCandidatureInProgress(candidature);
     if (alreadyInList) return;
 
     const previous = [...candidatures];

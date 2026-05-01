@@ -3,7 +3,7 @@ import type {
   TypeContrat,
   Teletravail,
 } from "../types/candidature";
-import type { AddCandidatureFormData } from "../pages/Candidatures/AddCandidatureModal";
+import type { AddCandidatureFormData } from "../types/candidatureForm.types";
 
 export type ExtractedOffer = {
   poste: string;

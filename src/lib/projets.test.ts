@@ -112,16 +112,14 @@ describe("projets lib", () => {
 
   it("returns existing project when update payload is empty", async () => {
     const query = makeQuery();
-    query.order.mockResolvedValue({
-      data: [
-        {
-          id: "p1",
-          user_id: "u1",
-          titre: "Existing",
-          description: "Desc",
-          created_at: "2026-04-28T00:00:00.000Z",
-        },
-      ],
+    query.single.mockResolvedValue({
+      data: {
+        id: "p1",
+        user_id: "u1",
+        titre: "Existing",
+        description: "Desc",
+        created_at: "2026-04-28T00:00:00.000Z",
+      },
       error: null,
     });
     vi.mocked(supabase.from).mockReturnValue(query as never);

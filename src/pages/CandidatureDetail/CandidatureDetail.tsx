@@ -6,9 +6,8 @@ import {
   updateCandidature,
   deleteCandidature,
 } from "../../lib/candidatures";
-import AddCandidatureModal, {
-  type AddCandidatureFormData,
-} from "../Candidatures/AddCandidatureModal";
+import type { AddCandidatureFormData } from "../../types/candidatureForm.types";
+import AddCandidatureModal from "../Candidatures/AddCandidatureModal";
 import type {
   Candidature,
   Statut,

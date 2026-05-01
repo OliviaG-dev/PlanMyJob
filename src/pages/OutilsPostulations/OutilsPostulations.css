@@ -529,6 +529,12 @@
   margin: 0 0 1rem 0;
 }
 
+.outils-postulations__error {
+  margin: 0 0 1rem 0;
+  color: #c53030;
+  font-size: 0.95rem;
+}
+
 .outils-postulations__add-trigger-wrap {
   margin-top: 1.25rem;
   text-align: center;

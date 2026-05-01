@@ -13,6 +13,7 @@ import {
   type UserJobSiteStatus,
 } from "../../lib/jobSites";
 import { getWeeklyGoals } from "../../lib/userGoals";
+import { isCandidatureInProgress } from "../../utils/candidatureStatus";
 import "./Dashboard.css";
 
 const STATUT_LABELS: Record<Statut, string> = {
@@ -266,10 +267,7 @@ function Dashboard() {
   const stats = useMemo(() => {
     const cvEnvoye = candidatures.filter((c) => c.statut !== "a_postuler");
     const enCours = candidatures.filter(
-      (c) =>
-        c.statut !== "refus" &&
-        c.statut !== "sans_reponse" &&
-        (c.statutSuivi === "en_cours" || c.statutSuivi !== "terminee")
+      (c) => c.statut !== "sans_reponse" && isCandidatureInProgress(c)
     );
     const avecEntretien = candidatures.filter((c) =>
       ["entretien_rh", "entretien_technique"].includes(c.statut)

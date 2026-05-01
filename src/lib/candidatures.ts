@@ -7,7 +7,34 @@ import type {
   Teletravail,
   SourceCandidature,
 } from "../types/candidature";
-import type { AddCandidatureFormData } from "../pages/Candidatures/AddCandidatureModal";
+import type { AddCandidatureFormData } from "../types/candidatureForm.types";
+
+const CANDIDATURES_SELECT_COLUMNS = `
+  id,
+  user_id,
+  entreprise,
+  poste,
+  lien_offre,
+  statut,
+  statut_suivi,
+  date_candidature,
+  priorite,
+  notes,
+  localisation,
+  type_contrat,
+  teletravail,
+  source,
+  note_personnelle,
+  salaire_ou_fourchette,
+  competences,
+  created_at,
+  updated_at,
+  cv_envoye_at,
+  entretien_rh_at,
+  entretien_technique_at,
+  attente_reponse_at,
+  refus_at
+`;
 
 type CandidatureRow = {
   id: string;
@@ -68,7 +95,7 @@ export async function fetchCandidatures(
 ): Promise<Candidature[]> {
   const { data, error } = await supabase
     .from("candidatures")
-    .select("*")
+    .select(CANDIDATURES_SELECT_COLUMNS)
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
@@ -82,7 +109,7 @@ export async function fetchCandidature(
 ): Promise<Candidature | null> {
   const { data, error } = await supabase
     .from("candidatures")
-    .select("*")
+    .select(CANDIDATURES_SELECT_COLUMNS)
     .eq("id", candidatureId)
     .eq("user_id", userId)
     .maybeSingle();

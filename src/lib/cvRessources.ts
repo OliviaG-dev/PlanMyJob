@@ -1,6 +1,8 @@
 import { supabase } from "./supabase";
 import type { CvRessource, CvType, CvFormat } from "../types/cvRessource";
 
+const CV_RESSOURCES_SELECT_COLUMNS = "id, user_id, titre, type, format, url, created_at";
+
 type CvRessourceRow = {
   id: string;
   user_id: string;
@@ -25,7 +27,7 @@ function rowToCvRessource(row: CvRessourceRow): CvRessource {
 export async function fetchCvRessources(userId: string): Promise<CvRessource[]> {
   const { data, error } = await supabase
     .from("cv_ressources")
-    .select("*")
+    .select(CV_RESSOURCES_SELECT_COLUMNS)
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 

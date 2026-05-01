@@ -1,5 +1,7 @@
 import { supabase } from "./supabase";
 
+const JOB_SITES_SELECT_COLUMNS = "id, label, url, position";
+
 export type JobSite = {
   id: string;
   label: string;
@@ -26,7 +28,7 @@ function rowToJobSite(row: JobSiteRow): JobSite {
 export async function fetchJobSites(): Promise<JobSite[]> {
   const { data, error } = await supabase
     .from("job_sites")
-    .select("*")
+    .select(JOB_SITES_SELECT_COLUMNS)
     .order("position", { ascending: true });
 
   if (error) throw error;
@@ -76,7 +78,7 @@ export async function updateJobSite(
   if (Object.keys(updates).length === 0) {
     const { data: current } = await supabase
       .from("job_sites")
-      .select("*")
+      .select(JOB_SITES_SELECT_COLUMNS)
       .eq("id", id)
       .single();
     if (current) return rowToJobSite(current as JobSiteRow);

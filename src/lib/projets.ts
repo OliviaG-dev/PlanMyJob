@@ -58,9 +58,15 @@ export async function updateProjet(
   if (data.titre !== undefined) body.titre = data.titre.trim();
   if (data.description !== undefined) body.description = data.description.trim();
   if (Object.keys(body).length === 0) {
-    const current = await fetchProjets(userId).then((list) => list.find((p) => p.id === id));
+    const { data: current, error } = await supabase
+      .from("projets")
+      .select("id, user_id, titre, description, created_at")
+      .eq("id", id)
+      .eq("user_id", userId)
+      .single();
+    if (error) throw error;
     if (!current) throw new Error("Projet introuvable");
-    return current;
+    return rowToProjet(current as ProjetRow);
   }
 
   const { data: updated, error } = await supabase
