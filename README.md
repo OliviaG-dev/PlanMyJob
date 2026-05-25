@@ -28,25 +28,28 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 - **Stats** — Candidatures (envoyées, en cours, entretiens), taux de conversion, organisation par statut.
 - **Répartition** — Liste par statut (inclut **Sans réponse**, même à 0) + graphique donut (répartition des candidatures).
-- **Objectifs & motivation** — Objectifs candidatures (semaine et mois) réglables dans Paramètres, jours depuis la dernière candidature, sites d’emploi utilisés.
-- Thème et design alignés avec le reste de l’app (stat-cards, couleurs primary).
+- **Objectifs & motivation** — Objectifs candidatures (semaine et mois) réglables dans Paramètres, jours depuis la dernière candidature, sites d'emploi utilisés.
+- Thème et design alignés avec le reste de l'app (stat-cards, couleurs primary).
 
 ### Avancé
 
 - **Dark mode** — Bascule thème clair/sombre (paramètres).
-- **Auth Supabase** — Connexion, inscription, **mot de passe oublié** (lien sur la page de connexion → saisie email → envoi du lien), **réinitialisation du mot de passe** (page dédiée après clic sur le lien email), **changer le mot de passe** depuis Paramètres (envoi d’un email de réinitialisation).
+- **Auth Supabase** — Connexion, inscription, **mot de passe oublié** (lien sur la page de connexion → saisie email → envoi du lien), **réinitialisation du mot de passe** (page dédiée après clic sur le lien email), **changer le mot de passe** depuis Paramètres (envoi d'un email de réinitialisation).
 - **Paramètres** — Compte (email, bouton « Changer le mot de passe », déconnexion), Apparence (thème clair/sombre), **Objectifs** (candidatures par semaine et par mois, sauvegardés en localStorage par utilisateur).
 - **Page 404** — Illustration dédiée et bouton « Retour à l'accueil » pour toute URL non reconnue.
 - **Loader** — Composant de chargement réutilisable (spinner plein écran au chargement auth, réutilisable en inline ailleurs).
 - **Sources de candidature** — Ajout de la source **France Travail** (formulaire candidature, détail candidature, dashboard).
 
+### Analyse d'offre
+
+- **Analyser une offre d'emploi** — Page dédiée (`/analyse`). Collez le texte d'une annonce (LinkedIn, Indeed, etc.) : extraction automatique du poste, entreprise, type de contrat, télétravail, localisation, expérience, compétences techniques, points clés, salaire, lien. Formulaire éditable puis **Créer une candidature** pour pré-remplir le modal d'ajout. Logique d'extraction dans `src/lib/offerAnalyzer.ts` (voir `src/lib/offerAnalyzer.md` pour la doc).
+
 ### Ressources (Outils postulations)
 
-- **Analyser une offre d'emploi** — Collez le texte d’une annonce (LinkedIn, Indeed, etc.) : extraction automatique du poste, entreprise, type de contrat, télétravail, localisation, expérience, compétences techniques, points clés, salaire, lien. Formulaire éditable puis **Créer une candidature** pour pré-remplir le modal d’ajout. Logique d’extraction dans `src/lib/offerAnalyzer.ts` (voir `src/lib/offerAnalyzer.md` pour la doc).
 - **Mail / lettre de motivation** — Générateur de lettre semi-automatique : formulaire (poste, entreprise, 3 compétences, réalisation, motivation), optionnellement offre d'emploi collée, style (Auto / Classique / Moderne / Startup), prénom/nom pour la signature. Réalisation = choix d'un **projet** (Mes projets) ou saisie libre. Génération d'une lettre personnalisée (templates par ton), score de matching indicatif, mots-clés détectés depuis l'offre, copie en un clic. Voir `doc.md` pour la doc détaillée.
 - **Mes projets** — Gestion de projets (titre + description) dans la page Ressources : ajout, édition, suppression. Les projets servent de « réalisation importante » dans le générateur de lettre. Persistance Supabase par utilisateur.
 - **CV** — Stockage de CV avec lien (Google Drive, etc.), type (Tech, Agence, Grande entreprise, Autre), format (Court, Complet). Barre de progression (X / 10) avec segments et indicateur par site. Visualisation en grand (iframe) et copie du lien. Persistance Supabase par utilisateur.
-- **Sites d’emploi** — Liste de sites (LinkedIn, HelloWork, Indeed, Welcome to the Jungle, France Travail, etc.) chargée depuis Supabase. Ajout et suppression de sites. Par site : cases « Compte créé » et « Compte mis à jour », sauvegardées en base (utilisateur connecté) ou en localStorage. Grille 2 colonnes (1 en mobile/tablette).
+- **Sites d'emploi** — Liste de sites (LinkedIn, HelloWork, Indeed, Welcome to the Jungle, France Travail, etc.) chargée depuis Supabase. Ajout et suppression de sites. Par site : cases « Compte créé » et « Compte mis à jour », sauvegardées en base (utilisateur connecté) ou en localStorage. Grille 2 colonnes (1 en mobile/tablette).
 
 ### Prévu
 
@@ -61,7 +64,7 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 - **React 19** + **TypeScript**
 - **Vite 7**
-- **React Router** (pages : dashboard, candidatures, kanban, planning, tâches, ressources, paramètres, login, inscription, mot de passe oublié, réinitialisation mot de passe, 404)
+- **React Router** (pages : dashboard, candidatures, analyse, kanban, planning, tâches, ressources, paramètres, login, inscription, mot de passe oublié, réinitialisation mot de passe, 404)
 - **Supabase** (persistance des données, authentification ; tables : candidatures, tâches, cv_ressources, job_sites, user_job_site_status, projets)
 - **localStorage** (objectifs hebdo/mois par utilisateur, voir `src/lib/userGoals.ts`)
 
@@ -88,10 +91,11 @@ src/
 │   ├── Dashboard/
 │   ├── Candidatures/      # Liste + AddCandidatureModal + filtres + pagination
 │   ├── CandidatureDetail/ # Détail + badges statut + temporalité CV envoyé
+│   ├── Analyse/           # Analyse d'offre d'emploi (extraction + création candidature)
 │   ├── Kanban/
 │   ├── Planning/         # Calendrier mensuel + événements candidatures
 │   ├── Taches/           # Todo par semaine ISO (accordéon, priorités)
-│   ├── OutilsPostulations/  # Ressources : CV, sites d’emploi, générateur lettre, Mes projets, analyser une offre
+│   ├── OutilsPostulations/  # Ressources : CV, sites d'emploi, générateur lettre, Mes projets
 │   ├── Settings/    # Compte (changer mot de passe, déconnexion), Apparence, Objectifs
 │   ├── Login/
 │   ├── Signup/
@@ -120,7 +124,7 @@ npm run dev
 npm run build
 
 # Prévisualiser le build
-npm preview
+npm run build && npm run preview
 
 # Linter
 npm run lint
@@ -142,6 +146,7 @@ npx vitest
 | `/dashboard`        | Tableau de bord               |
 | `/candidatures`     | Liste des candidatures        |
 | `/candidatures/:id` | Détail d'une candidature      |
+| `/analyse`          | Analyse d'offre d'emploi     |
 | `/kanban`           | Vue Kanban                    |
 | `/planning`         | Calendrier mensuel            |
 | `/taches`           | Tâches                        |

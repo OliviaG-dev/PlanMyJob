@@ -11,6 +11,7 @@ import Kanban from "./pages/Kanban/Kanban";
 import Planning from "./pages/Planning/Planning";
 import Taches from "./pages/Taches/Taches";
 import OutilsPostulations from "./pages/OutilsPostulations/OutilsPostulations";
+import Analyse from "./pages/Analyse/Analyse";
 import Settings from "./pages/Settings/Settings";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
@@ -41,6 +42,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="candidatures" element={<Candidatures />} />
           <Route path="candidatures/:id" element={<CandidatureDetail />} />
+          <Route path="analyse" element={<Analyse />} />
           <Route path="kanban" element={<Kanban />} />
           <Route path="planning" element={<Planning />} />
           <Route path="taches" element={<Taches />} />

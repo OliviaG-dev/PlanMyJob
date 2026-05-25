@@ -14,6 +14,7 @@ function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const links = [
     { to: "/dashboard", label: "Tableau de bord" },
     { to: "/candidatures", label: "Candidatures" },
+    { to: "/analyse", label: "Analyse" },
     { to: "/kanban", label: "Kanban" },
     { to: "/planning", label: "Planning" },
     { to: "/taches", label: "Tâches" },

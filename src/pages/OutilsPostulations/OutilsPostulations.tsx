@@ -5,7 +5,6 @@ import { useCvResources } from "../../hooks/useCvResources";
 import { useJobSites } from "../../hooks/useJobSites";
 import { OutilsProgressWrap } from "./OutilsProgressWrap";
 import { MotivationGeneratorSection } from "./components/MotivationGeneratorSection";
-import { OfferAnalyzerSection } from "./components/OfferAnalyzerSection";
 import "./OutilsPostulations.css";
 
 const CV_TYPE_LABELS: Record<CvType, string> = {
@@ -537,7 +536,6 @@ function OutilsPostulations() {
           )}
         </section>
 
-        <OfferAnalyzerSection />
       </div>
     </main>
   );
