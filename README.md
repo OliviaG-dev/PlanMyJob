@@ -8,6 +8,7 @@
 ![React Router](https://img.shields.io/badge/React_Router-7-CA4245?style=flat-square&logo=react-router)
 ![Supabase](https://img.shields.io/badge/Supabase-2.x-3ECF8E?style=flat-square&logo=supabase)
 ![ESLint](https://img.shields.io/badge/ESLint-9-E34F26?style=flat-square&logo=eslint)
+![CI](https://github.com/OliviaG-dev/PlanMyJob/actions/workflows/ci.yml/badge.svg)
 
 PlanMyJob est une application React / TypeScript conçue pour structurer et optimiser la recherche d'emploi. Tableau Kanban pour le suivi des candidatures, calendrier mensuel pour la planification, système de tâches inspiré des outils de gestion de projet et dashboard de progression. Thème élégant (rose/beige), dark mode et design cohérent. Architecture front-end propre et expérience utilisateur orientée productivité.
 
@@ -103,6 +104,17 @@ src/
 │   ├── ResetPassword/  # Nouveau mot de passe après clic sur le lien email
 │   └── NotFound/       # Page 404 (illustration + bouton Retour à l'accueil)
 ```
+
+---
+
+## CI/CD
+
+Pipeline GitHub Actions (`.github/workflows/ci.yml`) exécuté à chaque push sur `main`/`master` et sur chaque pull request :
+
+1. **Install** — `npm ci`
+2. **Lint** — `npm run lint`
+3. **Test** — `npm run test`
+4. **Build** — `npm run build` (variables Supabase placeholder en CI)
 
 ---
 

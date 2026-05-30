@@ -44,7 +44,7 @@ export function useJobSites(userId: string | undefined) {
   const [sitesError, setSitesError] = useState<string | null>(null);
 
   useEffect(() => {
-    setSitesError(null);
+    queueMicrotask(() => setSitesError(null));
     fetchJobSites()
       .then(setJobSites)
       .catch((err) => {
@@ -58,23 +58,25 @@ export function useJobSites(userId: string | undefined) {
 
   useEffect(() => {
     if (jobSites.length === 0) return;
-    setSiteCheckboxes((prev) => {
-      const next: SiteCheckboxesState = {};
-      jobSites.forEach((site) => {
-        next[site.id] = prev[site.id] ?? { created: false, cvSent: false };
+    queueMicrotask(() => {
+      setSiteCheckboxes((prev) => {
+        const next: SiteCheckboxesState = {};
+        jobSites.forEach((site) => {
+          next[site.id] = prev[site.id] ?? { created: false, cvSent: false };
+        });
+        try {
+          localStorage.setItem(SITES_EMPLOI_STORAGE_KEY, JSON.stringify(next));
+        } catch {
+          // ignore local storage failures
+        }
+        return next;
       });
-      try {
-        localStorage.setItem(SITES_EMPLOI_STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        // ignore local storage failures
-      }
-      return next;
     });
   }, [jobSites]);
 
   useEffect(() => {
     if (!userId || jobSites.length === 0) return;
-    setSitesError(null);
+    queueMicrotask(() => setSitesError(null));
     fetchUserJobSiteStatus(userId)
       .then((statusList) => {
         setSiteCheckboxes((prev) => {

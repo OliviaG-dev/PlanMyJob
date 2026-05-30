@@ -29,8 +29,10 @@ export function useCvResources(userId: string | undefined) {
     }
 
     let cancelled = false;
-    queueMicrotask(() => setLoading(true));
-    setError(null);
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
 
     fetchCvRessources(userId)
       .then((data) => {

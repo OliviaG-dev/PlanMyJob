@@ -81,12 +81,15 @@ function DonutChart({
   const cy = size / 2;
   const r = (size - strokeWidth) / 2 - 2;
   const rInner = r - strokeWidth;
-  let acc = 0;
-  const paths = segments.map((seg) => {
+  const paths = segments.map((seg, index) => {
+    const priorTotal = segments
+      .slice(0, index)
+      .reduce((sum, item) => sum + item.value, 0);
+    const startRatio = priorTotal / total;
+    const endRatio = (priorTotal + seg.value) / total;
     const ratio = seg.value / total;
-    const startAngle = (acc * 360 - 90) * (Math.PI / 180);
-    acc += ratio;
-    const endAngle = (acc * 360 - 90) * (Math.PI / 180);
+    const startAngle = (startRatio * 360 - 90) * (Math.PI / 180);
+    const endAngle = (endRatio * 360 - 90) * (Math.PI / 180);
     const x1 = cx + r * Math.cos(startAngle);
     const y1 = cy + r * Math.sin(startAngle);
     const x2 = cx + r * Math.cos(endAngle);
@@ -220,18 +223,22 @@ function Dashboard() {
 
   useEffect(() => {
     if (!user?.id) {
-      setCandidatures([]);
-      setTaches([]);
-      setProjets([]);
-      setCvs([]);
-      setJobSites([]);
-      setUserSiteStatus([]);
-      setLoading(false);
+      queueMicrotask(() => {
+        setCandidatures([]);
+        setTaches([]);
+        setProjets([]);
+        setCvs([]);
+        setJobSites([]);
+        setUserSiteStatus([]);
+        setLoading(false);
+      });
       return () => {};
     }
     let cancelled = false;
-    setLoading(true);
-    setError(null);
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
     Promise.all([
       fetchCandidatures(user.id),
       fetchTaches(user.id, [weekStart]),
