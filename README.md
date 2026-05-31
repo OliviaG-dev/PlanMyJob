@@ -131,7 +131,7 @@ Exécuté à chaque push sur `main`/`master` et sur chaque pull request :
 Déclenché automatiquement après une CI **réussie** sur un **push** vers `main`/`master`.
 
 - Hébergement : **Vercel** (`vercel.json` — rewrites SPA React Router)
-- Commande : `vercel deploy --prod`
+- Commande : `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod` (CLI officiel)
 - Variables Supabase injectées au build via secrets GitHub
 
 #### Secrets GitHub (Actions)
