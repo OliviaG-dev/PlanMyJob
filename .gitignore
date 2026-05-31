@@ -15,6 +15,7 @@ dist-ssr
 # Env (ne pas commiter les clés)
 .env
 .env.local
+.vercel
 
 # Editor directories and files
 .vscode/*

@@ -9,6 +9,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-2.x-3ECF8E?style=flat-square&logo=supabase)
 ![ESLint](https://img.shields.io/badge/ESLint-9-E34F26?style=flat-square&logo=eslint)
 ![CI](https://github.com/OliviaG-dev/PlanMyJob/actions/workflows/ci.yml/badge.svg)
+![CD](https://github.com/OliviaG-dev/PlanMyJob/actions/workflows/deploy.yml/badge.svg)
 
 PlanMyJob est une application React / TypeScript conçue pour structurer et optimiser la recherche d'emploi. Tableau Kanban pour le suivi des candidatures, calendrier mensuel pour la planification, système de tâches inspiré des outils de gestion de projet et dashboard de progression. Thème élégant (rose/beige), dark mode et design cohérent. Architecture front-end propre et expérience utilisateur orientée productivité.
 
@@ -109,12 +110,51 @@ src/
 
 ## CI/CD
 
-Pipeline GitHub Actions (`.github/workflows/ci.yml`) exécuté à chaque push sur `main`/`master` et sur chaque pull request :
+Déploiement **Vercel production** via GitHub Actions uniquement (intégration Git Vercel désactivée pour éviter les doubles deploys).
+
+```
+Push master → CI (lint, test, build) → si ✅ → CD (deploy Vercel prod)
+PR          → CI uniquement (pas de deploy)
+```
+
+### CI — `.github/workflows/ci.yml`
+
+Exécuté à chaque push sur `main`/`master` et sur chaque pull request :
 
 1. **Install** — `npm ci`
 2. **Lint** — `npm run lint`
 3. **Test** — `npm run test`
 4. **Build** — `npm run build` (variables Supabase placeholder en CI)
+
+### CD — `.github/workflows/deploy.yml`
+
+Déclenché automatiquement après une CI **réussie** sur un **push** vers `main`/`master`.
+
+- Hébergement : **Vercel** (`vercel.json` — rewrites SPA React Router)
+- Commande : `vercel deploy --prod`
+- Variables Supabase injectées au build via secrets GitHub
+
+#### Secrets GitHub (Actions)
+
+Configurés dans **Settings → Secrets and variables → Actions** :
+
+| Secret | Description |
+| ------ | ----------- |
+| `VERCEL_TOKEN` | Token Vercel ([Account → Tokens](https://vercel.com/account/tokens)) |
+| `VERCEL_ORG_ID` | ID organisation (`orgId` dans `.vercel/project.json`) |
+| `VERCEL_PROJECT_ID` | ID projet (`projectId` dans `.vercel/project.json`) |
+| `VITE_SUPABASE_URL` | URL Supabase (build production) |
+| `VITE_SUPABASE_ANON_KEY` | Clé anon Supabase (build production) |
+
+Récupérer les IDs Vercel en local :
+
+```bash
+npx vercel link
+type .vercel\project.json   # Windows
+# cat .vercel/project.json  # macOS / Linux
+```
+
+Conserver aussi les variables Supabase dans **Vercel → Project → Settings → Environment Variables** (Production).
 
 ---
 
