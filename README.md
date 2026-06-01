@@ -113,8 +113,8 @@ src/
 Déploiement **Vercel production** via GitHub Actions uniquement (intégration Git Vercel désactivée pour éviter les doubles deploys).
 
 ```
-Push master → CI (lint, test, build) → si ✅ → CD (deploy Vercel prod)
-PR          → CI uniquement (pas de deploy)
+PR          → CI (lint, test, build) → si ✅ → Preview Vercel (URL en commentaire)
+Push master → CI → si ✅ → CD (deploy Vercel prod)
 ```
 
 ### CI — `.github/workflows/ci.yml`
@@ -134,6 +134,14 @@ Déclenché automatiquement après une CI **réussie** sur un **push** vers `mai
 - Commande : `vercel pull` → `vercel build --prod` → `vercel deploy --prebuilt --prod` (CLI officiel)
 - Variables Supabase injectées au build via secrets GitHub
 
+### Preview — `.github/workflows/preview.yml`
+
+Déclenché après une CI **réussie** sur une **pull request** :
+
+1. Build environnement **preview** Vercel
+2. `vercel deploy --prebuilt` (sans `--prod`)
+3. Commentaire automatique sur la PR avec l’URL de preview (mis à jour à chaque push)
+
 #### Secrets GitHub (Actions)
 
 Configurés dans **Settings → Secrets and variables → Actions** :
@@ -144,7 +152,9 @@ Configurés dans **Settings → Secrets and variables → Actions** :
 | `VERCEL_ORG_ID` | ID organisation (`orgId` dans `.vercel/project.json`) |
 | `VERCEL_PROJECT_ID` | ID projet (`projectId` dans `.vercel/project.json`) |
 | `VITE_SUPABASE_URL` | URL Supabase (build production) |
-| `VITE_SUPABASE_ANON_KEY` | Clé anon Supabase (build production) |
+| `VITE_SUPABASE_ANON_KEY` | Clé anon Supabase (build production et preview) |
+
+Conserver les variables Supabase dans **Vercel → Project → Settings → Environment Variables** (Production **et** Preview).
 
 Récupérer les IDs Vercel en local :
 
@@ -154,7 +164,11 @@ type .vercel\project.json   # Windows
 # cat .vercel/project.json  # macOS / Linux
 ```
 
-Conserver aussi les variables Supabase dans **Vercel → Project → Settings → Environment Variables** (Production).
+### Branch protection (`master`)
+
+La branche `master` doit exiger une **CI verte** avant merge. Configuration détaillée : [`docs/branch-protection.md`](docs/branch-protection.md).
+
+Check GitHub à exiger : **`Lint, test & build`**.
 
 ---
 
