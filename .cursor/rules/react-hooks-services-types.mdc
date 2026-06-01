@@ -1,0 +1,21 @@
+---
+description: Keep React business logic split across hooks services and types
+globs: src/**/*
+alwaysApply: false
+---
+
+# React Hooks Services Types
+
+Use dedicated folders for reusable logic:
+
+- `src/hooks/use<FeatureName>.ts` for reusable business logic
+- `src/services/<featureName>Service.ts` for API calls only
+- `src/types/<featureName>.types.ts` for shared types/interfaces
+- `src/utils/<featureName>.ts` for pure helpers
+
+Rules:
+
+- Keep UI components presentation-first
+- Avoid direct API calls in pages/components
+- Type function inputs and outputs explicitly
+- Avoid unnecessary `any`

@@ -1,0 +1,24 @@
+---
+description: Apply TypeScript readability and guard-clause standards
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TypeScript Quality Guards
+
+Standards:
+
+- One function or component = one clear responsibility
+- Prefer early returns over deep nesting
+- Factorize obvious duplication from the second case
+- Replace magic numbers with named constants
+
+Type safety:
+
+- Use explicit types/interfaces when possible
+- Add guard clauses for nullable/optional inputs
+
+Error handling:
+
+- Never keep empty `catch` blocks
+- Handle or rethrow errors with context

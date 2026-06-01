@@ -1,0 +1,20 @@
+---
+description: Enforce React page and component folder structure in src
+globs: src/**/*
+alwaysApply: false
+---
+
+# React Architecture Structure
+
+Always follow this structure in `src`:
+
+- `src/pages/<PageName>/<PageName>.tsx`
+- `src/pages/<PageName>/<PageName>.css`
+- `src/components/<ComponentName>/<ComponentName>.tsx`
+- `src/components/<ComponentName>/<ComponentName>.css`
+
+Rules:
+
+- Use PascalCase for folder and file names in pages/components
+- Never create files directly under `src/pages/` or `src/components/`
+- Create both `.tsx` and `.css` for each new page or component
