@@ -1,0 +1,24 @@
+---
+description: PlanMyJob PR merge and go cleanup delivery workflow
+alwaysApply: true
+---
+
+# PlanMyJob — Git PR & go cleanup
+
+Follow the global **Git PR Cleanup Workflow** (`go cleanup` / `go cleaning`).
+
+## This repo
+
+- **Default branch** : `master`
+- **Protection** : merge via PR only — check CI **`Lint, test & build`** required
+- **PR link** : `https://github.com/OliviaG-dev/PlanMyJob/compare/master...<branch>`
+- **After merge** : CI puis CD Vercel production (preview déjà déployée sur la PR)
+
+## When user asks add / commit / push
+
+1. Commit on a feature branch (not `master` unless explicitly requested and allowed).
+2. Push and share the PR link.
+3. Ask to **merge on GitHub**.
+4. Ask to send **`go cleanup`** after merge, then run the global cleanup steps.
+
+See also `docs/branch-protection.md`.
