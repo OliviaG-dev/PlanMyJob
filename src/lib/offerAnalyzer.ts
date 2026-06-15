@@ -199,6 +199,14 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
       s,
     ) ||
       s.length <= 50);
+  const isRecruitmentSentence = (s: string) =>
+    /^(?:nous\s+)?(?:recherchons?|recrutons?|recherche)\b/i.test(s.trim());
+  const normalizePosteCandidate = (value: string) =>
+    value
+      .replace(/\s+qui\s+.*$/i, "")
+      .replace(/\s+afin\s+de\s+.*$/i, "")
+      .replace(/\s*[:;,]\s*$/, "")
+      .trim();
   const looksLikeCompany = (s: string) =>
     s.length >= 2 &&
     s.length <= 70 &&
@@ -234,8 +242,10 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     lines.length >= 2 &&
     !isFranceTravailOffer &&
     looksLikeJobTitle(lines[0]) &&
+    !isRecruitmentSentence(lines[0]) &&
     looksLikeCompany(lines[1]) &&
-    !looksLikeLocationValue(lines[1])
+    !looksLikeLocationValue(lines[1]) &&
+    !isEntrepriseFieldHeader(lines[1])
   ) {
     poste = lines[0].replace(/\s*[-–]\s*job post\s*$/i, "").trim();
     entreprise = lines[1];
@@ -273,6 +283,7 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     const postePatterns = [
       /(?:poste|intitulé du poste|titre du poste)\s*[:-]\s*([^\n]+?)(?:\s*$|\n)(?!.*restaurant)/i,
       /(?:intitulé|titre)\s*[:-]\s*([^\n]+?)(?:\s*$|\n)(?!.*restaurant)/i,
+      /(?:nous\s+)?(?:recherchons?|recrutons?|recherche)(?:\s+\w+){0,3}\s+(?:un|une|un\/une|un\(e\))\s+([^\n]+?)(?:\s+qui\b|\s+pour\b|\s*[:.,]|$)/i,
       /(?:recherchons?|recrutons?|recherche)\s+(?:un|une|un\/une|un\(e\))\s+([^\n(]+?)(?:\s*\(|$|\n)/i,
       /(?:pour le poste de|poste de|pour le rôle de|rôle de)\s+([^\n.,]+)/i,
       /(?:en tant que|en tant qu')\s+(?:développeur|ingénieur|designer|consultant)[^\n.,]*?(?:\s*$|\n|\.|,)/i,
@@ -282,7 +293,7 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     for (const re of postePatterns) {
       const m = text.match(re);
       if (m && m[1]) {
-        const val = m[1].trim();
+        const val = normalizePosteCandidate(m[1].trim());
         if (
           val.length > 1 &&
           val.length < 150 &&
@@ -302,6 +313,7 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
             !/^(bonjour|madame|monsieur|objet|ref\.?|candidature|titre\s|participation)/i.test(
               line,
             ) &&
+            !isRecruitmentSentence(line) &&
             !/restaurant|€|par mois/i.test(line)
           ) {
             poste = line.replace(/\s*[-–]\s*job post\s*$/i, "").trim();
@@ -352,6 +364,7 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
       /(?:société|entreprise|company|structure|groupe)\s*[:-]\s*([^\n]+?)(?:\s*$|\n)/i,
       /(?:rejoignez?|rejoindre)\s+([A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9&\s'.-]{1,80}?)(?:\s*!|\.|\s*$|\n|,)/i,
       /([A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9&\s'.-]{2,60}?)\s+recrute\s+/i,
+      /(?:^|\n)\s*([A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9& .'-]{2,60}?)\s+recherche(?:\s+actuellement)?\s+/i,
       /([A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9&\s'.-]{2,60}?)\s+(?:est|s'est)\s+à la recherche/i,
       /(?:candidature|postuler)\s+chez\s+([^\n,]+?)(?:\s*$|\n|,)/i,
     ];
@@ -370,7 +383,12 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
         }
       }
     }
-    if (!entreprise && lines.length >= 2 && looksLikeCompany(lines[1]))
+    if (
+      !entreprise &&
+      !isFranceTravailOffer &&
+      lines.length >= 2 &&
+      looksLikeCompany(lines[1])
+    )
       entreprise = lines[1];
     if (
       !entreprise &&
@@ -548,17 +566,24 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
   }
 
   let salaireOuFourchette = "";
+  const textWithoutOfferReference = text.replace(
+    /^\s*offre\s*n[°o]\s*[^\n]*$/gim,
+    "",
+  );
   const salMatch =
-    text.match(
+    textWithoutOfferReference.match(
       /((?:mensuel|annuel)\s+de\s+\d+(?:[.,]\d+)?\s*(?:€|euros?)\s+[àa]\s+\d+(?:[.,]\d+)?\s*(?:€|euros?)(?:\s+sur\s+\d+\s+mois)?)/i,
     ) ??
-    text.match(
+    textWithoutOfferReference.match(
+      /((?:cachet|salaire(?:\s+brut)?)\s+de\s+\d+(?:[.,]\d+)?\s*(?:€|euros?)\s+[àa]\s+\d+(?:[.,]\d+)?\s*(?:€|euros?)(?:\s+sur\s+\d+\s+mois)?)/i,
+    ) ??
+    textWithoutOfferReference.match(
       /((?:\d{1,3}(?:[ \u00A0\u202F]\d{3})+|\d{2,3}\s*k)\s*(?:€|euros?)?\s*(?:[-–à]\s*(?:\d{1,3}(?:[ \u00A0\u202F]\d{3})+|\d{2,3}\s*k)\s*(?:€|euros?)?)\s*(?:\/\s*(?:an|mois)|annuel|brut)?)/i,
     ) ??
-    text.match(
+    textWithoutOfferReference.match(
       /(?:salaire|rémunération|rémuneration|fourchette)\s*[:-]?\s*([^\n]+?)(?:\s*€|$)/i,
     ) ??
-    text.match(
+    textWithoutOfferReference.match(
       /(\d[\d\s]*(?:k|000)?\s*€?\s*(?:-\s*\d[\d\s]*(?:k|000)?\s*€?)?)/,
     );
   if (salMatch && salMatch[1]) {
