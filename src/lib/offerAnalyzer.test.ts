@@ -112,6 +112,20 @@ https://www.hellowork.com/fr-fr/emplois/123.html`,
     expect(result.localisation).toBe("19 - BRIVE LA GAILLARDE");
   });
 
+  it("extracts company from employeur section in France Travail offers", () => {
+    const raw = `Offre n° 999XXXX
+Développeur Fullstack H/F
+19 - BRIVE LA GAILLARDE - Localiser avec Mappy
+Type de contrat
+CDI
+Employeur
+ACME DIGITAL`;
+
+    const result = extractOfferFromText(raw);
+    expect(result.entreprise).toBe("ACME DIGITAL");
+    expect(result.localisation).toBe("19 - BRIVE LA GAILLARDE");
+  });
+
   it("extracts localisation from city(dept) substring in a longer line", () => {
     const raw = `Localisation : Lyon (69)`;
 

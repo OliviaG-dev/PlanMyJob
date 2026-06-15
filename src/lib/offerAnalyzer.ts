@@ -216,14 +216,38 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     );
   const looksLikeDeptCity = (s: string) =>
     /^(?:\d{2}|2A|2B|97\d)\s*[-–]\s*[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,80}/.test(s);
+  const looksLikeLocationValue = (s: string) =>
+    looksLikeAddress(s) ||
+    looksLikeCityDept(s) ||
+    looksLikeCityDashDept(s) ||
+    looksLikeDeptCity(s) ||
+    /localiser|mappy/i.test(s);
+  const isEntrepriseFieldHeader = (s: string) =>
+    /^(type de contrat|salaire|exp[ée]rience|description|comp[ée]tences?|lieu|localisation)\b/i.test(
+      s,
+    );
+  const isFranceTravailOffer =
+    inferSourceFromText(text) === "france_travail" ||
+    lines.some((line) => /^offre\s*n[°o]/i.test(line));
 
   if (
     lines.length >= 2 &&
+    !isFranceTravailOffer &&
     looksLikeJobTitle(lines[0]) &&
-    looksLikeCompany(lines[1])
+    looksLikeCompany(lines[1]) &&
+    !looksLikeLocationValue(lines[1])
   ) {
     poste = lines[0].replace(/\s*[-–]\s*job post\s*$/i, "").trim();
     entreprise = lines[1];
+  }
+  if (
+    !poste &&
+    isFranceTravailOffer &&
+    /^offre\s*n[°o]/i.test(lines[0] ?? "") &&
+    lines[1] &&
+    looksLikeJobTitle(lines[1])
+  ) {
+    poste = lines[1].replace(/\s*[-–]\s*job post\s*$/i, "").trim();
   }
   if (lines.length >= 3 && looksLikeAddress(lines[2]) && !localisation) {
     localisation = lines[2];
@@ -284,6 +308,40 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
             break;
           }
         }
+      }
+    }
+  }
+
+  if (!entreprise || isFranceTravailOffer) {
+    const employeurInlineMatch = text.match(
+      /(?:^|\n)\s*employeur\s*[:-]\s*([^\n]+?)\s*(?:$|\n)/i,
+    );
+    if (employeurInlineMatch?.[1]) {
+      const candidate = employeurInlineMatch[1].trim();
+      if (
+        looksLikeCompany(candidate) &&
+        !looksLikeLocationValue(candidate) &&
+        !isEntrepriseFieldHeader(candidate)
+      ) {
+        entreprise = candidate;
+      }
+    }
+  }
+
+  if (!entreprise || isFranceTravailOffer) {
+    const employeurLineIndex = lines.findIndex((line) =>
+      /^employeur(?:\s*[:-]\s*)?$/i.test(line),
+    );
+    if (employeurLineIndex >= 0 && lines[employeurLineIndex + 1]) {
+      const candidate = lines[employeurLineIndex + 1]
+        .replace(/\s*-\s*\d+\s+à\s+\d+\s+salari[ée]s?.*$/i, "")
+        .trim();
+      if (
+        looksLikeCompany(candidate) &&
+        !looksLikeLocationValue(candidate) &&
+        !isEntrepriseFieldHeader(candidate)
+      ) {
+        entreprise = candidate;
       }
     }
   }
