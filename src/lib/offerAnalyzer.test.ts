@@ -126,6 +126,48 @@ ACME DIGITAL`;
     expect(result.localisation).toBe("19 - BRIVE LA GAILLARDE");
   });
 
+  it("does not extract offer number as salary in France Travail offers", () => {
+    const raw = `Offre n° 2071234AB
+Développeur Front-End H/F
+69 - LYON - Localiser avec Mappy
+Type de contrat
+CDI
+Employeur
+ACME DIGITAL`;
+
+    const result = extractOfferFromText(raw);
+    expect(result.salaireOuFourchette).toBe("");
+  });
+
+  it("does not keep full recruitment sentence as poste", () => {
+    const raw = `Nous recherchons actuellement un développeur front-end (F/H) qui effectuera les missions suivantes :
+Type de contrat
+CDI`;
+
+    const result = extractOfferFromText(raw);
+    expect(result.poste.toLowerCase()).not.toContain("nous recherchons");
+    expect(result.poste.toLowerCase()).not.toContain("missions suivantes");
+    expect(result.poste.toLowerCase()).toContain("développeur front-end");
+  });
+
+  it("extracts company and cachet salary from France Travail narrative format", () => {
+    const raw = `Offre n° 3758823
+Développeur Front Angular (H/F)
+69 - Lyon
+
+Klanik recherche actuellement un Développeur Frontend Angular pour travailler sur un projet à Lyon.
+Salaire
+Salaire brut : Cachet de 45000.0 Euros à 50000.0 Euros
+Employeur
+Depuis sa création, KLANIK s'est donnée pour mission de conjuguer expertise technologique et authenticité.`;
+
+    const result = extractOfferFromText(raw);
+    expect(result.poste).toBe("Développeur Front Angular (H/F)");
+    expect(result.entreprise).toBe("Klanik");
+    expect(result.salaireOuFourchette.toLowerCase()).toContain("cachet de 45000.0 euros");
+    expect(result.salaireOuFourchette.toLowerCase()).toContain("50000.0 euros");
+  });
+
   it("extracts localisation from city(dept) substring in a longer line", () => {
     const raw = `Localisation : Lyon (69)`;
 
