@@ -1,13 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import {
-  fetchTaches,
-  insertTache,
-  updateTache,
-  deleteTache,
-} from "../../lib/taches";
 import type { Tache, PrioriteTache } from "../../types/tache";
+import { useWeeklyTasks } from "../../hooks/useWeeklyTasks";
 import "./Taches.css";
 
 const MONTHS = [
@@ -296,8 +291,6 @@ function WeekBlock({ monday, taches, onAdd, onToggle, onDelete }: WeekBlockProps
 function Taches() {
   const { user } = useAuth();
   const [viewDate, setViewDate] = useState(() => new Date());
-  const [taches, setTaches] = useState<Tache[]>([]);
-  const [loading, setLoading] = useState(!!user?.id);
 
   const weeks = useMemo(
     () =>
@@ -310,66 +303,11 @@ function Taches() {
     [weeks]
   );
 
-  useEffect(() => {
-    if (!user?.id) {
-      queueMicrotask(() => {
-        setTaches([]);
-        setLoading(false);
-      });
-      return () => {};
-    }
-    let cancelled = false;
-    queueMicrotask(() => setLoading(true));
-    fetchTaches(user.id, semaineDebuts)
-      .then((data) => {
-        if (!cancelled) setTaches(data);
-      })
-      .catch(() => {
-        if (!cancelled) setTaches([]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.id, semaineDebuts]);
-
-  const tachesByWeek = useMemo(() => {
-    const map = new Map<string, Tache[]>();
-    for (const t of taches) {
-      const list = map.get(t.semaineDebut) ?? [];
-      list.push(t);
-      map.set(t.semaineDebut, list);
-    }
-    return map;
-  }, [taches]);
-
-  const handleAdd = async (
-    semaineDebut: string,
-    titre: string,
-    priorite: PrioriteTache
-  ) => {
-    if (!user?.id) return;
-    const t = await insertTache(user.id, { semaineDebut, titre, priorite });
-    setTaches((prev) => [...prev, t]);
-  };
-
-  const handleToggle = async (tache: Tache) => {
-    if (!user?.id) return;
-    const updated = await updateTache(user.id, tache.id, {
-      terminee: !tache.terminee,
+  const { loading, tachesByWeek, handleAdd, handleToggle, handleDelete } =
+    useWeeklyTasks({
+      userId: user?.id,
+      semaineDebuts,
     });
-    setTaches((prev) =>
-      prev.map((t) => (t.id === tache.id ? updated : t))
-    );
-  };
-
-  const handleDelete = async (tache: Tache) => {
-    if (!user?.id) return;
-    await deleteTache(user.id, tache.id);
-    setTaches((prev) => prev.filter((t) => t.id !== tache.id));
-  };
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
