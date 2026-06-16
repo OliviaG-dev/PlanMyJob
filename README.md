@@ -15,6 +15,19 @@ PlanMyJob est une application React / TypeScript conçue pour structurer et opti
 
 ---
 
+## Architecture en 30 secondes
+
+- **Pages (`src/pages/`)** : orchestration de l'écran, navigation, composition UI.
+- **Composants (`src/components/`)** : briques UI réutilisables (pagination, filtres, selects, layout, loader, graphiques).
+- **Hooks (`src/hooks/`)** : logique métier et chargement de données (dashboard, candidatures, tâches, ressources).
+- **Lib (`src/lib/`)** : accès Supabase et helpers métier.
+- **Types (`src/types/`)** : contrats TypeScript partagés.
+- **Contexts (`src/contexts/`)** : état global auth + thème.
+
+Ce découpage permet de garder des pages lisibles, une logique testable et une évolution plus simple des fonctionnalités.
+
+---
+
 ## Fonctionnalités
 
 ### Cœur (MVP)
