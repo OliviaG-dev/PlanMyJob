@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import "./Select.css";
 
 export type SelectOption = { value: string; label: string };
@@ -33,10 +33,13 @@ export function Select({
   const isControlled = openId !== undefined && onOpenChange !== undefined;
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = isControlled ? openId === id : internalOpen;
-  const setOpen = (open: boolean) => {
-    if (isControlled) onOpenChange(open ? id : null);
-    else setInternalOpen(open);
-  };
+  const setOpen = useCallback(
+    (open: boolean) => {
+      if (isControlled) onOpenChange(open ? id : null);
+      else setInternalOpen(open);
+    },
+    [id, isControlled, onOpenChange],
+  );
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,7 +62,7 @@ export function Select({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [isOpen]);
+  }, [isOpen, setOpen]);
 
   const selectedLabel = options.find((o) => o.value === value)?.label ?? value;
 
