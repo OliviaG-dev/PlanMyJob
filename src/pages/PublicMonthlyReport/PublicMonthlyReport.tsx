@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import ShareCandidatureCard from "../../components/ShareCandidatureCard/ShareCandidatureCard";
+import ShareQrCode from "../../components/ShareQrCode/ShareQrCode";
 import { fetchPublicMonthlyReport } from "../../lib/monthlyReport";
 import type { PublicMonthlyReportData } from "../../types/monthlyReport.types";
 import type { SourceCandidature } from "../../types/candidature";
+import { getMonthlyReportUrl } from "../../utils/monthlyReportSnapshot";
 import { formatShareDate } from "../../utils/shareSnapshot";
 import "./PublicMonthlyReport.css";
 
@@ -35,6 +37,8 @@ function PublicMonthlyReport() {
     !token ? { status: "error", reason: "not_found" } : { status: "loading" }
   );
   const [openWeeks, setOpenWeeks] = useState<Record<string, boolean>>({});
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -72,6 +76,22 @@ function PublicMonthlyReport() {
     };
   }, []);
 
+  async function handleDownloadPdf() {
+    if (!token || state.status !== "ready") return;
+    setDownloading(true);
+    setDownloadError(null);
+    try {
+      const { downloadMonthlyReportPdf } = await import("../../utils/monthlyReportPdf");
+      await downloadMonthlyReportPdf(token, state.data);
+    } catch (err) {
+      setDownloadError(
+        err instanceof Error ? err.message : "Erreur lors du téléchargement"
+      );
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   if (state.status === "loading") {
     return (
       <div className="public-monthly-report">
@@ -102,6 +122,7 @@ function PublicMonthlyReport() {
   }
 
   const { data } = state;
+  const reportUrl = token ? getMonthlyReportUrl(token) : "";
 
   const sourcesSorted = (
     Object.entries(data.stats.repartitionSource) as [SourceCandidature, number][]
@@ -120,7 +141,21 @@ function PublicMonthlyReport() {
             <span className="public-monthly-report__brand-name">PlanMyJob</span>
             <span className="public-monthly-report__brand-tag">Bilan mensuel</span>
           </div>
+          <button
+            type="button"
+            className="public-monthly-report__pdf-btn"
+            onClick={() => void handleDownloadPdf()}
+            disabled={downloading}
+          >
+            {downloading ? "Génération…" : "Télécharger PDF"}
+          </button>
         </header>
+
+        {downloadError && (
+          <p className="public-monthly-report__download-error" role="alert">
+            {downloadError}
+          </p>
+        )}
 
         <section className="public-monthly-report__hero">
           <h1 className="public-monthly-report__title">{data.monthLabel}</h1>
@@ -228,6 +263,14 @@ function PublicMonthlyReport() {
               </ul>
             </>
           )}
+        </section>
+
+        <section className="public-monthly-report__share-card">
+          <ShareQrCode
+            url={reportUrl}
+            label="Scanner pour ouvrir le bilan"
+          />
+          <p className="public-monthly-report__share-url">{reportUrl}</p>
         </section>
 
         {data.publicNotes && (

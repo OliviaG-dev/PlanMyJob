@@ -135,8 +135,12 @@
 }
 
 .dashboard-monthly-reports__meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.22rem 0.55rem;
   font-size: 0.75rem;
+  line-height: 1.2;
   color: var(--text-muted);
   background: var(--primary-pale);
   border: 1px solid var(--border-light);
@@ -146,6 +150,38 @@
 .dashboard-monthly-reports__meta-chip time {
   font-weight: 600;
   color: var(--text);
+}
+
+.dashboard-monthly-reports__meta-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+.dashboard-monthly-reports__meta-chip--created {
+  background: rgba(183, 110, 121, 0.1);
+  border-color: rgba(183, 110, 121, 0.2);
+}
+
+.dashboard-monthly-reports__meta-chip--expiry {
+  background: rgba(155, 139, 142, 0.12);
+  border-color: rgba(155, 139, 142, 0.22);
+}
+
+.dashboard-monthly-reports__meta-chip--expiry
+  .dashboard-monthly-reports__meta-icon {
+  color: var(--accent);
+}
+
+.dashboard-monthly-reports__meta-chip--never {
+  background: var(--background-subtle);
+  border-color: var(--border);
+}
+
+.dashboard-monthly-reports__meta-chip--never
+  .dashboard-monthly-reports__meta-icon {
+  color: var(--primary-soft);
 }
 
 .dashboard-monthly-reports__actions {

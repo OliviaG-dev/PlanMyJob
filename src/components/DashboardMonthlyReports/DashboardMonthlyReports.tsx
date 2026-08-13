@@ -8,10 +8,7 @@ import {
 import { useMonthlyReports } from "../../hooks/useMonthlyReports";
 import type { ShareDuration } from "../../types/monthlyReport.types";
 import { MONTH_LABELS } from "../../utils/dateWeek";
-import {
-  formatShareDateNumeric,
-  formatShareExpiryNumeric,
-} from "../../utils/shareSnapshot";
+import { formatShareDateNumeric } from "../../utils/shareSnapshot";
 import { getMonthlyReportUrl } from "../../utils/monthlyReportSnapshot";
 import { formatShareError } from "../../utils/shareErrors";
 import "./DashboardMonthlyReports.css";
@@ -25,6 +22,60 @@ const DURATION_OPTIONS: { value: ShareDuration; label: string }[] = [
 type DashboardMonthlyReportsProps = {
   userId: string;
 };
+
+function CalendarIcon() {
+  return (
+    <svg
+      className="dashboard-monthly-reports__meta-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg
+      className="dashboard-monthly-reports__meta-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </svg>
+  );
+}
+
+function InfinityIcon() {
+  return (
+    <svg
+      className="dashboard-monthly-reports__meta-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M12 12c-2-2.5-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.5 6-4" />
+      <path d="M12 12c2 2.5 4 4 6 4a4 4 0 1 0 0-8c-2 0-4 1.5-6 4" />
+    </svg>
+  );
+}
 
 function DashboardMonthlyReports({ userId }: DashboardMonthlyReportsProps) {
   const now = new Date();
@@ -226,14 +277,35 @@ function DashboardMonthlyReports({ userId }: DashboardMonthlyReportsProps) {
                     {report.monthLabel}
                   </p>
                   <div className="dashboard-monthly-reports__meta">
-                    <span className="dashboard-monthly-reports__meta-chip">
-                      Créé le{" "}
-                      <time dateTime={report.createdAt}>
-                        {formatShareDateNumeric(report.createdAt)}
-                      </time>
+                    <span className="dashboard-monthly-reports__meta-chip dashboard-monthly-reports__meta-chip--created">
+                      <CalendarIcon />
+                      <span>
+                        Créé le{" "}
+                        <time dateTime={report.createdAt}>
+                          {formatShareDateNumeric(report.createdAt)}
+                        </time>
+                      </span>
                     </span>
-                    <span className="dashboard-monthly-reports__meta-chip">
-                      {formatShareExpiryNumeric(report.expiresAt)}
+                    <span
+                      className={`dashboard-monthly-reports__meta-chip dashboard-monthly-reports__meta-chip--expiry${
+                        report.expiresAt
+                          ? ""
+                          : " dashboard-monthly-reports__meta-chip--never"
+                      }`}
+                    >
+                      {report.expiresAt ? <ClockIcon /> : <InfinityIcon />}
+                      <span>
+                        {report.expiresAt ? (
+                          <>
+                            Expire le{" "}
+                            <time dateTime={report.expiresAt}>
+                              {formatShareDateNumeric(report.expiresAt)}
+                            </time>
+                          </>
+                        ) : (
+                          "Sans expiration"
+                        )}
+                      </span>
                     </span>
                   </div>
                 </div>
