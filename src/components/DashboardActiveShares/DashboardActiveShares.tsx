@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { revokeShare } from "../../lib/share";
 import { useActiveShares } from "../../hooks/useActiveShares";
+import ConfirmModal from "../ConfirmModal/ConfirmModal";
+import { Pagination } from "../Pagination/Pagination";
 import {
   formatShareDateNumeric,
   getShareUrl,
@@ -10,6 +12,13 @@ import "./DashboardActiveShares.css";
 
 type DashboardActiveSharesProps = {
   userId: string;
+};
+
+const LINKS_PAGE_SIZE = 2;
+
+type RevokeTarget = {
+  id: string;
+  label: string;
 };
 
 function CalendarIcon() {
@@ -70,7 +79,26 @@ function DashboardActiveShares({ userId }: DashboardActiveSharesProps) {
   const { shares, loading, error, reload } = useActiveShares(userId);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<RevokeTarget | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [listPage, setListPage] = useState(0);
+
+  const totalListPages = Math.max(1, Math.ceil(shares.length / LINKS_PAGE_SIZE));
+  const safeListPage = Math.min(listPage, totalListPages - 1);
+
+  useEffect(() => {
+    const maxPage = Math.max(0, Math.ceil(shares.length / LINKS_PAGE_SIZE) - 1);
+    setListPage((page) => Math.min(page, maxPage));
+  }, [shares.length]);
+
+  const visibleShares = useMemo(
+    () =>
+      shares.slice(
+        safeListPage * LINKS_PAGE_SIZE,
+        safeListPage * LINKS_PAGE_SIZE + LINKS_PAGE_SIZE
+      ),
+    [shares, safeListPage]
+  );
 
   async function handleCopy(shareId: string, token: string) {
     setActionError(null);
@@ -83,12 +111,14 @@ function DashboardActiveShares({ userId }: DashboardActiveSharesProps) {
     }
   }
 
-  async function handleRevoke(shareId: string) {
-    setRevokingId(shareId);
+  async function handleRevokeConfirm() {
+    if (!revokeTarget) return;
+    setRevokingId(revokeTarget.id);
     setActionError(null);
     try {
-      await revokeShare(shareId);
+      await revokeShare(revokeTarget.id);
       await reload();
+      setRevokeTarget(null);
     } catch (err) {
       setActionError(formatShareError(err));
     } finally {
@@ -100,7 +130,7 @@ function DashboardActiveShares({ userId }: DashboardActiveSharesProps) {
     <section className="dashboard__block dashboard-active-shares">
       <h2 className="dashboard__block-title">Liens de partage actifs</h2>
       <p className="dashboard__block-desc">
-        Consultez, copiez ou révoquez vos liens publics de candidature.
+        Consultez, copiez ou désactivez vos liens publics de candidature.
       </p>
 
       {actionError && (
@@ -120,8 +150,9 @@ function DashboardActiveShares({ userId }: DashboardActiveSharesProps) {
           Aucun lien actif. Créez un partage depuis une fiche candidature.
         </p>
       ) : (
+        <>
         <ul className="dashboard-active-shares__list">
-          {shares.map((share) => {
+          {visibleShares.map((share) => {
             const shareUrl = getShareUrl(share.token);
             return (
               <li key={share.id} className="dashboard-active-shares__item">
@@ -186,18 +217,46 @@ function DashboardActiveShares({ userId }: DashboardActiveSharesProps) {
                   </button>
                   <button
                     type="button"
-                    className="dashboard-active-shares__btn dashboard-active-shares__btn--revoke"
-                    onClick={() => handleRevoke(share.id)}
+                    className="dashboard-active-shares__btn dashboard-active-shares__btn--deactivate"
+                    onClick={() =>
+                      setRevokeTarget({
+                        id: share.id,
+                        label: `${share.entreprise} · ${share.poste}`,
+                      })
+                    }
                     disabled={revokingId === share.id}
                   >
-                    {revokingId === share.id ? "…" : "Révoquer"}
+                    {revokingId === share.id ? "…" : "Désactiver"}
                   </button>
                 </div>
               </li>
             );
           })}
         </ul>
+        <Pagination
+          currentPage={safeListPage}
+          totalPages={totalListPages}
+          onPageChange={setListPage}
+          ariaLabel="Pagination des liens de partage actifs"
+        />
+        </>
       )}
+
+      <ConfirmModal
+        isOpen={revokeTarget !== null}
+        title="Désactiver ce lien ?"
+        message={
+          revokeTarget
+            ? `Le lien « ${revokeTarget.label} » ne sera plus accessible.`
+            : ""
+        }
+        confirmLabel="Désactiver le lien"
+        loading={revokingId !== null}
+        onConfirm={() => void handleRevokeConfirm()}
+        onCancel={() => {
+          if (!revokingId) setRevokeTarget(null);
+        }}
+      />
     </section>
   );
 }

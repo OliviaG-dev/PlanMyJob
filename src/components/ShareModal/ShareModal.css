@@ -120,6 +120,19 @@
 .share-modal__btn--primary:hover:not(:disabled) {
   background: var(--primary-soft);
   border-color: var(--primary-soft);
+  color: #fff;
+}
+
+[data-theme="dark"] .share-modal__btn--primary {
+  background: #9e5a66;
+  border-color: #9e5a66;
+  color: #fff;
+}
+
+[data-theme="dark"] .share-modal__btn--primary:hover:not(:disabled) {
+  background: #b76e79;
+  border-color: #b76e79;
+  color: #fff;
 }
 
 .share-modal__btn--secondary {
@@ -132,14 +145,29 @@
   background: var(--background-subtle);
 }
 
-.share-modal__btn--danger {
-  color: var(--error, #c62828);
-  background: rgba(198, 40, 40, 0.08);
-  border-color: rgba(198, 40, 40, 0.25);
+.share-modal__btn--deactivate {
+  color: var(--accent);
+  background: var(--surface);
+  border-color: var(--border);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.share-modal__btn--danger:hover:not(:disabled) {
-  background: rgba(198, 40, 40, 0.15);
+.share-modal__btn--deactivate:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--background-subtle);
+  border-color: var(--accent);
+}
+
+[data-theme="dark"] .share-modal__btn--deactivate {
+  color: var(--text-muted);
+  background: transparent;
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .share-modal__btn--deactivate:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--hover);
+  border-color: var(--accent);
 }
 
 .share-modal__btn--small {

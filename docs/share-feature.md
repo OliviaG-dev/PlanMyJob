@@ -24,7 +24,19 @@ Cela crée :
 4. Optionnel : ajouter des notes publiques
 5. Copier le lien `https://…/share/<token>`
 
-La page publique affiche un snapshot figé, une timeline, un QR code et permet de télécharger `PlanMyJob_Report.pdf`.
+La page publique affiche un snapshot figé, une timeline, un QR code et permet de télécharger `PlanMyJob_Report_*.pdf`.
+
+## Bilans mensuels (`/bilan/:token`)
+
+Migration additionnelle :
+
+```
+supabase/migrations/20260813140000_monthly_reports.sql
+```
+
+Puis recharger le schéma API : `NOTIFY pgrst, 'reload schema';`
+
+Création depuis le **Dashboard → Bilans mensuels**. Regénérer un mois désactive l'ancien token. Voir le README section « Partage de liens publics ».
 
 ## Dépannage — erreur 404 sur create_share
 

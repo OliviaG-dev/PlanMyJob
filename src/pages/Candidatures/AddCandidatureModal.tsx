@@ -86,7 +86,7 @@ const defaultFormData: AddCandidatureFormData = {
   source: "linkedin",
   notePersonnelle: 3,
   statutSuivi: "en_cours",
-  statut: "a_postuler",
+  statut: "cv_envoye",
   salaireOuFourchette: "",
   notes: "",
   competences: "",

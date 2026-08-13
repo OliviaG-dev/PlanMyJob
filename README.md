@@ -32,8 +32,8 @@ Ce découpage permet de garder des pages lisibles, une logique testable et une �
 
 ### Cœur (MVP)
 
-- **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes, localisation, type de contrat, télétravail, source, note personnelle. Liste paginée (3 par section), filtres (nom, télétravail, ville, note) avec icônes, drag & drop entre listes (En cours / Terminée / Refus).
-- **Fiche candidature** — Détail complet, badge de statut Kanban coloré (à postuler, offre, refus, etc.), **temporalité « CV envoyé »** : affichage du temps écoulé depuis le passage en statut « CV envoyé » (secondes, minutes, heures, jours, semaines, mois), bouton supprimer avec style rouge.
+- **Candidatures** — Entreprise, poste, lien offre, statut, date, priorité, notes, localisation, type de contrat, télétravail, source, note personnelle. Liste paginée (3 par section), filtres (nom, télétravail, ville, note) avec icônes, drag & drop entre listes (En cours / Terminée / Refus). **Nouvelle candidature** : statut par défaut **CV envoyé**.
+- **Fiche candidature** — Détail complet, badge de statut Kanban coloré (à postuler, offre, refus, etc.), **temporalité « CV envoyé »** : affichage du temps écoulé depuis le passage en statut « CV envoyé » (secondes, minutes, heures, jours, semaines, mois), bouton supprimer avec style rouge, **partage par lien public** (modal Partager).
 - **Kanban** — Colonnes (À postuler → CV envoyé → Entretien RH → Entretien technique → Attente de réponse → Refus → Sans réponse → Offre), drag & drop pour changer le statut, pagination par colonne, badge de comptage centré par colonne. Les colonnes **Refus / Sans réponse / Offre** utilisent des cartes compactes carrées.
 - **Automatisation Kanban** — Au chargement de la page Kanban, une candidature restée en `cv_envoye` depuis plus de 15 jours (basé sur `cvEnvoyeAt`) est automatiquement déplacée en `sans_reponse`.
 - **Planning** — Calendrier mensuel avec navigation mois précédent/suivant + bouton « Aujourd'hui ». Affichage des événements par jour : Nouvelle candidature, CV envoyé, Entretien RH, Entretien technique, Attente de réponse, Refus (couleurs distinctes). Clic sur une journée : modal avec liste des événements et liens vers les fiches candidature.
@@ -44,7 +44,37 @@ Ce découpage permet de garder des pages lisibles, une logique testable et une �
 - **Stats** — Candidatures (envoyées, en cours, entretiens), taux de conversion, organisation par statut.
 - **Répartition** — Liste par statut (inclut **Sans réponse**, même à 0) + graphique donut (répartition des candidatures).
 - **Objectifs & motivation** — Objectifs candidatures (semaine et mois) réglables dans Paramètres, jours depuis la dernière candidature, sites d'emploi utilisés.
+- **Liens de partage actifs** — Liste paginée (2 par page) des liens publics de candidature encore actifs : voir, copier, **désactiver** (avec confirmation).
+- **Bilans mensuels** — Sélecteur de mois, génération ou regénération d'un lien public avec stats + détail semaine par semaine ; liste paginée des bilans actifs.
 - Thème et design alignés avec le reste de l'app (stat-cards, couleurs primary).
+
+### Partage de liens publics
+
+Liens en **lecture seule**, snapshot **figé** à la création (pas de données live). Idéal pour France Travail, un recruteur ou un coach.
+
+#### Rapport de candidature (`/share/:token`)
+
+- **Création** — Depuis la fiche candidature : bouton **Partager**, durée (24 h, 7 j, 30 j, jamais), notes publiques optionnelles.
+- **Page publique** — Entreprise, poste, statut, informations, timeline, notes ; **QR code** et **téléchargement PDF** (`PlanMyJob_Report_*.pdf`).
+- **Gestion** — Dashboard « Liens de partage actifs », modal Partager (liens existants), **désactivation** avec modal de confirmation.
+
+#### Bilan mensuel (`/bilan/:token`)
+
+- **Création** — Dashboard « Bilans mensuels » : choix du mois, durée du lien (7 j, 30 j, jamais), **Générer le bilan** (ou **Regénérer** — l'ancien lien est alors désactivé).
+- **Contenu figé** — Stats du mois (envoyées, en cours, entretiens, offres reçues, taux refus / sans réponse, répartition par source), candidatures **semaine par semaine** (accordéons sur la page web).
+- **Mois en cours** — Bilan **partiel** jusqu'à la date du jour.
+- **Page publique** — Même esprit visuel que l'app (rose/beige), QR code, export PDF (`PlanMyJob_Bilan_*.pdf`).
+- **Gestion** — Liste paginée sur le dashboard, copie du lien, désactivation confirmée.
+
+#### Migrations Supabase requises
+
+Exécuter dans l'ordre (SQL Editor), puis `NOTIFY pgrst, 'reload schema';` :
+
+1. `supabase/migrations/20260813120000_shares.sql`
+2. `supabase/migrations/20260813130000_shares_insert_policy.sql` (recommandé)
+3. `supabase/migrations/20260813140000_monthly_reports.sql`
+
+Dépannage détaillé : [`docs/share-feature.md`](docs/share-feature.md).
 
 ### Avancé
 
@@ -79,8 +109,9 @@ Ce découpage permet de garder des pages lisibles, une logique testable et une �
 
 - **React 19** + **TypeScript**
 - **Vite 7**
-- **React Router** (pages : dashboard, candidatures, analyse, kanban, planning, tâches, ressources, paramètres, login, inscription, mot de passe oublié, réinitialisation mot de passe, 404)
-- **Supabase** (persistance des données, authentification ; tables : candidatures, tâches, cv_ressources, job_sites, user_job_site_status, projets)
+- **React Router** (pages : dashboard, candidatures, analyse, kanban, planning, tâches, ressources, paramètres, login, inscription, mot de passe oublié, réinitialisation mot de passe, **partage public**, **bilan mensuel public**, 404)
+- **Supabase** (persistance des données, authentification ; tables : candidatures, tâches, cv_ressources, job_sites, user_job_site_status, projets, **shares**, **monthly_reports**)
+- **jsPDF** + **qrcode** — Export PDF et QR code côté client (pages publiques de partage)
 - **localStorage** (objectifs hebdo/mois par utilisateur, voir `src/lib/userGoals.ts`)
 
 ---
@@ -95,22 +126,30 @@ src/
 ├── lib/             # Supabase client, candidatures, taches, cvRessources, jobSites, projets, offerAnalyzer, userGoals
 ├── data/            # Données statiques (whyCompanyTemplates.json, interface.ts)
 ├── contexts/        # AuthContext, ThemeContext
-├── components/      # Layout, Sidebar, Pagination, Select, CandidaturesFilters, Loader
+├── components/      # Layout, Sidebar, Pagination, Select, CandidaturesFilters, Loader, ShareModal, ConfirmModal…
 │   ├── Layout/
 │   ├── Sidebar/
 │   ├── Pagination/
 │   ├── Select/           # Menu déroulant réutilisable (filtres, formulaire)
 │   ├── CandidaturesFilters/
+│   ├── ConfirmModal/     # Confirmation (ex. désactivation d'un lien)
+│   ├── DashboardActiveShares/
+│   ├── DashboardMonthlyReports/
+│   ├── ShareCandidatureCard/
+│   ├── ShareModal/       # Création / gestion des liens candidature
+│   ├── ShareQrCode/
 │   └── Loader/           # Spinner de chargement réutilisable (plein écran ou inline)
 ├── pages/
 │   ├── Dashboard/
 │   ├── Candidatures/      # Liste + AddCandidatureModal + filtres + pagination
-│   ├── CandidatureDetail/ # Détail + badges statut + temporalité CV envoyé
+│   ├── CandidatureDetail/ # Détail + badges statut + temporalité CV envoyé + partage
 │   ├── Analyse/           # Analyse d'offre d'emploi (extraction + création candidature)
 │   ├── Kanban/
 │   ├── Planning/         # Calendrier mensuel + événements candidatures
 │   ├── Taches/           # Todo par semaine ISO (accordéon, priorités)
 │   ├── OutilsPostulations/  # Ressources : CV, sites d'emploi, générateur lettre, Mes projets
+│   ├── PublicShare/       # Page publique rapport candidature (/share/:token)
+│   ├── PublicMonthlyReport/  # Page publique bilan mensuel (/bilan/:token)
 │   ├── Settings/    # Compte (changer mot de passe, déconnexion), Apparence, Objectifs
 │   ├── Login/
 │   ├── Signup/
@@ -231,11 +270,22 @@ npx vitest
 | `/taches`           | Tâches                        |
 | `/ressources`       | Ressources                    |
 | `/settings`         | Paramètres                    |
+| `/share/:token`     | Rapport public de candidature (lecture seule, sans auth) |
+| `/bilan/:token`     | Bilan mensuel public (lecture seule, sans auth) |
 | `/login`            | Connexion                     |
 | `/signup`           | Inscription                   |
 | `/forgot-password`  | Mot de passe oublié           |
 | `/reset-password`   | Réinitialisation du mot de passe (après clic sur le lien email) |
 | `*`                 | Page 404 (toute URL non reconnue)                              |
+
+---
+
+## Documentation
+
+| Ressource | Contenu |
+| --------- | ------- |
+| [`docs/share-feature.md`](docs/share-feature.md) | Partage candidature — migrations Supabase, dépannage |
+| [`.devbook/`](.devbook/index.md) | Notes d'apprentissage technique (Dev Book) — liens publics, PDF, QR code |
 
 ---
 
