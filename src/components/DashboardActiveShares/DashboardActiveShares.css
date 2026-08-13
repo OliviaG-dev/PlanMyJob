@@ -151,11 +151,24 @@
   color: #fff;
   background: var(--primary);
   border-color: var(--primary);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .dashboard-active-shares__btn--view:hover {
   background: var(--primary-soft);
   border-color: var(--primary-soft);
+  color: #fff;
+}
+
+[data-theme="dark"] .dashboard-active-shares__btn--view {
+  background: #9e5a66;
+  border-color: #9e5a66;
+  color: #fff;
+}
+
+[data-theme="dark"] .dashboard-active-shares__btn--view:hover {
+  background: #b76e79;
+  border-color: #b76e79;
   color: #fff;
 }
 
@@ -167,16 +180,33 @@
 
 .dashboard-active-shares__btn--copy:hover:not(:disabled) {
   background: var(--background-subtle);
+  border-color: var(--border);
+  color: var(--text);
 }
 
-.dashboard-active-shares__btn--revoke {
-  color: var(--error, #c62828);
-  background: rgba(198, 40, 40, 0.08);
-  border-color: rgba(198, 40, 40, 0.25);
+.dashboard-active-shares__btn--deactivate {
+  color: var(--accent);
+  background: var(--surface);
+  border-color: var(--border);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.dashboard-active-shares__btn--revoke:hover:not(:disabled) {
-  background: rgba(198, 40, 40, 0.15);
+.dashboard-active-shares__btn--deactivate:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--background-subtle);
+  border-color: var(--accent);
+}
+
+[data-theme="dark"] .dashboard-active-shares__btn--deactivate {
+  color: var(--text-muted);
+  background: transparent;
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .dashboard-active-shares__btn--deactivate:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--hover);
+  border-color: var(--accent);
 }
 
 @media (min-width: 640px) {

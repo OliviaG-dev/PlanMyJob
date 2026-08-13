@@ -68,7 +68,11 @@ describe("AddCandidatureModal", () => {
     fireEvent.submit(form);
 
     expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ entreprise: "ACME", poste: "Dev Front" }),
+      expect.objectContaining({
+        entreprise: "ACME",
+        poste: "Dev Front",
+        statut: "cv_envoye",
+      }),
     );
     expect(onClose).toHaveBeenCalled();
   });

@@ -9,6 +9,7 @@ import {
 } from "../../lib/share";
 import { getShareUrl } from "../../utils/shareSnapshot";
 import { formatShareError } from "../../utils/shareErrors";
+import ConfirmModal from "../ConfirmModal/ConfirmModal";
 import "./ShareModal.css";
 
 const DURATION_OPTIONS: { value: ShareDuration; label: string }[] = [
@@ -36,6 +37,7 @@ function ShareModal({ isOpen, onClose, candidature, userId }: ShareModalProps) {
   const [existingShares, setExistingShares] = useState<ShareRecord[]>([]);
   const [loadingShares, setLoadingShares] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [revokeTargetId, setRevokeTargetId] = useState<string | null>(null);
 
   const loadShares = useCallback(async () => {
     setLoadingShares(true);
@@ -88,12 +90,14 @@ function ShareModal({ isOpen, onClose, candidature, userId }: ShareModalProps) {
     }
   }
 
-  async function handleRevoke(shareId: string) {
-    setRevokingId(shareId);
+  async function handleRevokeConfirm() {
+    if (!revokeTargetId) return;
+    setRevokingId(revokeTargetId);
     setError(null);
     try {
-      await revokeShare(shareId);
+      await revokeShare(revokeTargetId);
       await loadShares();
+      setRevokeTargetId(null);
     } catch (err) {
       setError(formatShareError(err));
     } finally {
@@ -256,11 +260,11 @@ function ShareModal({ isOpen, onClose, candidature, userId }: ShareModalProps) {
                       </button>
                       <button
                         type="button"
-                        className="share-modal__btn share-modal__btn--danger share-modal__btn--small"
-                        onClick={() => handleRevoke(share.id)}
+                        className="share-modal__btn share-modal__btn--deactivate share-modal__btn--small"
+                        onClick={() => setRevokeTargetId(share.id)}
                         disabled={revokingId === share.id}
                       >
-                        {revokingId === share.id ? "…" : "Révoquer"}
+                        {revokingId === share.id ? "…" : "Désactiver"}
                       </button>
                     </div>
                   </li>
@@ -270,6 +274,18 @@ function ShareModal({ isOpen, onClose, candidature, userId }: ShareModalProps) {
           )}
         </section>
       </div>
+
+      <ConfirmModal
+        isOpen={revokeTargetId !== null}
+        title="Désactiver ce lien ?"
+        message="Ce lien public ne sera plus accessible."
+        confirmLabel="Désactiver le lien"
+        loading={revokingId !== null}
+        onConfirm={() => void handleRevokeConfirm()}
+        onCancel={() => {
+          if (!revokingId) setRevokeTargetId(null);
+        }}
+      />
     </div>
   );
 }

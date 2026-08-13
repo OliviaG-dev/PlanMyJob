@@ -27,7 +27,7 @@ type PageState =
 const ERROR_MESSAGES = {
   not_found: "Ce lien de bilan mensuel est introuvable ou n'existe plus.",
   expired: "Ce lien de bilan mensuel a expiré.",
-  revoked: "Ce lien de bilan mensuel a été révoqué.",
+  revoked: "Ce lien de bilan mensuel a été désactivé.",
   fetch: "Impossible de charger le bilan. Réessayez plus tard.",
 };
 

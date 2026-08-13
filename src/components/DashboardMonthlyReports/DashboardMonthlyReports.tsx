@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   createMonthlyReport,
   fetchActiveMonthlyReportForPeriod,
@@ -6,6 +6,8 @@ import {
   revokeMonthlyReport,
 } from "../../lib/monthlyReport";
 import { useMonthlyReports } from "../../hooks/useMonthlyReports";
+import ConfirmModal from "../ConfirmModal/ConfirmModal";
+import { Pagination } from "../Pagination/Pagination";
 import type { ShareDuration } from "../../types/monthlyReport.types";
 import { MONTH_LABELS } from "../../utils/dateWeek";
 import { formatShareDateNumeric } from "../../utils/shareSnapshot";
@@ -18,6 +20,13 @@ const DURATION_OPTIONS: { value: ShareDuration; label: string }[] = [
   { value: "30d", label: "30 jours" },
   { value: "never", label: "Jamais" },
 ];
+
+const LINKS_PAGE_SIZE = 2;
+
+type RevokeTarget = {
+  id: string;
+  label: string;
+};
 
 type DashboardMonthlyReportsProps = {
   userId: string;
@@ -77,6 +86,27 @@ function InfinityIcon() {
   );
 }
 
+function MonthNavChevron({ direction }: { direction: "prev" | "next" }) {
+  return (
+    <svg
+      className="dashboard-monthly-reports__nav-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {direction === "prev" ? (
+        <path d="M15 6l-6 6 6 6" />
+      ) : (
+        <path d="M9 6l6 6-6 6" />
+      )}
+    </svg>
+  );
+}
+
 function DashboardMonthlyReports({ userId }: DashboardMonthlyReportsProps) {
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
@@ -85,9 +115,28 @@ function DashboardMonthlyReports({ userId }: DashboardMonthlyReportsProps) {
   const [creating, setCreating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<RevokeTarget | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [listPage, setListPage] = useState(0);
 
   const { reports, loading, error, reload } = useMonthlyReports(userId);
+
+  const totalListPages = Math.max(1, Math.ceil(reports.length / LINKS_PAGE_SIZE));
+  const safeListPage = Math.min(listPage, totalListPages - 1);
+
+  useEffect(() => {
+    const maxPage = Math.max(0, Math.ceil(reports.length / LINKS_PAGE_SIZE) - 1);
+    setListPage((page) => Math.min(page, maxPage));
+  }, [reports.length]);
+
+  const visibleReports = useMemo(
+    () =>
+      reports.slice(
+        safeListPage * LINKS_PAGE_SIZE,
+        safeListPage * LINKS_PAGE_SIZE + LINKS_PAGE_SIZE
+      ),
+    [reports, safeListPage]
+  );
 
   const selectedLabel = useMemo(
     () => `${MONTH_LABELS[selectedMonth]} ${selectedYear}`,
@@ -174,12 +223,14 @@ function DashboardMonthlyReports({ userId }: DashboardMonthlyReportsProps) {
     }
   }
 
-  async function handleRevoke(reportId: string) {
-    setRevokingId(reportId);
+  async function handleRevokeConfirm() {
+    if (!revokeTarget) return;
+    setRevokingId(revokeTarget.id);
     setActionError(null);
     try {
-      await revokeMonthlyReport(reportId);
+      await revokeMonthlyReport(revokeTarget.id);
       await reload();
+      setRevokeTarget(null);
     } catch (err) {
       setActionError(formatShareError(err));
     } finally {
@@ -201,7 +252,7 @@ function DashboardMonthlyReports({ userId }: DashboardMonthlyReportsProps) {
           onClick={goToPreviousMonth}
           aria-label="Mois précédent"
         >
-          ◀
+          <MonthNavChevron direction="prev" />
         </button>
         <span className="dashboard-monthly-reports__period">{selectedLabel}</span>
         <button
@@ -211,7 +262,7 @@ function DashboardMonthlyReports({ userId }: DashboardMonthlyReportsProps) {
           disabled={!canGoNext}
           aria-label="Mois suivant"
         >
-          ▶
+          <MonthNavChevron direction="next" />
         </button>
       </div>
 
@@ -267,8 +318,9 @@ function DashboardMonthlyReports({ userId }: DashboardMonthlyReportsProps) {
           Aucun bilan actif. Sélectionnez un mois puis générez un lien.
         </p>
       ) : (
+        <>
         <ul className="dashboard-monthly-reports__list">
-          {reports.map((report) => {
+          {visibleReports.map((report) => {
             const reportUrl = getMonthlyReportUrl(report.token);
             return (
               <li key={report.id} className="dashboard-monthly-reports__item">
@@ -327,18 +379,46 @@ function DashboardMonthlyReports({ userId }: DashboardMonthlyReportsProps) {
                   </button>
                   <button
                     type="button"
-                    className="dashboard-monthly-reports__btn dashboard-monthly-reports__btn--revoke"
-                    onClick={() => void handleRevoke(report.id)}
+                    className="dashboard-monthly-reports__btn dashboard-monthly-reports__btn--deactivate"
+                    onClick={() =>
+                      setRevokeTarget({
+                        id: report.id,
+                        label: report.monthLabel,
+                      })
+                    }
                     disabled={revokingId === report.id}
                   >
-                    {revokingId === report.id ? "…" : "Révoquer"}
+                    {revokingId === report.id ? "…" : "Désactiver"}
                   </button>
                 </div>
               </li>
             );
           })}
         </ul>
+        <Pagination
+          currentPage={safeListPage}
+          totalPages={totalListPages}
+          onPageChange={setListPage}
+          ariaLabel="Pagination des bilans mensuels"
+        />
+        </>
       )}
+
+      <ConfirmModal
+        isOpen={revokeTarget !== null}
+        title="Désactiver ce bilan ?"
+        message={
+          revokeTarget
+            ? `Le lien « ${revokeTarget.label} » ne sera plus accessible.`
+            : ""
+        }
+        confirmLabel="Désactiver le bilan"
+        loading={revokingId !== null}
+        onConfirm={() => void handleRevokeConfirm()}
+        onCancel={() => {
+          if (!revokingId) setRevokeTarget(null);
+        }}
+      />
     </section>
   );
 }

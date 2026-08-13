@@ -19,7 +19,7 @@ type PageState =
 const ERROR_MESSAGES = {
   not_found: "Ce lien de partage est introuvable ou n'existe plus.",
   expired: "Ce lien de partage a expiré.",
-  revoked: "Ce lien de partage a été révoqué.",
+  revoked: "Ce lien de partage a été désactivé.",
   fetch: "Impossible de charger le rapport. Réessayez plus tard.",
 };
 
