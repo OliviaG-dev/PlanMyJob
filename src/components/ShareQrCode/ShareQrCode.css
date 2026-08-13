@@ -1,0 +1,48 @@
+.share-qr {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.share-qr__image {
+  width: 180px;
+  height: 180px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 0.5rem;
+}
+
+.share-qr__placeholder {
+  width: 180px;
+  height: 180px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--background-subtle);
+  animation: share-qr-pulse 1.2s ease-in-out infinite;
+}
+
+.share-qr__label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.share-qr__error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--error, #c62828);
+  text-align: center;
+}
+
+@keyframes share-qr-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}

@@ -172,6 +172,17 @@
   border-color: var(--primary-soft);
 }
 
+.candidature-detail__btn--share {
+  border-color: var(--primary);
+  color: #fff;
+  background: var(--primary);
+}
+
+.candidature-detail__btn--share:hover:not(:disabled) {
+  background: var(--primary-soft);
+  border-color: var(--primary-soft);
+}
+
 .candidature-detail__btn--delete {
   border-color: #b71c1c;
   color: #b71c1c;

@@ -8,6 +8,7 @@ import {
 } from "../../lib/candidatures";
 import type { AddCandidatureFormData } from "../../types/candidatureForm.types";
 import AddCandidatureModal from "../Candidatures/AddCandidatureModal";
+import ShareModal from "../../components/ShareModal/ShareModal";
 import type {
   Candidature,
   Statut,
@@ -192,6 +193,7 @@ function CandidatureDetail() {
     error: null,
   });
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -466,6 +468,13 @@ function CandidatureDetail() {
       <div className="candidature-detail__actions">
         <button
           type="button"
+          className="candidature-detail__btn candidature-detail__btn--share"
+          onClick={() => setShareModalOpen(true)}
+        >
+          Partager
+        </button>
+        <button
+          type="button"
           className="candidature-detail__btn candidature-detail__btn--edit"
           onClick={() => setEditModalOpen(true)}
         >
@@ -547,6 +556,15 @@ function CandidatureDetail() {
         mode="edit"
         initialData={candidatureToFormData(candidature)}
       />
+
+      {user?.id && (
+        <ShareModal
+          isOpen={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          candidature={candidature}
+          userId={user.id}
+        />
+      )}
     </main>
   );
 }
