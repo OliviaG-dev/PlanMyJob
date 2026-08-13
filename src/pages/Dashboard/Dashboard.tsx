@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import DashboardDonutChart, {
   type DonutSegment,
 } from "../../components/DashboardDonutChart/DashboardDonutChart";
+import DashboardActiveShares from "../../components/DashboardActiveShares/DashboardActiveShares";
 import { useAuth } from "../../contexts/AuthContext";
 import { useDashboardData } from "../../hooks/useDashboardData";
 import type { SourceCandidature, Statut, TypeContrat } from "../../types/candidature";
@@ -288,6 +289,8 @@ function Dashboard() {
           </div>
         </div>
       </section>
+
+      {user?.id && <DashboardActiveShares userId={user.id} />}
       </div>
     </main>
   );

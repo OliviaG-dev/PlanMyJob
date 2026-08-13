@@ -45,3 +45,8 @@ export type ShareRecord = {
   createdAt: string;
   candidatureId: string;
 };
+
+export type ActiveShareSummary = ShareRecord & {
+  entreprise: string;
+  poste: string;
+};

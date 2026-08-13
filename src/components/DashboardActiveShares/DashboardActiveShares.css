@@ -1,0 +1,193 @@
+.dashboard-active-shares__muted {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.dashboard-active-shares__error {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--error, #c62828);
+  background: rgba(198, 40, 40, 0.08);
+  border-radius: var(--radius-sm);
+}
+
+.dashboard-active-shares__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dashboard-active-shares__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dashboard-active-shares__item:hover {
+  border-color: var(--primary-soft);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-active-shares__info {
+  min-width: 0;
+}
+
+.dashboard-active-shares__title {
+  margin: 0 0 0.2rem;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-active-shares__company {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dashboard-active-shares__separator {
+  margin: 0 0.35rem;
+  color: var(--text-muted);
+}
+
+.dashboard-active-shares__role {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.dashboard-active-shares__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.dashboard-active-shares__meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.55rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: var(--text-muted);
+  background: var(--primary-pale);
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+}
+
+.dashboard-active-shares__meta-chip time {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dashboard-active-shares__meta-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+.dashboard-active-shares__meta-chip--created {
+  background: rgba(183, 110, 121, 0.1);
+  border-color: rgba(183, 110, 121, 0.2);
+}
+
+.dashboard-active-shares__meta-chip--expiry {
+  background: rgba(155, 139, 142, 0.12);
+  border-color: rgba(155, 139, 142, 0.22);
+}
+
+.dashboard-active-shares__meta-chip--expiry .dashboard-active-shares__meta-icon {
+  color: var(--accent);
+}
+
+.dashboard-active-shares__meta-chip--never {
+  background: var(--background-subtle);
+  border-color: var(--border);
+}
+
+.dashboard-active-shares__meta-chip--never .dashboard-active-shares__meta-icon {
+  color: var(--primary-soft);
+}
+
+.dashboard-active-shares__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dashboard-active-shares__btn {
+  padding: 0.35rem 0.7rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.dashboard-active-shares__btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.dashboard-active-shares__btn--view {
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.dashboard-active-shares__btn--view:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary-soft);
+  color: #fff;
+}
+
+.dashboard-active-shares__btn--copy {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.dashboard-active-shares__btn--copy:hover:not(:disabled) {
+  background: var(--background-subtle);
+}
+
+.dashboard-active-shares__btn--revoke {
+  color: var(--error, #c62828);
+  background: rgba(198, 40, 40, 0.08);
+  border-color: rgba(198, 40, 40, 0.25);
+}
+
+.dashboard-active-shares__btn--revoke:hover:not(:disabled) {
+  background: rgba(198, 40, 40, 0.15);
+}
+
+@media (min-width: 640px) {
+  .dashboard-active-shares__item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .dashboard-active-shares__actions {
+    flex-shrink: 0;
+  }
+}

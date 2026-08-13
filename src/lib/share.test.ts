@@ -10,6 +10,7 @@ vi.mock("./supabase", () => ({
 import { supabase } from "./supabase";
 import {
   createShare,
+  fetchActiveSharesForUser,
   fetchPublicShare,
   fetchSharesForCandidature,
   isShareActive,
@@ -116,6 +117,39 @@ describe("share lib", () => {
     const shares = await fetchSharesForCandidature("u1", "c1");
     expect(shares).toHaveLength(1);
     expect(shares[0].token).toBe("tok");
+  });
+
+  it("fetchActiveSharesForUser maps snapshot and filters expired", async () => {
+    const query = makeQuery();
+    query.order.mockResolvedValue({
+      data: [
+        {
+          id: "s1",
+          token: "active",
+          expires_at: null,
+          revoked_at: null,
+          created_at: "2026-08-13T00:00:00.000Z",
+          candidature_id: "c1",
+          snapshot: { entreprise: "ACME", poste: "Dev" },
+        },
+        {
+          id: "s2",
+          token: "expired",
+          expires_at: "2020-01-01T00:00:00.000Z",
+          revoked_at: null,
+          created_at: "2020-01-01T00:00:00.000Z",
+          candidature_id: "c2",
+          snapshot: { entreprise: "Old", poste: "Past" },
+        },
+      ],
+      error: null,
+    });
+    vi.mocked(supabase.from).mockReturnValue(query as never);
+
+    const shares = await fetchActiveSharesForUser("u1");
+    expect(shares).toHaveLength(1);
+    expect(shares[0].entreprise).toBe("ACME");
+    expect(shares[0].poste).toBe("Dev");
   });
 
   it("revokeShare updates revoked_at", async () => {

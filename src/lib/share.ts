@@ -6,9 +6,11 @@ import {
 } from "../utils/shareSnapshot";
 import type { Candidature } from "../types/candidature";
 import type {
+  ActiveShareSummary,
   CreateShareResult,
   PublicShareData,
   PublicShareError,
+  PublicShareSnapshot,
   ShareDuration,
   ShareRecord,
 } from "../types/share.types";
@@ -21,6 +23,7 @@ type ShareRow = {
   revoked_at: string | null;
   created_at: string;
   candidature_id: string;
+  snapshot?: PublicShareSnapshot;
 };
 
 type CreateShareRow = {
@@ -122,6 +125,29 @@ export async function fetchSharesForCandidature(
 
   if (error) throw new Error(formatShareError(error));
   return (data as ShareRow[]).map(rowToShareRecord);
+}
+
+export async function fetchActiveSharesForUser(
+  userId: string
+): Promise<ActiveShareSummary[]> {
+  const { data, error } = await supabase
+    .from("shares")
+    .select(
+      "id, token, expires_at, revoked_at, created_at, candidature_id, snapshot"
+    )
+    .eq("user_id", userId)
+    .is("revoked_at", null)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(formatShareError(error));
+
+  return (data as ShareRow[])
+    .map((row) => ({
+      ...rowToShareRecord(row),
+      entreprise: row.snapshot?.entreprise ?? "—",
+      poste: row.snapshot?.poste ?? "—",
+    }))
+    .filter(isShareActive);
 }
 
 export async function revokeShare(shareId: string): Promise<void> {
