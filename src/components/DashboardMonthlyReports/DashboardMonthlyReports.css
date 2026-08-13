@@ -1,0 +1,197 @@
+.dashboard-monthly-reports__muted {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.dashboard-monthly-reports__error {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--error, #c62828);
+  background: rgba(198, 40, 40, 0.08);
+  border-radius: var(--radius-sm);
+}
+
+.dashboard-monthly-reports__picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.dashboard-monthly-reports__period {
+  min-width: 10rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dashboard-monthly-reports__nav-btn {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.dashboard-monthly-reports__nav-btn:hover:not(:disabled) {
+  background: var(--background-subtle);
+}
+
+.dashboard-monthly-reports__nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dashboard-monthly-reports__hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.dashboard-monthly-reports__create {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-monthly-reports__duration-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.dashboard-monthly-reports__duration-select {
+  padding: 0.4rem 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.dashboard-monthly-reports__generate-btn {
+  padding: 0.45rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.dashboard-monthly-reports__generate-btn:hover:not(:disabled) {
+  background: var(--primary-soft);
+  border-color: var(--primary-soft);
+}
+
+.dashboard-monthly-reports__generate-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.dashboard-monthly-reports__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dashboard-monthly-reports__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+}
+
+.dashboard-monthly-reports__title {
+  margin: 0 0 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dashboard-monthly-reports__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.dashboard-monthly-reports__meta-chip {
+  padding: 0.22rem 0.55rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--primary-pale);
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+}
+
+.dashboard-monthly-reports__meta-chip time {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dashboard-monthly-reports__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dashboard-monthly-reports__btn {
+  padding: 0.35rem 0.7rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.dashboard-monthly-reports__btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.dashboard-monthly-reports__btn--view {
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.dashboard-monthly-reports__btn--copy {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.dashboard-monthly-reports__btn--revoke {
+  color: var(--error, #c62828);
+  background: rgba(198, 40, 40, 0.08);
+  border-color: rgba(198, 40, 40, 0.25);
+}
+
+@media (min-width: 640px) {
+  .dashboard-monthly-reports__item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

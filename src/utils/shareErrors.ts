@@ -31,6 +31,9 @@ export function formatShareError(err: unknown): string {
   }
 
   if (code === "42P01" || message.includes("relation") && message.includes("does not exist")) {
+    if (message.includes("monthly_reports")) {
+      return `Table « monthly_reports » manquante. Exécute supabase/migrations/20260813140000_monthly_reports.sql dans Supabase.`;
+    }
     return `Table « shares » manquante. ${MIGRATION_HINT}`;
   }
 

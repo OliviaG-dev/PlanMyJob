@@ -29,6 +29,13 @@ vi.mock("../../lib/share", () => ({
   fetchActiveSharesForUser: vi.fn(),
   revokeShare: vi.fn(),
 }));
+vi.mock("../../lib/monthlyReport", () => ({
+  fetchActiveMonthlyReportsForUser: vi.fn(),
+  fetchActiveMonthlyReportForPeriod: vi.fn(),
+  createMonthlyReport: vi.fn(),
+  regenerateMonthlyReport: vi.fn(),
+  revokeMonthlyReport: vi.fn(),
+}));
 
 import { useAuth } from "../../contexts/AuthContext";
 import { fetchCandidatures } from "../../lib/candidatures";
@@ -38,6 +45,7 @@ import { fetchCvRessources } from "../../lib/cvRessources";
 import { fetchJobSites, fetchUserJobSiteStatus } from "../../lib/jobSites";
 import { getWeeklyGoals } from "../../lib/userGoals";
 import { fetchActiveSharesForUser } from "../../lib/share";
+import { fetchActiveMonthlyReportsForUser } from "../../lib/monthlyReport";
 
 describe("Dashboard page", () => {
   afterEach(() => {
@@ -62,6 +70,7 @@ describe("Dashboard page", () => {
       taches: 10,
     });
     vi.mocked(fetchActiveSharesForUser).mockResolvedValue([]);
+    vi.mocked(fetchActiveMonthlyReportsForUser).mockResolvedValue([]);
   });
 
   it("renders dashboard heading and main stats block", async () => {
