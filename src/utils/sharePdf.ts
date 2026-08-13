@@ -20,7 +20,7 @@ export function prepareLinkForPdfWrap(link: string): string {
   return link.replace(/([/?=&])/g, "$1 ");
 }
 
-async function getQrDataUrl(url: string): Promise<string> {
+export async function getQrDataUrl(url: string): Promise<string> {
   return QRCode.toDataURL(url, {
     width: 200,
     margin: 1,

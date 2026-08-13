@@ -4,6 +4,8 @@ import {
   buildPublicShareSnapshot,
   buildShareTimeline,
   computeExpiresAt,
+  formatShareDateNumeric,
+  formatShareExpiryNumeric,
   isCvEnvoye,
 } from "./shareSnapshot";
 
@@ -55,6 +57,18 @@ describe("shareSnapshot utils", () => {
       "Entretien RH",
       "En attente de réponse",
     ]);
+  });
+
+  it("formatShareDateNumeric uses jj/mm/aaaa", () => {
+    expect(formatShareDateNumeric("2026-08-13T10:00:00.000Z")).toMatch(
+      /^13\/08\/2026$/
+    );
+  });
+
+  it("formatShareExpiryNumeric uses numeric date", () => {
+    expect(formatShareExpiryNumeric("2026-08-20T00:00:00.000Z")).toBe(
+      "Expire le 20/08/2026"
+    );
   });
 
   it("buildPublicShareSnapshot excludes private fields", () => {

@@ -158,6 +158,25 @@ export function formatShareDateShort(iso: string): string {
   });
 }
 
+export function formatShareDateNumeric(iso?: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+export function formatShareExpiry(expiresAt: string | null): string {
+  if (!expiresAt) return "Sans expiration";
+  return `Expire le ${formatShareDate(expiresAt)}`;
+}
+
+export function formatShareExpiryNumeric(expiresAt: string | null): string {
+  if (!expiresAt) return "Sans expiration";
+  return `Expire le ${formatShareDateNumeric(expiresAt)}`;
+}
+
 export function getStatutEmoji(statut: Statut): string {
   const emojis: Record<Statut, string> = {
     a_postuler: "⚪",

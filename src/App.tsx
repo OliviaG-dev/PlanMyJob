@@ -17,6 +17,7 @@ import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import NotFound from "./pages/NotFound/NotFound";
 import PublicShare from "./pages/PublicShare/PublicShare";
+import PublicMonthlyReport from "./pages/PublicMonthlyReport/PublicMonthlyReport";
 import "./App.css";
 
 function ProtectedLayout() {
@@ -39,6 +40,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/share/:token" element={<PublicShare />} />
+        <Route path="/bilan/:token" element={<PublicMonthlyReport />} />
         <Route path="/" element={<ProtectedLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />

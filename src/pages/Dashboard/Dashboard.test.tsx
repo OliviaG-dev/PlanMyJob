@@ -25,6 +25,17 @@ vi.mock("../../lib/jobSites", () => ({
 vi.mock("../../lib/userGoals", () => ({
   getWeeklyGoals: vi.fn(),
 }));
+vi.mock("../../lib/share", () => ({
+  fetchActiveSharesForUser: vi.fn(),
+  revokeShare: vi.fn(),
+}));
+vi.mock("../../lib/monthlyReport", () => ({
+  fetchActiveMonthlyReportsForUser: vi.fn(),
+  fetchActiveMonthlyReportForPeriod: vi.fn(),
+  createMonthlyReport: vi.fn(),
+  regenerateMonthlyReport: vi.fn(),
+  revokeMonthlyReport: vi.fn(),
+}));
 
 import { useAuth } from "../../contexts/AuthContext";
 import { fetchCandidatures } from "../../lib/candidatures";
@@ -33,6 +44,8 @@ import { fetchProjets } from "../../lib/projets";
 import { fetchCvRessources } from "../../lib/cvRessources";
 import { fetchJobSites, fetchUserJobSiteStatus } from "../../lib/jobSites";
 import { getWeeklyGoals } from "../../lib/userGoals";
+import { fetchActiveSharesForUser } from "../../lib/share";
+import { fetchActiveMonthlyReportsForUser } from "../../lib/monthlyReport";
 
 describe("Dashboard page", () => {
   afterEach(() => {
@@ -56,6 +69,8 @@ describe("Dashboard page", () => {
       candidaturesMois: 20,
       taches: 10,
     });
+    vi.mocked(fetchActiveSharesForUser).mockResolvedValue([]);
+    vi.mocked(fetchActiveMonthlyReportsForUser).mockResolvedValue([]);
   });
 
   it("renders dashboard heading and main stats block", async () => {
@@ -142,5 +157,29 @@ describe("Dashboard page", () => {
     });
     expect(screen.getAllByText("33%").length).toBeGreaterThan(0);
     expect(screen.getByText("1 / 2")).toBeTruthy();
+  });
+
+  it("renders active share links section", async () => {
+    vi.mocked(fetchActiveSharesForUser).mockResolvedValue([
+      {
+        id: "s1",
+        token: "tok123",
+        expiresAt: null,
+        revokedAt: null,
+        createdAt: "2026-08-13T00:00:00.000Z",
+        candidatureId: "c1",
+        entreprise: "ACME",
+        poste: "Dev Fullstack",
+      },
+    ]);
+
+    render(<Dashboard />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Liens de partage actifs")).toBeTruthy();
+      expect(screen.getByText(/ACME/)).toBeTruthy();
+      expect(screen.getByText(/Dev Fullstack/)).toBeTruthy();
+      expect(screen.getByRole("link", { name: "Voir" })).toBeTruthy();
+    });
   });
 });
