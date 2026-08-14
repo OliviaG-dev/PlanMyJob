@@ -1,33 +1,47 @@
 ## Bilan portfolio — avis recruteur & ingénieur
 
-_Audit du projet PlanMyJob (août 2026) — lecture codebase, tests, CI/CD, README et historique git._
+_Audit PlanMyJob — **mise à jour août 2026** (post-Playwright CI + refactor `offerAnalyzer`)._
+
+---
+
+### Évolution depuis le premier audit
+
+| Axe | Avant | Maintenant |
+|-----|-------|------------|
+| Tests Vitest | 200 / 60 fichiers | **201 / 59 fichiers** |
+| E2E navigateur | ❌ Vitest jsdom seulement | ✅ **Playwright** en CI (job dédié) |
+| `offerAnalyzer` | Monolithe ~810 lignes | ✅ **16 modules** (`src/lib/offerAnalyzer/`) — mergé PR #24 |
+| Couverture lines | ~76 % | ~**75 %** (stable) |
+| README | Badge Vitest | Badges **Vitest + Playwright** |
 
 ---
 
 ### Niveau estimé
 
-**Profil : Junior confirmé → début de Mid-level front-end / full-stack léger**
+**Profil : Junior confirmé solide → Mid-level front-end en progression**
 
 | Contexte | Positionnement |
 |----------|----------------|
-| Recherche **alternance / premier CDI dev** | **Très au-dessus** de la moyenne des portfolios |
-| **1–2 ans d'expérience** (ou reconversion aboutie) | **Solide**, crédible en entretien technique |
-| Poste **Mid pur (3+ ans)** en prod à grande échelle | **En dessous** sur certains critères (scale, E2E navigateur, observabilité) — potentiel visible |
+| **Alternance / premier CDI dev** | **Très au-dessus** du peloton — différenciation nette |
+| **1–2 ans d'expérience** | **Crédible mid junior** — stack, tests et CI au niveau attendu |
+| **Mid pur (3+ ans), prod à l'échelle** | **Encore en dessous** sur observabilité, a11y, E2E auth complet, travail en équipe à grande échelle |
 
-Ce n'est pas un projet tuto TodoMVC : c'est un **produit quasi complet**, pensé utilisateur, avec de la vraie ingénierie solo.
+Le projet n'est plus seulement un « gros portfolio » : la **pyramide de tests** (unit → intégration jsdom → Playwright CI) et le **refactor métier** montrent une montée en maturité ingénieur.
 
 ---
 
-### Chiffres clés au moment de l'audit
+### Chiffres clés
 
 | Indicateur | Valeur |
 |------------|--------|
-| Tests Vitest | 200 (60 fichiers) |
-| Couverture statements | ~73 % |
-| Couverture lines | ~76 % |
-| Stack | React 19, TypeScript, Vite 7, Supabase |
-| CI/CD | Lint + test + build ; CD Vercel ; previews PR |
-| Commits | ~100, workflow PR documenté |
+| Tests Vitest | 201 (59 fichiers) |
+| Tests Playwright | 4 scénarios (2 invalid token toujours actifs ; 2 avec token Supabase en CI) |
+| E2E jsdom (flux app) | `tests/e2e/application-flow.e2e.test.tsx` — Analyse → Candidature → Kanban |
+| Couverture statements | ~72,6 % |
+| Couverture lines | ~75,4 % |
+| Modules `offerAnalyzer` | 16 fichiers (~810 lignes découpées) |
+| Stack | React 19, TS, Vite 7, Supabase, Playwright 1.62 |
+| CI/CD | Lint + Vitest + build + **Playwright** ; CD Vercel ; previews PR |
 
 ---
 
@@ -35,19 +49,18 @@ Ce n'est pas un projet tuto TodoMVC : c'est un **produit quasi complet**, pensé
 
 #### Côté ingénieur
 
-1. **Architecture cohérente** — `pages / components / hooks / lib / types / utils`, routes protégées, séparation logique/UI (`useCandidaturesBoard`, `useDashboardData`).
-2. **Maturité « pro » rare en solo** — CI, CD Vercel, previews PR, branch protection, commits atomiques, workflow PR.
-3. **Tests sérieux** — tests d'interactions (Kanban auto-move 15 jours, menu mobile), pas seulement des smoke tests.
-4. **Sécurité réfléchie** — RLS Supabase, snapshots figés, RPC `get_public_*` plutôt qu'un SELECT anon ouvert.
-5. **Logique métier non triviale** — `offerAnalyzer.ts`, générateur de lettres, bilans mensuels PDF/QR, automatisation Kanban.
-6. **Documentation au-dessus de la norme** — README exhaustif, `docs/share-feature.md`, `.devbook/` avec retours d'expérience honnêtes.
+1. **Pyramide de tests complète** — unitaires (`lib/`, `utils/`), composants, interactions (Kanban, Candidatures), intégration import d'offre, E2E jsdom flux métier, Playwright pages publiques en CI.
+2. **Refactor `offerAnalyzer` exemplaire** — extraction par responsabilité (`extractCompany`, `linkedInParser`, `inferSource`…), barrel stable (`offerAnalyzer.ts`), fixtures par plateforme (LinkedIn, France Travail, HelloWork, Indeed). Voir [`06-tech-offer-analyzer-modules.md`](06-tech-offer-analyzer-modules.md).
+3. **CI mature** — job Playwright séparé, retries CI, upload rapport en cas d'échec, secrets pour tokens publics réels.
+4. **Architecture maintenue** — hooks métier (`useCandidaturesBoard`, `useDashboardData`), RLS Supabase, snapshots figés, RPC lecture publique.
+5. **Documentation vivante** — README, `.devbook/`, stratégie tests documentée, retours d'expérience honnêtes.
 
 #### Côté recruteur / produit
 
-1. **Problème réel** — Kanban candidatures, suivi temporel « CV envoyé », tâches hebdo : répond à un vrai pain.
-2. **Différenciation** — Partage lecture seule pour France Travail / coach / recruteur, bilan mensuel exportable.
-3. **Finition UX** — Dark mode, pagination, filtres, modales, design cohérent.
-4. **Storytelling portfolio** — README « Architecture en 30 secondes » + demo live (`planmyjob.app`).
+1. **Produit cohérent** — Kanban, planning, tâches, analyse d'offre, lettres, partage France Travail / coach : vision produit claire.
+2. **Différenciation** — Bilans mensuels PDF/QR, liens publics lecture seule : argument fort en entretien.
+3. **Capacité d'itération** — PR #23 Playwright + PR #24 refactor analyzer : profil **autonome et orienté amélioration continue**.
+4. **Demo live** — `planmyjob.app` + README « Architecture en 30 secondes ».
 
 ---
 
@@ -55,78 +68,80 @@ Ce n'est pas un projet tuto TodoMVC : c'est un **produit quasi complet**, pensé
 
 #### Technique
 
-| Faiblesse | Impact |
-|-----------|--------|
-| Pas de couche `services/` — API dans `lib/` | OK à cette échelle, moins scalable si le projet grossit |
-| Fichiers denses — `offerAnalyzer.ts`, gros hooks | Maintenabilité ; à découper par responsabilité |
-| Couverture inégale — Settings ~40 %, auth ~50–60 % | Zones sensibles peu testées |
-| Pas de Playwright (E2E navigateur réel) | Drag Kanban, auth réelle, régression visuelle non couverts |
-| Objectifs en localStorage vs reste en Supabase | Incohérence de persistance |
-| Pas de lazy loading des routes | Perf acceptable aujourd'hui, limite si l'app grossit |
-| Accessibilité non documentée/testée | Point souvent relevé en entretien mid+ |
+| Faiblesse | Impact | Priorité |
+|-----------|--------|----------|
+| Playwright **limité aux pages publiques** — pas login / Kanban drag en navigateur réel | Gap mid+ en entretien | Haute |
+| Couverture auth / Settings (~40–60 %) | Zones sensibles | Moyenne |
+| Pas de couche `services/` | OK à cette échelle | Basse |
+| `userGoals` en localStorage | Incohérence data | Moyenne |
+| Pas de lazy loading routes | Perf future | Basse |
+| Accessibilité non auditée | Critère mid+ | Moyenne |
+| Tests unitaires **par module** analyzer (pas seulement fichier global) | Couverture fine | Basse |
 
 #### Commercial / produit
 
 | Faiblesse | Impact |
 |-----------|--------|
-| Marché saturé (Huntr, Teal, Notion…) | Positionnement très clair nécessaire |
-| Pas de landing marketing séparée | Conversion visiteur → inscription |
-| Pas de modèle économique visible | Difficile à vendre comme « produit » vs « portfolio » |
-| Pas d'onboarding guidé | Friction nouvel utilisateur |
-| Pas de notifications / rappels (roadmap) | Feature clé pour la rétention |
-| Mono-utilisateur, pas de collaboration | Limite l'upsell (coach, bootcamp…) |
+| Marché saturé (Huntr, Teal, Notion…) | Positionnement ICP indispensable |
+| Pas de landing marketing | Conversion faible |
+| Pas de modèle économique / preuve d'usage | Reste un portfolio, pas un SaaS |
+| Pas d'onboarding ni notifications | Rétention limitée |
 
 ---
 
 ### Notes sur 10
 
-| Critère | Note | Commentaire |
-|---------|------|-------------|
-| **Ingénieur** | **7,5 / 10** | Excellent pour un projet solo/portfolio. Architecture, tests, CI/CD et sécurité Supabase au niveau d'un junior confirmé qui monte en mid. −1,5 pour E2E navigateur, couverture auth/settings, fichiers monolithiques. |
-| **Commercial** | **6 / 10** | MVP riche et niche pertinente, mais pas encore un « business » : pas de GTM, pricing, onboarding, preuve d'usage réel. Landing + positionnement + utilisateurs actifs → 7–7,5. |
+| Critère | Note | Δ | Commentaire |
+|---------|------|---|-------------|
+| **Ingénieur** | **8 / 10** | +0,5 | Playwright CI + refactor modulaire (PR #24) + E2E jsdom flux métier. −2 pour E2E auth/Kanban navigateur, a11y, couverture auth. |
+| **Commercial** | **6 / 10** | = | MVP riche, niche pertinente ; toujours pas de GTM ni traction utilisateur. |
 
 ---
 
 ### Ce qu'un recruteur retiendrait en 30 secondes
 
-> Développeuse autonome qui livre un produit complet de A à Z : front React/TS propre, Supabase avec RLS, CI/CD, 200 tests, feature différenciante (partage + PDF). Profil junior confirmé très crédible, avec une vraie sensibilité produit — pas juste du code.
+> Développeuse autonome qui livre un **produit complet** avec **201 tests Vitest**, **Playwright en CI**, refactor métier propre (analyse d'offres multi-plateformes), Supabase sécurisé (RLS, snapshots). Profil **junior confirmé qui monte en mid** — pas un clone de tuto, une vraie app déployée avec CI/CD et sens produit.
 
 ---
 
-### Plan d'action prioritaire
+### Plan d'action (mis à jour)
 
-#### Pour convaincre en entretien (impact max, effort raisonnable)
+#### Priorité immédiate
 
-1. **3–5 tests Playwright** — login → créer candidature → Kanban → partage public
-2. **Refactor `offerAnalyzer`** en modules (`extractCompany`, `extractSkills`, `inferSource`…)
-3. **Migrer `userGoals` vers Supabase** — cohérence data
-4. **Audit a11y rapide** (axe-core) + corrections évidentes
-5. **Lazy load des pages** avec `React.lazy` + `Suspense`
+1. **Playwright auth** — login test → créer candidature → vérifier Kanban (1 spec suffit pour l'entretien)
+2. **Tests unitaires par module** — ex. `extractCompany.test.ts`, `linkedInParser.test.ts`
 
-#### Pour le côté produit commercial
+#### Ensuite (entretien / mid)
 
-1. **Landing page** avec ICP clair : _« Le CRM de ta recherche d'emploi — pensé pour France Travail et les coachs carrière »_
-2. **Onboarding en 3 étapes** — première candidature, objectif hebdo, tour du Kanban
-3. **Freemium simple** — ex. partage public / bilans mensuels en premium
-4. **Email de relance** — « Tu n'as pas bougé cette candidature depuis 7 jours »
-5. **Export JSON/CSV** — confiance + conformité RGPD
-6. **Témoignages / case study** — même 2–3 retours beta suffisent
+3. Migrer `userGoals` vers Supabase
+4. Audit a11y (axe-core) sur modales + navigation
+5. `React.lazy` sur les pages lourdes (OutilsPostulations, Dashboard)
+
+#### Produit commercial
+
+6. Landing page ICP : _« CRM de recherche d'emploi — France Travail & coachs »_
+7. Onboarding 3 étapes
+8. 2–3 témoignages beta
 
 ---
 
 ### Verdict
 
-Au-dessus du peloton junior sur la qualité de livraison et la rigueur. Ce qui sépare d'un **mid confirmé en entreprise** :
+**Progression nette** depuis le premier audit : tu as adressé deux des principaux gaps identifiés (E2E navigateur, monolithe analyzer). Le profil passe de « excellent portfolio junior » à « **candidat crédible pour un poste junior confirmé / début mid** ».
 
-- l'expérience **prod à l'échelle** (monitoring, perf, E2E, revues de code en équipe),
-- la **dimension go-to-market** si le projet devient un vrai SaaS.
+Ce qui manque encore pour un **mid confirmé en entreprise** :
 
-Pour un **premier poste dev** ou une **alternance senior** : ce projet peut être l'**argument principal**. En entretien, préparer surtout : pourquoi snapshots figés, comment RLS a été géré, walkthrough Analyse → Candidature → Kanban → Partage.
+- E2E **critiques** en Playwright (auth, parcours principal)
+- Preuve de travail en **équipe** (revues, pair programming) — hors scope solo
+- Dimension **produit / traction** si visée SaaS
+
+En entretien, enchaîner : **Analyse offre (modules)** → **Candidature** → **Kanban (auto-move 15j)** → **Partage snapshot + RLS** → **CI (Vitest + Playwright)**.
 
 ---
 
 ### Ressources liées
 
-- [`index.md`](index.md) — vue d'ensemble projet
-- [`04-tech-strategie-tests.md`](04-tech-strategie-tests.md) — stratégie de tests et prochaines étapes Playwright
-- [`README.md`](../README.md) — documentation produit et architecture
+- [`index.md`](index.md) — vue d'ensemble
+- [`04-tech-strategie-tests.md`](04-tech-strategie-tests.md) — pyramide de tests
+- [`06-tech-offer-analyzer-modules.md`](06-tech-offer-analyzer-modules.md) — refactor analyzer
+- [`README.md`](../README.md) — doc produit
