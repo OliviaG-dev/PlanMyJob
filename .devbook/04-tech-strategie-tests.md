@@ -81,7 +81,7 @@ tests/
 #### 1. Tests unitaires — `src/lib/` et `src/utils/`
 
 - **Rôle :** logique pure ou services Supabase **mockés** (`vi.mock("./supabase")`).
-- **Exemples :** `offerAnalyzer.test.ts` (extraction LinkedIn, HelloWork, France Travail), `candidatures.test.ts`, `shareSnapshot.test.ts`.
+- **Exemples :** `offerAnalyzer.test.ts` (LinkedIn, HelloWork, France Travail, Indeed), `candidatures.test.ts`, `shareSnapshot.test.ts`.
 - **Pourquoi :** rapides, stables, ciblent les régressions métier (ex. mauvais poste « Logo de l'entreprise » sur LinkedIn).
 
 #### 2. Tests composants / interactions — pages
@@ -127,7 +127,7 @@ Les tests d'intégration et E2E **verrouillent** que le flux « Extraire les inf
 
 | Fichier | Usage |
 |---------|--------|
-| `src/lib/testFixtures.ts` | Constantes TS (HelloWork, France Travail, LinkedIn LITY) |
+| `src/lib/testFixtures.ts` | Constantes TS (HelloWork, France Travail, LinkedIn LITY, Indeed) |
 | `tests/fixtures/offers/*.txt` | Même contenu en fichiers pour tests « import fichier » |
 | `tests/helpers/builders.ts` | `buildExtractedOffer()` pour payloads partiels |
 | `tests/helpers/assertions.ts` | `expectOfferCoreFields()`, `expectCandidatureInKanbanColumn()` |

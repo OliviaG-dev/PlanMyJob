@@ -7,6 +7,7 @@ import {
 import {
   FRANCE_TRAVAIL_CDD_OFFER_FIXTURE,
   HELLOWORK_BASIC_OFFER_FIXTURE,
+  INDEED_BASIC_OFFER_FIXTURE,
   LINKEDIN_FULLSTACK_OFFER_FIXTURE,
 } from "./testFixtures.ts";
 
@@ -38,6 +39,32 @@ describe("offerAnalyzer", () => {
   it("detects source from imperfect links", () => {
     expect(inferSourceFromUrl("www.hellowork.com/fr-fr/emplois/78135157.html")).toBe("hellowork");
     expect(inferSourceFromUrl("https://www.linkedin.com/jobs/view/123")).toBe("linkedin");
+    expect(inferSourceFromUrl("https://fr.indeed.com/viewjob?jk=abc123")).toBe("indeed");
+    expect(inferSourceFromUrl("smartapply.indeed.com/beta/abc/applied")).toBe("indeed");
+  });
+
+  it("extracts key fields from an Indeed-style offer", () => {
+    const result = extractOfferFromText(INDEED_BASIC_OFFER_FIXTURE);
+
+    expect(result.poste).toBe("Développeur Java Senior H/F");
+    expect(result.entreprise).toBe("TechCorp Solutions");
+    expect(result.localisation).toBe("Lyon (69)");
+    expect(result.typeContrat).toBe("cdi");
+    expect(result.teletravail).toBe("hybride");
+    expect(result.experienceYears.toLowerCase()).toContain("5 ans");
+    expect(result.salaireOuFourchette).toContain("45");
+    expect(result.salaireOuFourchette).toContain("52");
+    expect(result.lienCandidature).toContain("fr.indeed.com");
+    expect(result.source).toBe("indeed");
+    expect(result.competences).toContain("java");
+  });
+
+  it("uses text fallback for Indeed source when no URL is present", () => {
+    const raw = `Postulez sur Indeed pour ce poste de Développeur Backend Node.js`;
+
+    const result = extractOfferFromText(raw);
+    expect(result.lienCandidature).toBe("");
+    expect(result.source).toBe("indeed");
   });
 
   it("extracts localisation with city and department in parentheses", () => {
