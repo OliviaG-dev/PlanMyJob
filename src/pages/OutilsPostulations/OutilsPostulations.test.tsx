@@ -16,6 +16,13 @@ vi.mock("../../hooks/useJobSites", () => ({
   useJobSites: vi.fn(),
 }));
 
+vi.mock("../../lib/projets", () => ({
+  fetchProjets: vi.fn().mockResolvedValue([]),
+  insertProjet: vi.fn(),
+  updateProjet: vi.fn(),
+  deleteProjet: vi.fn(),
+}));
+
 import { useAuth } from "../../contexts/AuthContext";
 import { useCvResources } from "../../hooks/useCvResources";
 import { useJobSites } from "../../hooks/useJobSites";
