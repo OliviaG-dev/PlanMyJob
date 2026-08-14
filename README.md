@@ -8,6 +8,8 @@
 ![React Router](https://img.shields.io/badge/React_Router-7-CA4245?style=flat-square&logo=react-router)
 ![Supabase](https://img.shields.io/badge/Supabase-2.x-3ECF8E?style=flat-square&logo=supabase)
 ![ESLint](https://img.shields.io/badge/ESLint-9-E34F26?style=flat-square&logo=eslint)
+![Vitest](https://img.shields.io/badge/Vitest-4-FCC72B?style=flat-square&logo=vitest&logoColor=000000)
+![Playwright](https://img.shields.io/badge/Playwright-1.62-2EAD33?style=flat-square&logo=playwright)
 ![CI](https://github.com/OliviaG-dev/PlanMyJob/actions/workflows/ci.yml/badge.svg)
 ![CD](https://github.com/OliviaG-dev/PlanMyJob/actions/workflows/deploy.yml/badge.svg)
 
