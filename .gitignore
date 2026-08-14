@@ -29,6 +29,7 @@ dist-ssr
 *.sw?
 
 # Playwright
+coverage/
 /test-results/
 /playwright-report/
 /blob-report/
