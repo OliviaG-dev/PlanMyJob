@@ -65,8 +65,6 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          PLAYWRIGHT_PUBLIC_SHARE_TOKEN: ${{ secrets.PLAYWRIGHT_PUBLIC_SHARE_TOKEN }}
-          PLAYWRIGHT_PUBLIC_BILAN_TOKEN: ${{ secrets.PLAYWRIGHT_PUBLIC_BILAN_TOKEN }}
 
       - name: Upload Playwright report
         if: failure()
