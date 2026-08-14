@@ -166,6 +166,11 @@ const CONTRAT_PATTERNS: { pattern: RegExp; value: TypeContrat }[] = [
 ];
 
 const TELETRAVAIL_PATTERNS: { pattern: RegExp; value: Teletravail }[] = [
+  { pattern: /\bhybride\b/i, value: "hybride" },
+  {
+    pattern: /\bremote\s+tr[eè]s\s+flexible\b/i,
+    value: "hybride",
+  },
   {
     pattern: /\b(100%|totalement)\s*(remote|télétravail|teletravail)/i,
     value: "oui",
@@ -175,9 +180,134 @@ const TELETRAVAIL_PATTERNS: { pattern: RegExp; value: Teletravail }[] = [
       /\b(remote|télétravail|teletravail|distanciel)\s*(?:possible|autorisé|oui)?/i,
     value: "oui",
   },
-  { pattern: /\bhybride\b/i, value: "hybride" },
   { pattern: /\b(présentiel|sur site|sur site uniquement)\b/i, value: "non" },
 ];
+
+const LINKEDIN_NOISE_LINE =
+  /^(?:logo de l['’]entreprise|postuler|enregistrer|envoyer un message|essayer premium|afficher les|d[eé]couvrez comment|acc[eé]dez [àa]|personnes que vous|rencontrez l['’][eé]quipe|auteur de l['’]offre|[àa] propos de l['’]offre|promue par|r[eé]ponses g[eé]r[eé]es|utilisez l['’]ia|obtenez des conseils)/i;
+
+const LINKEDIN_MARKETING_LINE =
+  /premium|utilisez l['’]ia|conseils g[eé]n[eé]r[eé]s par l['’]ia|[eé]valuer si votre profil|fonctionnalit[eé]s exclusives/i;
+
+const DAILY_RATE_PATTERN =
+  /\bTJM\b|\btarif\s+journalier\b|\b\d+(?:[.,]\d+)?\s*€?\s*(?:\/|par)\s*jour\b|\b\d+\s*€?\s*\/\s*j\b/i;
+
+function isLinkedInJobPaste(text: string): boolean {
+  return (
+    inferSourceFromText(text) === "linkedin" ||
+    /logo de l['’]entreprise/i.test(text) ||
+    /personnes ont cliqu[eé] sur postuler/i.test(text) ||
+    /\s·\s*il y a \d+\s+(?:jour|semaine|mois|heure)/i.test(text)
+  );
+}
+
+function hasDailyRate(text: string): boolean {
+  return DAILY_RATE_PATTERN.test(text);
+}
+
+function isLinkedInNoiseLine(line: string): boolean {
+  const trimmed = line.trim();
+  return (
+    LINKEDIN_NOISE_LINE.test(trimmed) ||
+    /^(?:hybride|temps plein|temps partiel|[àa] distance|sur site|t[eé]l[eé]travail|remote)$/i.test(
+      trimmed,
+    ) ||
+    /\s·\s*il y a \d+/i.test(trimmed)
+  );
+}
+
+type LinkedInHeader = {
+  poste: string;
+  entreprise: string;
+  localisation: string;
+  teletravail: Teletravail | null;
+  typeContrat: TypeContrat | null;
+};
+
+function parseLinkedInHeader(lines: string[]): LinkedInHeader {
+  let entreprise = "";
+  let poste = "";
+  let localisation = "";
+  let teletravail: Teletravail | null = null;
+  let typeContrat: TypeContrat | null = null;
+
+  const logoLine = lines.find((line) =>
+    /^logo de l['’]entreprise/i.test(line),
+  );
+  if (logoLine) {
+    const logoMatch = logoLine.match(
+      /^logo de l['’]entreprise,\s*(.+?)\.?\s*$/i,
+    );
+    if (logoMatch?.[1]) entreprise = logoMatch[1].trim();
+  }
+
+  const locationLine = lines.find((line) => /\s·\s*il y a \d+/i.test(line));
+  if (locationLine) {
+    localisation = locationLine.split(/\s·\s*il y a/i)[0]?.trim() ?? "";
+  }
+
+  for (const line of lines.slice(0, 35)) {
+    const trimmed = line.trim();
+    if (/^hybride$/i.test(trimmed)) teletravail = "hybride";
+    else if (
+      /^(?:[àa] distance|t[eé]l[eé]travail|100\s*%\s*remote|remote)$/i.test(
+        trimmed,
+      )
+    )
+      teletravail = "oui";
+    else if (/^(?:sur site|pr[eé]sentiel)$/i.test(trimmed)) teletravail = "non";
+    else if (/^temps plein$/i.test(trimmed)) typeContrat = "cdi";
+  }
+
+  if (!entreprise) {
+    const companyAfterLogo = lines.find(
+      (line, index) =>
+        index > 0 &&
+        index < 8 &&
+        /^logo de l['’]entreprise/i.test(lines[index - 1] ?? "") &&
+        line.length >= 2 &&
+        line.length <= 70 &&
+        !isLinkedInNoiseLine(line),
+    );
+    if (companyAfterLogo) entreprise = companyAfterLogo.trim();
+  }
+
+  const skipForPoste = (line: string) =>
+    isLinkedInNoiseLine(line) ||
+    /^logo de l['’]entreprise/i.test(line) ||
+    (entreprise !== "" && line.trim() === entreprise) ||
+    line.trim() === localisation;
+
+  for (const line of lines) {
+    if (skipForPoste(line)) continue;
+    if (looksLikeJobTitle(line) && !isRecruitmentSentence(line)) {
+      poste = line.replace(/\s*[-–]\s*job post\s*$/i, "").trim();
+      break;
+    }
+  }
+
+  return { poste, entreprise, localisation, teletravail, typeContrat };
+}
+
+function looksLikeJobTitle(s: string): boolean {
+  return (
+    s.length >= 2 &&
+    s.length <= 100 &&
+    !/^https?:\/\//i.test(s) &&
+    !/^logo de l['’]entreprise/i.test(s) &&
+    !/€|par mois|Route|rue\s|avenue\s|Détails\s+de/i.test(s) &&
+    (/d[eé]veloppeur|ing[eé]nieur|engineer|developer|manager|designer|consultant|technicien|full[\s-]?stack|software|architect|lead|H\/F|h\/f|F\/H|f\/h|react\s+native/i.test(
+      s,
+    ) ||
+      s.length <= 50)
+  );
+}
+
+function isRecruitmentSentence(s: string): boolean {
+  return /^(?:nous\s+)?(?:recherchons?|recrutons?|recherche)\b/i.test(
+    s.trim(),
+  );
+}
 
 export function extractOfferFromText(raw: string): ExtractedOffer {
   const text = raw.trim();
@@ -190,17 +320,6 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
   let entreprise = "";
   let localisation = "";
 
-  const looksLikeJobTitle = (s: string) =>
-    s.length >= 2 &&
-    s.length <= 100 &&
-    !/^https?:\/\//i.test(s) &&
-    !/€|par mois|Route|rue\s|avenue\s|Détails\s+de/i.test(s) &&
-    (/développeur|ingénieur|manager|designer|consultant|technicien|H\/F|h\/f|F\/H|f\/h|react\s+native/i.test(
-      s,
-    ) ||
-      s.length <= 50);
-  const isRecruitmentSentence = (s: string) =>
-    /^(?:nous\s+)?(?:recherchons?|recrutons?|recherche)\b/i.test(s.trim());
   const normalizePosteCandidate = (value: string) =>
     value
       .replace(/\s+qui\s+.*$/i, "")
@@ -237,10 +356,23 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
   const isFranceTravailOffer =
     inferSourceFromText(text) === "france_travail" ||
     lines.some((line) => /^offre\s*n[°o]/i.test(line));
+  const isLinkedInOffer = isLinkedInJobPaste(text);
+  let linkedInTeletravail: Teletravail | null = null;
+  let linkedInTypeContrat: TypeContrat | null = null;
+
+  if (isLinkedInOffer) {
+    const linkedInHeader = parseLinkedInHeader(lines);
+    if (linkedInHeader.poste) poste = linkedInHeader.poste;
+    if (linkedInHeader.entreprise) entreprise = linkedInHeader.entreprise;
+    if (linkedInHeader.localisation) localisation = linkedInHeader.localisation;
+    linkedInTeletravail = linkedInHeader.teletravail;
+    linkedInTypeContrat = linkedInHeader.typeContrat;
+  }
 
   if (
     lines.length >= 2 &&
     !isFranceTravailOffer &&
+    !isLinkedInOffer &&
     looksLikeJobTitle(lines[0]) &&
     !isRecruitmentSentence(lines[0]) &&
     looksLikeCompany(lines[1]) &&
@@ -314,6 +446,8 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
               line,
             ) &&
             !isRecruitmentSentence(line) &&
+            !isLinkedInNoiseLine(line) &&
+            !/^logo de l['’]entreprise/i.test(line) &&
             !/restaurant|€|par mois/i.test(line)
           ) {
             poste = line.replace(/\s*[-–]\s*job post\s*$/i, "").trim();
@@ -409,15 +543,37 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
       break;
     }
   }
+  if (typeContrat === "autre" && linkedInTypeContrat) {
+    typeContrat = linkedInTypeContrat;
+  }
+  if (typeContrat === "autre" && /\btemps\s+plein\b/i.test(text)) {
+    typeContrat = "cdi";
+  }
+  if (typeContrat === "autre" && !hasDailyRate(text)) {
+    typeContrat = "cdi";
+  }
 
   let teletravail: Teletravail = "inconnu";
-  for (const { pattern, value } of TELETRAVAIL_PATTERNS) {
-    if (pattern.test(text)) {
-      teletravail = value;
-      break;
+  if (linkedInTeletravail) {
+    teletravail = linkedInTeletravail;
+  } else {
+    for (const { pattern, value } of TELETRAVAIL_PATTERNS) {
+      if (pattern.test(text)) {
+        teletravail = value;
+        break;
+      }
     }
   }
 
+  if (!localisation) {
+    const linkedInLocMatch = text.match(
+      /^(.+?)\s·\s*il y a \d+\s+(?:jour|semaine|mois|heure)/im,
+    );
+    if (linkedInLocMatch?.[1]) {
+      const val = linkedInLocMatch[1].trim();
+      if (val.length >= 2 && val.length < 120) localisation = val;
+    }
+  }
   if (!localisation) {
     const addrLine = lines.find((l) => looksLikeAddress(l));
     if (addrLine) localisation = addrLine;
@@ -494,7 +650,13 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
   if (expMatch) experienceYears = expMatch[0].replace(/\s+/g, " ").trim();
 
   const competences: string[] = [];
-  const normalized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const textForCompetences = text
+    .split(/\r?\n/)
+    .filter((line) => !LINKEDIN_MARKETING_LINE.test(line))
+    .join("\n");
+  const normalized = textForCompetences
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
   for (const phrase of KNOWN_STACK_KEYWORDS_MULTI) {
     const re = new RegExp(`\\b${phrase.replace(/\s+/g, "\\s+")}\\b`, "i");
     if (re.test(normalized)) competences.push(phrase);
@@ -536,6 +698,9 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
       bullet = bullet.replace(/\s*Détails de l'emploi\s*/gi, "").trim();
       if (
         !isRatingLine(bullet) &&
+        !isLinkedInNoiseLine(bullet) &&
+        !LINKEDIN_MARKETING_LINE.test(bullet) &&
+        bullet !== entreprise &&
         bullet.length >= 2 &&
         bullet.length < 200 &&
         bullet !== "&nbsp;" &&
@@ -553,6 +718,9 @@ export function extractOfferFromText(raw: string): ExtractedOffer {
     if (
       isRatingLine(bullet) ||
       bullet === "&nbsp;" ||
+      bullet === entreprise ||
+      isLinkedInNoiseLine(bullet) ||
+      LINKEDIN_MARKETING_LINE.test(bullet) ||
       /^[\d.]+\s*\/\s*\d+/i.test(bullet)
     )
       continue;
@@ -636,7 +804,7 @@ export function extractedToFormData(
     source: ext.source,
     notePersonnelle: 3,
     statutSuivi: "en_cours",
-    statut: "a_postuler",
+    statut: "cv_envoye",
     salaireOuFourchette: ext.salaireOuFourchette,
     notes: ext.pointsCles.length > 0 ? ext.pointsCles.join("\n• ") : "",
     competences: ext.competences.length > 0 ? ext.competences.join(", ") : "",

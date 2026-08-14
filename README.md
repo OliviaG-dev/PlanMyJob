@@ -8,6 +8,8 @@
 ![React Router](https://img.shields.io/badge/React_Router-7-CA4245?style=flat-square&logo=react-router)
 ![Supabase](https://img.shields.io/badge/Supabase-2.x-3ECF8E?style=flat-square&logo=supabase)
 ![ESLint](https://img.shields.io/badge/ESLint-9-E34F26?style=flat-square&logo=eslint)
+![Vitest](https://img.shields.io/badge/Vitest-4-FCC72B?style=flat-square&logo=vitest&logoColor=000000)
+![Playwright](https://img.shields.io/badge/Playwright-1.62-2EAD33?style=flat-square&logo=playwright)
 ![CI](https://github.com/OliviaG-dev/PlanMyJob/actions/workflows/ci.yml/badge.svg)
 ![CD](https://github.com/OliviaG-dev/PlanMyJob/actions/workflows/deploy.yml/badge.svg)
 
@@ -175,8 +177,24 @@ Exécuté à chaque push sur `main`/`master` et sur chaque pull request :
 
 1. **Install** — `npm ci`
 2. **Lint** — `npm run lint`
-3. **Test** — `npm run test`
+3. **Test** — `npm run test` (Vitest)
 4. **Build** — `npm run build` (variables Supabase placeholder en CI)
+
+### Playwright E2E — `.github/workflows/ci.yml` (job `e2e`)
+
+Exécuté après le job **Lint, test & build** :
+
+1. **Install** — `npm ci` + `npx playwright install --with-deps chromium`
+2. **E2E** — `npm run test:e2e` (Chromium headless, serveur Vite sur le port 4173)
+
+Secrets optionnels pour les pages publiques valides :
+
+| Secret | Description |
+| ------ | ----------- |
+| `PLAYWRIGHT_PUBLIC_SHARE_TOKEN` | Token d'un lien `/share/:token` actif |
+| `PLAYWRIGHT_PUBLIC_BILAN_TOKEN` | Token d'un lien `/bilan/:token` actif |
+
+Sans ces secrets, la CI exécute quand même les tests sur tokens invalides.
 
 ### CD — `.github/workflows/deploy.yml`
 
@@ -205,6 +223,8 @@ Configurés dans **Settings → Secrets and variables → Actions** :
 | `VERCEL_PROJECT_ID` | ID projet (`projectId` dans `.vercel/project.json`) |
 | `VITE_SUPABASE_URL` | URL Supabase (build production) |
 | `VITE_SUPABASE_ANON_KEY` | Clé anon Supabase (build production et preview) |
+| `PLAYWRIGHT_PUBLIC_SHARE_TOKEN` | *(optionnel)* Token partage candidature pour E2E |
+| `PLAYWRIGHT_PUBLIC_BILAN_TOKEN` | *(optionnel)* Token bilan mensuel public pour E2E |
 
 Conserver les variables Supabase dans **Vercel → Project → Settings → Environment Variables** (Production **et** Preview).
 
@@ -233,6 +253,10 @@ npm install
 # Créer un fichier .env à la racine :
 # VITE_SUPABASE_URL=https://xxx.supabase.co
 # VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+#
+# Playwright E2E (optionnel — liens publics actifs) :
+# PLAYWRIGHT_PUBLIC_SHARE_TOKEN=...   # lien /share/:token actif
+# PLAYWRIGHT_PUBLIC_BILAN_TOKEN=...   # lien /bilan/:token actif
 
 
 # Démarrer en développement
@@ -247,12 +271,37 @@ npm run build && npm run preview
 # Linter
 npm run lint
 
-# Exécuter les tests
+# Tests unitaires / intégration (Vitest + jsdom, ~5 s)
 npm run test
 
-# Exécuter les tests en mode watch (optionnel)
+# Tests E2E navigateur (Playwright + Chromium)
+npm run test:e2e
+
+# Playwright — mode UI interactif
+npm run test:e2e:ui
+
+# Playwright — navigateur visible
+npm run test:e2e:headed
+
+# Vitest en mode watch (optionnel)
 npx vitest
 ```
+
+### Stratégie de tests
+
+| Couche | Outil | Commande | Rôle |
+| ------ | ----- | -------- | ---- |
+| Unitaires & composants | Vitest + Testing Library | `npm test` | Logique métier, hooks, UI mockée (~110+ tests) |
+| Intégration / E2E jsdom | Vitest (`tests/integration/`, `tests/e2e/`) | `npm test` | Flux multi-pages sans vrai navigateur |
+| E2E navigateur | Playwright (`e2e/`) | `npm run test:e2e` | Pages publiques `/share` et `/bilan` |
+
+Specs Playwright :
+
+| Fichier | Couverture | Prérequis |
+| ------- | ---------- | --------- |
+| `e2e/public-pages.spec.ts` | `/share` et `/bilan` (token invalide + valide) | Supabase ; tokens optionnels |
+
+Les parcours authentifiés (login, Analyse → Kanban, drag) restent couverts par **Vitest** (`tests/e2e/`, `tests/integration/`).
 
 ---
 

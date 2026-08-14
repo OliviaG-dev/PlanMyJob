@@ -123,7 +123,7 @@ function candidatureToFormData(
         : (c.source as SourceCandidature) ?? "linkedin",
     notePersonnelle: c.notePersonnelle != null ? c.notePersonnelle : 3,
     statutSuivi: (c.statutSuivi as StatutSuivi) ?? "en_cours",
-    statut: (c.statut as Statut) ?? "a_postuler",
+    statut: (c.statut as Statut) ?? "cv_envoye",
     salaireOuFourchette: c.salaireOuFourchette ?? "",
     notes: c.notes ?? "",
     competences: c.competences ?? "",

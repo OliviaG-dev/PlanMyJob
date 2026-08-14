@@ -7,6 +7,7 @@ import {
 import {
   FRANCE_TRAVAIL_CDD_OFFER_FIXTURE,
   HELLOWORK_BASIC_OFFER_FIXTURE,
+  LINKEDIN_FULLSTACK_OFFER_FIXTURE,
 } from "./testFixtures.ts";
 
 describe("offerAnalyzer", () => {
@@ -101,7 +102,7 @@ https://www.hellowork.com/fr-fr/emplois/123.html`,
     expect(formData.lienOffre).toBe(extracted.lienCandidature);
     expect(formData.source).toBe("hellowork");
     expect(formData.statutSuivi).toBe("en_cours");
-    expect(formData.statut).toBe("a_postuler");
+    expect(formData.statut).toBe("cv_envoye");
   });
 
   it("extracts localisation from dept-city format and strips localiser suffix", () => {
@@ -224,5 +225,46 @@ Description :
     expect(result.pointsCles).not.toContain(
       "Ce point ne doit pas apparaître",
     );
+  });
+
+  it("extracts key fields from a LinkedIn-style offer paste", () => {
+    const result = extractOfferFromText(LINKEDIN_FULLSTACK_OFFER_FIXTURE);
+
+    expect(result.poste).toBe(
+      "Software engineer fullstack typescript - Cybersécurité",
+    );
+    expect(result.entreprise).toBe("LITY");
+    expect(result.localisation).toBe(
+      "Ville de Paris, Île-de-France, France",
+    );
+    expect(result.typeContrat).toBe("cdi");
+    expect(result.teletravail).toBe("hybride");
+    expect(result.source).toBe("linkedin");
+    expect(result.salaireOuFourchette.toLowerCase()).toContain("80k");
+    expect(result.competences).toContain("react");
+    expect(result.competences).toContain("typescript");
+    expect(result.competences).not.toContain("IA");
+    expect(result.pointsCles).not.toContain("Logo de l'entreprise, LITY.");
+    expect(result.pointsCles).not.toContain("LITY");
+  });
+
+  it("defaults contract type to cdi when no explicit contract and no daily rate", () => {
+    const raw = `Développeur Front-End
+ACME
+Lyon (69)
+Télétravail partiel`;
+
+    const result = extractOfferFromText(raw);
+    expect(result.typeContrat).toBe("cdi");
+  });
+
+  it("keeps freelance contract when daily rate is present", () => {
+    const raw = `Consultant React
+Agence X
+Paris
+TJM 550 € / jour`;
+
+    const result = extractOfferFromText(raw);
+    expect(result.typeContrat).toBe("autre");
   });
 });
