@@ -57,3 +57,12 @@ Avantages
 Salaire : jusqu'à 80k€ + BSPCE
 Remote très flexible avec des locaux à Paris
 Environnement tech et produit avec des mises en production quotidiennes`;
+
+export const INDEED_BASIC_OFFER_FIXTURE = `Développeur Java Senior H/F
+TechCorp Solutions
+Lyon (69)
+CDI
+45 000 € - 52 000 € par an
+Télétravail hybride
+Expérience : 5 ans minimum
+https://fr.indeed.com/viewjob?jk=abc123def456`;

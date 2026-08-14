@@ -89,7 +89,10 @@ Dépannage détaillé : [`docs/share-feature.md`](docs/share-feature.md).
 
 ### Analyse d'offre
 
-- **Analyser une offre d'emploi** — Page dédiée (`/analyse`). Collez le texte d'une annonce (LinkedIn, Indeed, etc.) : extraction automatique du poste, entreprise, type de contrat, télétravail, localisation, expérience, compétences techniques, points clés, salaire, lien. Formulaire éditable puis **Créer une candidature** pour pré-remplir le modal d'ajout. Logique d'extraction dans `src/lib/offerAnalyzer.ts` (voir `src/lib/offerAnalyzer.md` pour la doc).
+- **Analyser une offre d'emploi** — Page dédiée (`/analyse`). Collez le texte d'une annonce : extraction automatique du poste, entreprise, type de contrat, télétravail, localisation, expérience, compétences techniques, points clés, salaire, lien et **source** (LinkedIn, Indeed, France Travail, HelloWork, Welcome to the Jungle, etc.).
+- **Plateformes** — Parsing dédié **LinkedIn** (copier-coller bruyant : logo, badges Hybride/Temps plein) et **France Travail** (section Employeur, `Offre n°`, formats salaire mensuel/cachet). **Indeed** et autres sources : détection URL/texte + extracteurs génériques.
+- **Créer une candidature** — Formulaire éditable puis pré-remplissage du modal d'ajout (statut par défaut **CV envoyé**).
+- **Architecture** — Module `src/lib/offerAnalyzer/` découpé par responsabilité (`inferSource`, `extractCompany`, `extractSkills`, `linkedInParser`…). Point d'entrée public inchangé : `src/lib/offerAnalyzer.ts`. Doc technique : [`.devbook/06-tech-offer-analyzer-modules.md`](.devbook/06-tech-offer-analyzer-modules.md).
 
 ### Ressources (Outils postulations)
 
@@ -125,7 +128,15 @@ Chaque **page** et chaque **composant** a son propre dossier avec un fichier `.t
 ```
 src/
 ├── types/           # Modèles (Candidature, Tache, Statut, Priorite, CvRessource, etc.)
-├── lib/             # Supabase client, candidatures, taches, cvRessources, jobSites, projets, offerAnalyzer, userGoals
+├── lib/             # Supabase client, candidatures, taches, cvRessources, jobSites, projets, userGoals
+│   ├── offerAnalyzer.ts            # Barrel (réexporte offerAnalyzer/) — imports existants inchangés
+│   └── offerAnalyzer/              # Analyse d'offres (modules par responsabilité — voir .devbook/06)
+│       ├── extractOfferFromText.ts # orchestrateur
+│       ├── inferSource.ts          # LinkedIn, Indeed, France Travail…
+│       ├── linkedInParser.ts       # parsing copier-coller LinkedIn
+│       ├── extractCompany.ts / extractPoste.ts / extractLocation.ts
+│       ├── extractSkills.ts / extractContract.ts / extractSalary.ts
+│       └── index.ts                # API publique
 ├── data/            # Données statiques (whyCompanyTemplates.json, interface.ts)
 ├── contexts/        # AuthContext, ThemeContext
 ├── components/      # Layout, Sidebar, Pagination, Select, CandidaturesFilters, Loader, ShareModal, ConfirmModal…
@@ -334,6 +345,7 @@ Les parcours authentifiés (login, Analyse → Kanban, drag) restent couverts pa
 | Ressource | Contenu |
 | --------- | ------- |
 | [`docs/share-feature.md`](docs/share-feature.md) | Partage candidature — migrations Supabase, dépannage |
+| [`.devbook/06-tech-offer-analyzer-modules.md`](.devbook/06-tech-offer-analyzer-modules.md) | Analyse d'offres — architecture modulaire, plateformes supportées |
 | [`.devbook/`](.devbook/index.md) | Notes d'apprentissage technique (Dev Book) — liens publics, PDF, QR code |
 
 ---
